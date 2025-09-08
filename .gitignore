@@ -1,0 +1,12 @@
+# Root ignores
+*.log
+*.tmp
+*.swp
+.DS_Store
+node_modules/
+dist/
+
+# Ignore build artifacts of Java services
+backend-*/build/
+backend-*/.gradle/
+

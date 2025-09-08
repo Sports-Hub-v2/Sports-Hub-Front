@@ -1,0 +1,19 @@
+// tsconfig.json
+{
+  // 앱 전용 설정을 상속합니다.
+  "extends": "./tsconfig.app.json",
+
+  // 여기에 compilerOptions 를 다시 선언하면
+  // 상속된 설정 위에 덮어쓰기 됩니다.
+  "compilerOptions": {
+    // IDE 와 tsc 가 @/* 별칭을 src/* 로 해석하도록
+    "jsx": "react-jsx",
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"]
+    }
+  },
+
+  // 물론 src 하위만 보면 충분합니다.
+  "include": ["src"]
+}
