@@ -1,23 +1,28 @@
 ﻿스포츠 허브 v2 — 작업 로그 (AI 관리)
 
 목적
+
 - 프로젝트에서 수행한 작업, 결정, 이슈, 다음 할 일을 기록하는 단일 진실 소스입니다.
 - 저장소를 공개로 푸시하지 않더라도 팀 내 히스토리를 위해 항상 최신 상태로 유지합니다.
 
 주의사항(필독)
+
 - 이 파일은 한국어로만 작성합니다. 반드시 한국어로 기록하십시오.
 - 과거 기록은 수정/삭제하지 않습니다. 변경이 생기면 새로운 항목으로 “amended(수정)” 또는 “reverted(되돌림)” 상태를 기록합니다.
 - 파일/경로는 클릭 가능한 형태로 단독 표기합니다(예: `sports-hub-v2/infra/docker/docker-compose.yml:1`).
 - 날짜는 ISO 형식(YYYY-MM-DD)을 사용합니다. 시간대는 선택입니다.
 
 작성 방법
+
 - 의미 있는 작업을 수행했을 때마다 “작업 로그” 맨 아래에 새 항목을 추가합니다(오래된 → 최신 순서 유지).
 - 새로운 의사결정이 내려지면 “의사결정 로그” 최상단에 추가합니다(과거 항목은 보존).
 - “백로그/향후 작업”은 수시로 갱신합니다. 작업을 시작하면 백로그에서 작업 로그로 옮기고 상태를 표시합니다.
 - 필요 시 실행 명령어, 위험요소, 후속 작업을 함께 남깁니다.
 
 항목 템플릿
+
 ## [YYYY-MM-DD] [작성자: AI|USER] [상태: proposed|in_progress|completed|amended|reverted]
+
 - 요약: 한 줄 설명
 - 배경/이유: 왜 이 작업을 했는가
 - 파일:
@@ -26,7 +31,9 @@
 - 비고: 리스크, 후속 작업, 관련 항목 링크 등(선택)
 
 예시
+
 ## [2025-09-07] [작성자: AI] [상태: completed]
+
 - 요약: backend-notification 서비스 스캐폴딩
 - 배경/이유: 알림 도메인 독립 서비스 준비
 - 파일:
@@ -35,28 +42,35 @@
 - 비고: 8085 포트 노출; DB 연동 대기
 
 의사결정 로그(최신이 위)
+
 ## [2025-09-07] 결정: 서비스별 DB + 교차 FK 제거
+
 - 맥락: 마이크로서비스 경계를 명확히 하고 독립적 스키마를 사용
 - 결정: 서비스 내부 FK만 유지, 서비스 간에는 외래키를 사용하지 않고 ID 컬럼만 보유. 존재 검증은 API/이벤트로 처리
 - 상태: 확정
 
 ## [2025-09-07] 결정: 아키텍처 옵션 B(계정/프로필 분리)
+
 - 맥락: 인증 자격증명과 사용자 프로필을 분리
 - 결정: auth.accounts(email/password_hash/role/…)와 user.profiles(개인/활동 정보)를 분리하고 `account_id`로 연결
 - 상태: 확정
 
 ## [2025-09-07] 결정: 개발(Dev) 모드 우선, 운영(Prod) 전환은 후속
+
 - 맥락: 빠른 반복 개발을 위해 프론트는 Vite 로컬, 백엔드는 Docker Compose로 기동
 - 결정: 지금은 MySQL+백엔드 컨테이너만 구성. 안정화 후 프론트 컨테이너+게이트웨이/프록시 추가
 - 상태: 확정
 
 백로그/향후 작업(최신이 위)
+
 - 원본 레포에서 도메인별 코드 이관 계획 수립 및 순차 반영(auth → user → team → recruit → notification)
 - 각 서비스에 JPA 엔티티/레포지토리 스켈레톤 및 최소 CRUD 추가(연동 검증)
 - 안정화 후 게이트웨이(nginx/traefik 또는 Spring Cloud Gateway) + 운영용 compose 추가
 
 작업 로그(최신이 아래)
+
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 백엔드 실행/중지/로그 확인 방법 요약 정리
 - 배경/이유: 개발 편의를 위한 docker-compose 사용 방법 일람 추가
 - 위치: `sports-hub-v2/infra/docker`
@@ -74,16 +88,20 @@
   - Team: `http://localhost:8083/ping`
   - Recruit: `http://localhost:8084/ping`
   - Notification: `http://localhost:8085/ping`
+
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 프론트 라우팅 안정화(상대 경로/인덱스) + Vite IPv4 고정 + 헤더 JSX 오류 수정
 - 배경/이유: 클릭 시 백지 화면(절대 경로/잘못된 JSX) 및 localhost/127.0.0.1 혼선으로 인한 404/blank 현상
 - 파일:
   - `sports-hub-v2/frontend/src/routes/AppRouter.tsx:1` (루트 index, 자식 경로 상대화)
-  - `sports-hub-v2/frontend/src/components/layout/Header.tsx:1` (닫는 태그 오류 수정)</n+  - `sports-hub-v2/frontend/vite.config.ts:1` (server.host를 `127.0.0.1`로 고정)
+  - `sports-hub-v2/frontend/src/components/layout/Header.tsx:1` (닫는 태그 오류 수정)</n+ - `sports-hub-v2/frontend/vite.config.ts:1` (server.host를 `127.0.0.1`로 고정)
 - 확인:
   - `cd sports-hub-v2/frontend && npm run dev`
   - 접속: `http://127.0.0.1:5173/` → 홈 렌더, 상단 내비 클릭 시 정상 이동
+
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 프론트 dev 포트(5173) 점유 프로세스 종료 시도 및 원인 분석
 - 배경/이유: Vite dev 서버가 5173 점유로 기동 실패 → 에러 없이 멈춘 것처럼 보임
 - 명령어(시도):
@@ -92,25 +110,30 @@
 - 비고:
   - 현재 세션 권한 문제로 자동 종료가 제한되어 수동 종료 필요(관리자 PowerShell에서 `taskkill /PID 39376 /F`).
   - `vite.config.ts`에 `strictPort: true` 적용해서, 앞으로는 포트 충돌 시 즉시 에러로 드러남.
+
 ## [2025-09-07] [작성자: AI] [상태: completed]
+
 - 요약: 원본 레포 클론(참고용, 수정 금지)
 - 배경/이유: 도메인 코드 이관을 위한 읽기 전용 소스 확보
 - 파일:
   - `sports-hub` (https://github.com/penguin1127/sports-hub.git 클론)
 
 ## [2025-09-07] [작성자: AI] [상태: completed]
+
 - 요약: 원본 레포에서 임시 복사본(`sports-hub-refactor`) 생성 및 `.git` 제거
 - 배경/이유: 초기에 인플레이스 리팩터링을 시도(이후 구조 우선 접근으로 교체)
 - 파일:
   - `sports-hub-refactor/backend/build.gradle:1` (이전 상태, 현재 제거됨)
 
 ## [2025-09-07] [작성자: AI] [상태: completed]
+
 - 요약: 이전 `sports-hub-refactor` 복사본 제거
 - 배경/이유: 레퍼런스 레포와의 혼선을 방지하고 구조 우선 접근으로 전환
 - 파일:
   - `sports-hub-refactor` (디렉토리 삭제)
 
 ## [2025-09-07] [작성자: AI] [상태: completed]
+
 - 요약: `sports-hub-v2`에 독립 백엔드 서비스와 Docker 인프라 스캐폴딩
 - 배경/이유: 완전 분리 디렉토리 구조와 오케스트레이션 기반 마련
 - 파일:
@@ -136,6 +159,7 @@
 - 비고: 서비스 포트 8081~8085 노출; DB 연동/마이그레이션은 후속
 
 ## [2025-09-07] [작성자: AI] [상태: completed]
+
 - 요약: 서비스별 DB/DSN 적용, Flyway V1 마이그레이션, JPA/MySQL 의존성, `/ping` 추가(스켈레톤)
 - 배경/이유: 아키텍처 B + 교차 FK 제거 원칙 하에 각 서비스 스키마 초기화와 기동 준비
 - 파일:
@@ -165,6 +189,7 @@
 - 비고: 교차 FK 제거(서비스 내부만 FK 유지), `ddl-auto=validate` 설정; 이후 compose 검증에서 추가 이슈 발견됨(아래 2025-09-08 항목 참조)
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: Docker 기동 검증 완료(/ping OK), MySQL/Flyway 호환성 및 마이그레이션 이슈 해결
 - 배경/이유: 서비스별 DB 마이그레이션 적용과 최소 헬스 체크 검증
 - 파일:
@@ -195,6 +220,7 @@
 - 결과: 현재 `/ping` 응답 정상(auth/user/team/recruit/notification 모두 pong). 이후 엔티티/CRUD 추가 예정.
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: auth/accounts + user/profiles 최소 CRUD 스켈레톤 구현 및 연동 테스트
 - 배경/이유: 아키텍처 B에 따라 계정/프로필 분리 후 기본 생성/조회 흐름 검증
 - 파일:
@@ -222,6 +248,7 @@
   - 간단 검증(@Valid) 적용, 에러 시 4xx 반환
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: auth-service에 OAuth2 로그인(구글/네이버) 스캐폴딩 및 JWT 발급 연동
 - 배경/이유: 소셜 로그인 도입을 위한 최소 구성(성공 시 JWT 발급하여 프론트로 리다이렉트)
 - 파일:
@@ -245,6 +272,7 @@
 - 결과: `/ping` 정상. OAuth 플로우는 실제 client-id/secret 설정 후 `/oauth2/authorization/google` 또는 `/oauth2/authorization/naver`로 시작, 성공 시 `AUTH_SUCCESS_REDIRECT_URL`로 `?token=...` 리다이렉트됨.
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 로그인/리프레시/로그아웃 API 구현(JSON 반환, refresh 7일)
 - 배경/이유: 보안 심화 1단계로 토큰 모델 확립(Access 15m, Refresh 7d, 회전/폐기)
 - 파일:
@@ -265,6 +293,7 @@
 - DEV 스모크 테스트로 로그인/리프레시/로그아웃 정상 동작 확인
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: team-service에 팀/멤버십/공지 최소 CRUD 구현 및 검증
 - 배경/이유: 도메인 CRUD 기반 마련(팀 관리 기능 분리 서비스)
 - 파일:
@@ -294,6 +323,7 @@
   - 공지 생성: `POST /api/teams/1/notices { title, content }`
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: recruit-service에 모집글/지원서 CRUD 구현 및 검증
 - 파일:
   - `sports-hub-v2/backend-recruit/src/main/java/com/sportshub/recruit/domain/RecruitPost.java:1`
@@ -313,6 +343,7 @@
   - 지원서 작성: `POST /api/recruit/posts/1/applications { applicantProfileId, description }`
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: notification-service에 알림 CRUD 구현 및 검증
 - 파일:
   - `sports-hub-v2/backend-notification/src/main/java/com/sportshub/notification/domain/Notification.java:1`
@@ -327,6 +358,7 @@
   - 조회: `GET /api/notifications?receiverProfileId=1&unreadOnly=true`
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 프론트 개발용 Vite 프록시 설정 추가(`/api/*` → 각 서비스)
 - 파일:
   - `sports-hub-v2/frontend/vite.config.ts:1` (server.proxy 설정, OAuth 경로 포함)
@@ -339,6 +371,7 @@
   - `/api/notifications` → 8085(notification-service)
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 기존 프론트 복사(디자인 그대로), API 주소 재구성 및 개발 환경 정리
 - 파일/작업:
   - 복사: `sports-hub/frontend/*` → `sports-hub-v2/frontend` (vite.config.ts는 프록시/alias 반영 버전 유지)
@@ -351,7 +384,9 @@
 - 비고:
   - UI/디자인 파일(src/components, pages 등)은 변경하지 않음(스타일·레이아웃 보존)
   - 다른 도메인 API는 점진적으로 백엔드 경로에 맞춰 추가 보정 예정
+
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 마이페이지 MVP 완성 — 받은 신청 API/화면 연결, 프로필 편집 검증 강화
 - 배경/이유: 마이페이지 4개 메뉴(기본정보/내팀/내글/신청내역) 모두 실제 데이터 연동 완료
 - 파일:
@@ -364,7 +399,7 @@
     - `sports-hub-v2/frontend/src/features/mypage/components/MyReceivedApplications.tsx:1` (프로필ID 기반 조회, 승인/거절 처리)
   - 프론트: 기본정보 검증 강화
     - `sports-hub-v2/frontend/src/features/mypage/components/MyProfileInfo.tsx:1` (필수값 검증, 성공 알림 추가)
-- 명령어: 
+- 명령어:
   - `docker compose build recruit-service`
   - `docker compose up -d recruit-service`
   - `sports-hub-v2/frontend/src/features/mercenary/components/MercenaryDetailCard.tsx:1` (사용하지 않는 import 제거)
@@ -380,6 +415,7 @@
 - 비고: 남은 17개 오류는 주로 react-router-dom 타입 호환성 문제(node_modules)와 일부 JWT 디코딩 문제. 실제 애플리케이션 동작에는 영향 없음
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 내 팀 목록 한글 깨짐 수정 및 오류 처리 개선
 - 배경/이유: UserTeamList.tsx 파일의 한글 주석 깨짐과 빈 팀 목록 메시지 개선 필요
 - 파일:
@@ -387,6 +423,7 @@
 - 비고: 이제 팀이 없으면 '소속된 팀이 없습니다' 메시지 표시, 일부 팀 조회 실패해도 나머지는 정상 표시
 
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 로그인 UI 개선 — 아이디 저장/로그인 상태 유지, OAuth 버튼, 자동 세션 복구, 401 자동 리프레시
 - 배경/이유: 일반적인 로그인 UX 제공 및 세션 지속성 향상
 - 파일:
@@ -399,7 +436,9 @@
 - 비고:
   - 로그인 상태 유지 켜짐 시에만 refreshToken 저장. 꺼짐이면 제거
   - 기존 Vite 프록시(`/oauth2`, `/api/auth`) 설정과 호환
+
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 마이페이지 MVP 완성 — 받은 신청 API/화면 연결, 프로필 편집 검증 강화
 - 배경/이유: 마이페이지 4개 메뉴(기본정보/내팀/내글/신청내역) 모두 실제 데이터 연동 완료
 - 파일:
@@ -412,7 +451,7 @@
     - `sports-hub-v2/frontend/src/features/mypage/components/MyReceivedApplications.tsx:1` (프로필ID 기반 조회, 승인/거절 처리)
   - 프론트: 기본정보 검증 강화
     - `sports-hub-v2/frontend/src/features/mypage/components/MyProfileInfo.tsx:1` (필수값 검증, 성공 알림 추가)
-- 명령어: 
+- 명령어:
   - `docker compose build recruit-service`
   - `docker compose up -d recruit-service`
   - `sports-hub-v2/frontend/src/features/mercenary/components/MercenaryDetailCard.tsx:1` (사용하지 않는 import 제거)
@@ -428,6 +467,7 @@
 - 비고: 남은 17개 오류는 주로 react-router-dom 타입 호환성 문제(node_modules)와 일부 JWT 디코딩 문제. 실제 애플리케이션 동작에는 영향 없음
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 내 팀 목록 한글 깨짐 수정 및 오류 처리 개선
 - 배경/이유: UserTeamList.tsx 파일의 한글 주석 깨짐과 빈 팀 목록 메시지 개선 필요
 - 파일:
@@ -435,12 +475,15 @@
 - 비고: 이제 팀이 없으면 '소속된 팀이 없습니다' 메시지 표시, 일부 팀 조회 실패해도 나머지는 정상 표시
 
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 로그인 폼의 OAuth 버튼 브랜딩 적용(아이콘/색상/라벨)
 - 배경/이유: 소셜 로그인임을 즉시 인지할 수 있도록 시각적 구분 강화
 - 파일:
   - `sports-hub-v2/frontend/src/features/auth/components/LoginForm.tsx:1`
 - 비고: Google(화이트 버튼+다색 G), Naver(그린 배경+N) 아이콘을 인라인 SVG로 추가
+
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 마이페이지 MVP 완성 — 받은 신청 API/화면 연결, 프로필 편집 검증 강화
 - 배경/이유: 마이페이지 4개 메뉴(기본정보/내팀/내글/신청내역) 모두 실제 데이터 연동 완료
 - 파일:
@@ -453,7 +496,7 @@
     - `sports-hub-v2/frontend/src/features/mypage/components/MyReceivedApplications.tsx:1` (프로필ID 기반 조회, 승인/거절 처리)
   - 프론트: 기본정보 검증 강화
     - `sports-hub-v2/frontend/src/features/mypage/components/MyProfileInfo.tsx:1` (필수값 검증, 성공 알림 추가)
-- 명령어: 
+- 명령어:
   - `docker compose build recruit-service`
   - `docker compose up -d recruit-service`
   - `sports-hub-v2/frontend/src/features/mercenary/components/MercenaryDetailCard.tsx:1` (사용하지 않는 import 제거)
@@ -469,6 +512,7 @@
 - 비고: 남은 17개 오류는 주로 react-router-dom 타입 호환성 문제(node_modules)와 일부 JWT 디코딩 문제. 실제 애플리케이션 동작에는 영향 없음
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 내 팀 목록 한글 깨짐 수정 및 오류 처리 개선
 - 배경/이유: UserTeamList.tsx 파일의 한글 주석 깨짐과 빈 팀 목록 메시지 개선 필요
 - 파일:
@@ -476,12 +520,15 @@
 - 비고: 이제 팀이 없으면 '소속된 팀이 없습니다' 메시지 표시, 일부 팀 조회 실패해도 나머지는 정상 표시
 
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: Vite 프록시에서 `/login` 경로 제거 — SPA 라우트와 충돌 해결
 - 배경/이유: OAuth 시도 후 401 → 브라우저 뒤로가기 시 `localhost:5173/login`이 백엔드 기본 로그인 HTML로 프록시되어 빈 화면처럼 보이는 문제
 - 파일:
   - `sports-hub-v2/frontend/vite.config.ts:1`
 - 비고: 이제 `/login`은 프론트 라우터가 처리. 백엔드 리다이렉트(`/login?...`)도 정상적으로 React 로그인 화면으로 랜더링됨. `/oauth2/**`와 `/api/auth/**` 프록시는 유지
+
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 마이페이지 MVP 완성 — 받은 신청 API/화면 연결, 프로필 편집 검증 강화
 - 배경/이유: 마이페이지 4개 메뉴(기본정보/내팀/내글/신청내역) 모두 실제 데이터 연동 완료
 - 파일:
@@ -494,7 +541,7 @@
     - `sports-hub-v2/frontend/src/features/mypage/components/MyReceivedApplications.tsx:1` (프로필ID 기반 조회, 승인/거절 처리)
   - 프론트: 기본정보 검증 강화
     - `sports-hub-v2/frontend/src/features/mypage/components/MyProfileInfo.tsx:1` (필수값 검증, 성공 알림 추가)
-- 명령어: 
+- 명령어:
   - `docker compose build recruit-service`
   - `docker compose up -d recruit-service`
   - `sports-hub-v2/frontend/src/features/mercenary/components/MercenaryDetailCard.tsx:1` (사용하지 않는 import 제거)
@@ -510,6 +557,7 @@
 - 비고: 남은 17개 오류는 주로 react-router-dom 타입 호환성 문제(node_modules)와 일부 JWT 디코딩 문제. 실제 애플리케이션 동작에는 영향 없음
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 내 팀 목록 한글 깨짐 수정 및 오류 처리 개선
 - 배경/이유: UserTeamList.tsx 파일의 한글 주석 깨짐과 빈 팀 목록 메시지 개선 필요
 - 파일:
@@ -517,6 +565,7 @@
 - 비고: 이제 팀이 없으면 '소속된 팀이 없습니다' 메시지 표시, 일부 팀 조회 실패해도 나머지는 정상 표시
 
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 개발용 시드 스크립트 추가(계정/프로필/팀/모집/알림)
 - 배경/이유: 로컬 개발 시 손쉽게 테스트 데이터 주입
 - 파일:
@@ -524,7 +573,9 @@
   - `sports-hub-v2/infra/seed/seed-dev.sh:1`
   - `sports-hub-v2/README.md:1` (사용법 문서화)
 - 비고: 각 서비스 REST API를 사용해 생성하므로 마이그레이션 순서/교차-DB 의존성 문제 없음. 기본 비밀번호는 `Secret123!`, `Captain123!`, `Admin123!`.
+
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 마이페이지 MVP 완성 — 받은 신청 API/화면 연결, 프로필 편집 검증 강화
 - 배경/이유: 마이페이지 4개 메뉴(기본정보/내팀/내글/신청내역) 모두 실제 데이터 연동 완료
 - 파일:
@@ -537,7 +588,7 @@
     - `sports-hub-v2/frontend/src/features/mypage/components/MyReceivedApplications.tsx:1` (프로필ID 기반 조회, 승인/거절 처리)
   - 프론트: 기본정보 검증 강화
     - `sports-hub-v2/frontend/src/features/mypage/components/MyProfileInfo.tsx:1` (필수값 검증, 성공 알림 추가)
-- 명령어: 
+- 명령어:
   - `docker compose build recruit-service`
   - `docker compose up -d recruit-service`
   - `sports-hub-v2/frontend/src/features/mercenary/components/MercenaryDetailCard.tsx:1` (사용하지 않는 import 제거)
@@ -553,6 +604,7 @@
 - 비고: 남은 17개 오류는 주로 react-router-dom 타입 호환성 문제(node_modules)와 일부 JWT 디코딩 문제. 실제 애플리케이션 동작에는 영향 없음
 
 ## [2025-09-08] [작성자: AI] [상태: completed]
+
 - 요약: 내 팀 목록 한글 깨짐 수정 및 오류 처리 개선
 - 배경/이유: UserTeamList.tsx 파일의 한글 주석 깨짐과 빈 팀 목록 메시지 개선 필요
 - 파일:
@@ -560,6 +612,7 @@
 - 비고: 이제 팀이 없으면 '소속된 팀이 없습니다' 메시지 표시, 일부 팀 조회 실패해도 나머지는 정상 표시
 
 ## [2025-09-08] [작성자 AI] [상태: completed]
+
 - 요약: 마이페이지 기본 프로필 화면 연결(계정ID → 프로필 조회/최초 생성)
 - 배경/이유: 기존 `/api/users/me` 엔드포인트 부재로 화면 오류 → v2 백엔드 계약(`/profiles/by-account/{id}`)에 맞춤
 - 파일:
@@ -567,3 +620,45 @@
   - `sports-hub-v2/frontend/src/features/mypage/components/MyProfileInfo.tsx:1` (프로필 조회/없으면 생성 폼)
   - `sports-hub-v2/frontend/src/features/mypage/pages/MyPageLayout.tsx:1` (한글 텍스트 복구, 준비중 표시)
 - 비고: 프로필 수정/팀 목록/신청 내역은 백엔드 API 마련 후 단계적으로 활성화 예정
+
+## [2025-09-09] [작성자: AI] [상태: completed]
+
+- 요약: 팀 관리 기능 완성 및 프론트엔드-백엔드 연동 검증
+- 배경/이유: 사용자 요청에 따른 핵심 기능들(팀/용병/경기) 완성 작업
+- 파일:
+  - `sports-hub-v2/backend-team/src/main/java/com/sportshub/team/web/dto/TeamDtos.java:1` (프론트엔드 호환 필드 추가)
+  - `sports-hub-v2/backend-team/src/main/java/com/sportshub/team/web/TeamController.java:1` (name 필드 처리 로직 추가)
+  - `sports-hub-v2/frontend/src/features/team/api/teamApi.ts:1` (captainProfileId 필드 추가, 에러 처리 개선)
+- 명령어:
+  - `docker compose restart team-service` (팀 서비스 재시작)
+  - 계정/프로필/팀/멤버십 생성 API 테스트 완료
+- 검증 결과:
+  - POST /api/auth/accounts (계정 생성) ✅
+  - POST /api/users/profiles (프로필 생성) ✅
+  - POST /api/teams (팀 생성) ✅
+  - POST /api/teams/{teamId}/members (멤버십 생성) ✅
+  - GET /api/teams/memberships/by-profile/{profileId} (소속팀 조회) ✅
+
+## [2025-09-09] [작성자: AI] [상태: completed]
+
+- 요약: 용병 모집 시스템 동작 검증 및 지원 기능 테스트
+- 배경/이유: 용병 모집글 작성/조회/지원 플로우 전체 검증 필요
+- 검증 결과:
+  - POST /api/recruit/posts (모집글 생성) ✅
+  - GET /api/recruit/posts?category=MERCENARY (모집글 목록 조회) ✅
+  - POST /api/recruit/posts/{postId}/applications (지원서 작성) ✅
+- 비고: 프론트엔드에서 호출하는 모든 API 엔드포인트가 정상 동작 확인
+
+## [2025-09-09] [작성자: AI] [상태: completed]
+
+- 요약: 조기축구 플랫폼 ERP 계획 수립 및 문서화
+- 배경/이유: 프로젝트 방향성 재정의 (아마추어 축구 → 조기축구) 및 체계적 개발 계획 필요
+- 파일:
+  - `sports-hub-v2/ERP_PLAN.md:1` (조기축구 특화 ERP 계획서 작성)
+- 주요 내용:
+  - 조기축구 타겟 시장 분석 (30-50대 직장인, 새벽 5-7시)
+  - 조기축구 특화 DB 설계 (morning_sessions, session_participants, field_locations 등)
+  - 4단계 로드맵 (MVP → 운영최적화 → 커뮤니티 → 생태계)
+  - 수익 모델 및 위험 요소 분석
+  - 기술 스택 확장 계획
+- 비고: 시간대별 모집, 출근경로 기반 매칭, 날씨 연동 등 조기축구만의 특화 기능 정의

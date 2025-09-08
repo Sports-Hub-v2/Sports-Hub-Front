@@ -23,6 +23,12 @@ public class TeamController {
     public Team create(@Validated @RequestBody CreateRequest req) {
         Team t = new Team();
         BeanUtils.copyProperties(req, t);
+        
+        // name 필드가 있으면 teamName으로 설정 (프론트엔드 호환성)
+        if (req.getName() != null && !req.getName().isEmpty()) {
+            t.setTeamName(req.getName());
+        }
+        
         return teamService.create(t);
     }
 

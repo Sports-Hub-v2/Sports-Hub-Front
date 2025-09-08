@@ -8,9 +8,14 @@ public class TeamDtos {
     @Data
     public static class CreateRequest {
         @NotBlank
-        private String teamName;
+        private String name;  // 프론트엔드와 맞춤
+        private String teamName; // 기존 호환성을 위해 유지
         private Long captainProfileId;
         private String region;
+        private String subRegion;
+        private String description;
+        private String logoUrl;
+        private String homeGround;
         private String rivalTeams;
     }
 
