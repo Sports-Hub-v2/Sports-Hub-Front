@@ -98,22 +98,18 @@ const MercenaryPostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, initia
     
     setIsLoading(true);
 
-    const isTeamToIndividual = recruitmentFlow === 'TEAM_TO_INDIVIDUAL';
+    // 백엔드 PostCreateRequest 구조에 맞춘 데이터 구성
     const dto: RecruitPostCreationRequestDto = {
+      teamId: 1, // TODO: 실제 사용자의 팀 ID 또는 기본값
+      writerProfileId: user.profileId || 1, // 현재 사용자의 프로필 ID
       title: formData.title.trim(),
       content: formData.content.trim(),
-      category: RecruitCategory.MERCENARY,
       region: formData.region,
-      subRegion: formData.subRegion.trim() || undefined,
-      thumbnailUrl: formData.thumbnailUrl.trim() || undefined, // ◀ thumbnailUrl 추가
-      gameDate: formData.gameDate || undefined,
-      gameTime: formData.gameTime || undefined,
-      requiredPersonnel: isTeamToIndividual ? (formData.requiredPersonnel === '' ? undefined : Number(formData.requiredPersonnel)) : undefined,
-      ageGroup: isTeamToIndividual ? (formData.ageGroup.trim() || undefined) : undefined,
-      preferredPositions: formData.preferredPositions.trim() || undefined,
-      fromParticipant: isTeamToIndividual ? ParticipantType.TEAM : ParticipantType.INDIVIDUAL,
-      toParticipant: isTeamToIndividual ? ParticipantType.INDIVIDUAL : ParticipantType.TEAM,
-      targetType: isTeamToIndividual ? RecruitTargetType.USER : RecruitTargetType.TEAM,
+      imageUrl: formData.thumbnailUrl.trim() || undefined, // thumbnailUrl → imageUrl
+      matchDate: formData.gameDate || undefined, // gameDate → matchDate
+      category: "MERCENARY", // 백엔드는 문자열 기대
+      targetType: "USER", // 백엔드는 문자열 기대
+      status: "RECRUITING" // 기본 상태
     };
 
     try {

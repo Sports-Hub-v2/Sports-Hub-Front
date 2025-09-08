@@ -1,35 +1,40 @@
 // src/features/mercenary/components/NewPostModal.tsx
 
-import { useState } from "react"
-import { useAuthStore } from "@/stores/useAuthStore"
-import { RecruitPostCreationRequestDto, RecruitCategory, RecruitTargetType, ParticipantType } from "@/types/recruitPost"
+import { useState } from "react";
+import { useAuthStore } from "@/stores/useAuthStore";
+import {
+  RecruitPostCreationRequestDto,
+  RecruitCategory,
+  RecruitTargetType,
+  ParticipantType,
+} from "@/types/recruitPost";
 
 interface Props {
-  category: "mercenary" | "team" | "match"
-  onClose: () => void
-  onSubmit: (postData: RecruitPostCreationRequestDto) => void
+  category: "mercenary" | "team" | "match";
+  onClose: () => void;
+  onSubmit: (postData: RecruitPostCreationRequestDto) => void;
 }
 
 const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
-  const user = useAuthStore((s) => s.user)
+  const user = useAuthStore((s) => s.user);
 
   // 입력 필드 상태
-  const [title, setTitle] = useState("")
-  const [content, setContent] = useState("")
-  const [region, setRegion] = useState("")
-  const [gameDate, setGameDate] = useState("")
-  const [requiredPersonnel, setRequiredPersonnel] = useState("")
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [region, setRegion] = useState("");
+  const [gameDate, setGameDate] = useState("");
+  const [requiredPersonnel, setRequiredPersonnel] = useState("");
 
   // ✅ 등록 버튼 클릭 핸들러
   const handleSubmit = () => {
     if (!user) {
-      alert("로그인이 필요합니다.")
-      return
+      alert("로그인이 필요합니다.");
+      return;
     }
 
     if (!title || !content || !region) {
-      alert("모든 필드를 입력해주세요.")
-      return
+      alert("모든 필드를 입력해주세요.");
+      return;
     }
 
     // 백엔드 PostCreateRequest 구조에 맞춘 데이터 구성
@@ -42,12 +47,12 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
       matchDate: gameDate || undefined, // 경기 날짜
       category: category.toUpperCase(), // "MERCENARY", "TEAM", "MATCH"
       targetType: "USER",
-      status: "RECRUITING"
-    }
+      status: "RECRUITING",
+    };
 
-    onSubmit(postData) // 백엔드 API로 전달
-    onClose() // 모달 닫기
-  }
+    onSubmit(postData); // 백엔드 API로 전달
+    onClose(); // 모달 닫기
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -61,7 +66,7 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
-        
+
         <textarea
           placeholder="내용 (경기 시간, 위치, 레벨 등 상세 정보)"
           className="w-full border p-2 mb-3"
@@ -69,7 +74,7 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
           onChange={(e) => setContent(e.target.value)}
           rows={4}
         />
-        
+
         <input
           type="text"
           placeholder="지역 (예: 강남구, 마포구)"
@@ -77,7 +82,7 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
           value={region}
           onChange={(e) => setRegion(e.target.value)}
         />
-        
+
         <input
           type="date"
           placeholder="경기 날짜"
@@ -85,7 +90,7 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
           value={gameDate}
           onChange={(e) => setGameDate(e.target.value)}
         />
-        
+
         <input
           type="number"
           placeholder="모집 인원 (명)"
@@ -100,13 +105,16 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
           <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">
             취소
           </button>
-          <button onClick={handleSubmit} className="px-4 py-2 bg-blue-600 text-white rounded">
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
             등록
           </button>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default NewPostModal
+export default NewPostModal;

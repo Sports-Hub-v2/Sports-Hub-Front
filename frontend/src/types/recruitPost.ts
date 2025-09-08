@@ -1,6 +1,7 @@
 // src/types/recruitPost.ts
 
-export interface PostType { // API 응답 또는 화면 표시용 타입
+export interface PostType {
+  // API 응답 또는 화면 표시용 타입
   id: number;
   title: string;
   content: string;
@@ -10,7 +11,7 @@ export interface PostType { // API 응답 또는 화면 표시용 타입
   category: RecruitCategory; // Enum 값 사용
   targetType: RecruitTargetType; // Enum 값 사용
   fromParticipant: ParticipantType; // Enum 값 사용
-  toParticipant: ParticipantType;   // Enum 값 사용
+  toParticipant: ParticipantType; // Enum 값 사용
   gameDate?: string;
   gameTime?: string;
   status: RecruitStatus; // Enum 값 사용
@@ -47,14 +48,14 @@ export enum RecruitStatus {
   RECRUITING = "RECRUITING",
   COMPLETED = "COMPLETED",
   IN_PROGRESS = "IN_PROGRESS", // 백엔드 Enum에 정의되어 있다면
-  FINISHED = "FINISHED",       // 백엔드 Enum에 정의되어 있다면
-  CANCELLED = "CANCELLED",     // 백엔드 Enum에 정의되어 있다면
+  FINISHED = "FINISHED", // 백엔드 Enum에 정의되어 있다면
+  CANCELLED = "CANCELLED", // 백엔드 Enum에 정의되어 있다면
 }
 
 export enum ApplicationStatus {
-  PENDING = 'PENDING',
-  ACCEPTED = 'ACCEPTED',
-  REJECTED = 'REJECTED',
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  REJECTED = "REJECTED",
 }
 
 /**
@@ -85,13 +86,13 @@ export interface RecruitPostResponseDto {
   region: string;
   subRegion: string | null; // null일 수 있음
   thumbnailUrl: string | null;
-  category: 'MERCENARY' | 'TEAM' | 'MATCH'; // Enum은 보통 문자열로 넘어옵니다.
+  category: "MERCENARY" | "TEAM" | "MATCH"; // Enum은 보통 문자열로 넘어옵니다.
   targetType: string; // 'TEAM_TO_INDIVIDUAL' | 'INDIVIDUAL_TO_TEAM' 등
   fromParticipant: string | null;
   toParticipant: string | null;
   gameDate: string; // "YYYY-MM-DD" 형식의 문자열
   gameTime: string; // "HH:mm:ss" 형식의 문자열
-  status: 'RECRUITING' | 'COMPLETED'; // 모집중, 모집완료 등
+  status: "RECRUITING" | "COMPLETED"; // 모집중, 모집완료 등
   requiredPersonnel: number | null;
   ageGroup: string | null;
   preferredPositions: string | null;
@@ -104,6 +105,5 @@ export interface RecruitPostResponseDto {
   updatedAt: string;
 }
 
-
-export type RecruitPostUpdateRequestDto = Partial<RecruitPostCreationRequestDto>;
-
+export type RecruitPostUpdateRequestDto =
+  Partial<RecruitPostCreationRequestDto>;
