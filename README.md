@@ -24,32 +24,70 @@ Sports Hub v2 (마이크로서비스 아키텍처)
 - MySQL 데이터베이스 (서비스별 분리)
 - Flyway 마이그레이션
 
-## 🚀 시작하기
+## 🚀 빠른 시작
 
-### 1. 환경설정
+### 🎯 자동 설치 (권장)
 
-```bash
-# .env 파일 생성
-cp infra/docker/.env.example infra/docker/.env
-# 필요한 경우 OAuth 클라이언트 ID/Secret 수정
+**Windows (PowerShell)**:
+
+```powershell
+# PowerShell 관리자 모드에서 실행
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Sports-Hub-v2/Sports-Hub-Front/main/setup.ps1" -OutFile "setup.ps1"
+.\setup.ps1
 ```
 
-### 2. 서비스 실행
+**Linux/macOS**:
 
 ```bash
+# 자동 설치 스크립트 다운로드 및 실행
+curl -O https://raw.githubusercontent.com/Sports-Hub-v2/Sports-Hub-Front/main/setup.sh
+chmod +x setup.sh
+./setup.sh
+```
+
+### 🔧 수동 설치
+
+개발자이거나 세부 설정이 필요한 경우:
+
+#### 1. 모든 서비스 다운로드
+
+```bash
+# 각 마이크로서비스 클론
+git clone https://github.com/Sports-Hub-v2/Sports-Hub-Backend-Auth.git backend-auth
+git clone https://github.com/Sports-Hub-v2/Sports-Hub-Backend-User.git backend-user
+git clone https://github.com/Sports-Hub-v2/Sports-Hub-Backend-Team.git backend-team
+git clone https://github.com/Sports-Hub-v2/Sports-Hub-Backend-Recruit.git backend-recruit
+git clone https://github.com/Sports-Hub-v2/Sports-Hub-Backend-Notification.git backend-notification
+git clone https://github.com/Sports-Hub-v2/Sports-Hub-Infra.git infra
+git clone https://github.com/Sports-Hub-v2/Sports-Hub-Front.git frontend
+```
+
+#### 2. 환경 설정
+
+```bash
+# 기본 설정 파일 복사
+cp infra/docker/.env.example infra/docker/.env
+
+# 자동 환경 설정 스크립트 (선택사항)
+chmod +x configure.sh
+./configure.sh
+```
+
+#### 3. 서비스 실행
+
+```bash
+# 백엔드 서비스들 실행
 cd infra/docker
 docker compose up -d --build
-```
 
-### 3. 프론트엔드 실행
-
-```bash
-cd frontend
+# 프론트엔드 실행 (별도 터미널)
+cd ../../frontend
 npm install
 npm run dev
 ```
 
-### 4. 접속 확인
+#### 4. 접속 확인
 
 - **프론트엔드**: http://localhost:5173
 - **Auth 서비스**: http://localhost:8081/ping
@@ -58,9 +96,70 @@ npm run dev
 - **Recruit 서비스**: http://localhost:8084/ping
 - **Notification 서비스**: http://localhost:8085/ping
 
+## 🛠️ 개발자 도구
+
+### 환경 설정 자동화
+
+```bash
+# 보안 강화된 환경 설정 자동 생성
+./configure.sh
+```
+
+### 로그 확인
+
+```bash
+# 모든 서비스 로그
+docker compose logs -f
+
+# 특정 서비스 로그
+docker compose logs -f auth-service
+docker compose logs -f user-service
+```
+
+### 데이터베이스 접속
+
+```bash
+# MySQL 컨테이너 접속
+docker exec -it sportshub-mysql mysql -u sportshub -p
+
+# 데이터베이스 목록 확인
+SHOW DATABASES;
+```
+
+### 서비스 재시작
+
+```bash
+# 특정 서비스만 재시작
+docker compose restart auth-service
+
+# 전체 재시작
+docker compose restart
+```
+
+## 🔧 시스템 요구사항
+
+### 필수 소프트웨어
+
+- **Docker**: 20.10 이상
+- **Docker Compose**: 2.0 이상
+- **Git**: 2.30 이상
+- **Node.js**: 18 이상 (프론트엔드)
+
+### 권장 사양
+
+- **메모리**: 8GB 이상
+- **디스크**: 10GB 이상 여유 공간
+- **CPU**: 4코어 이상
+
+### 네트워크 포트
+
+- **3306**: MySQL 데이터베이스
+- **5173**: 프론트엔드 (Vite 개발 서버)
+- **8081-8085**: 백엔드 마이크로서비스들
+
 ## 📊 현재 개발 상태
 
-### ✅ 완료된 기능
+### ✅ 완료된 기
 
 - 인증 시스템 (로그인/OAuth/JWT)
 - 사용자 프로필 관리 (계정/프로필 분리)
