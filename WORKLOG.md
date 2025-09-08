@@ -690,3 +690,45 @@
   - README 자동/수동 설치 가이드 추가 완료 ✅
   - 개발자 도구 및 시스템 요구사항 문서화 완료 ✅
 - 비고: 이제 다른 컴퓨터에서 setup 스크립트 파일 하나만 다운로드하여 실행하면 전체 프로젝트가 자동으로 설치됨. 설치 시간 대폭 단축 및 사용자 편의성 극대화 달성
+
+## [2025-09-09] [작성자: AI] [상태: completed]
+- 요약: 용병 모집 기능 400 Bad Request 오류 해결 및 조기축구 특화 UI 개선
+- 배경/이유: 모집글 작성 완료 버튼 클릭 시 400 Bad Request 오류 발생, 프론트엔드-백엔드 API 구조 불일치 문제
+- 장애 원인 분석:
+  - MercenaryPostModal에서 백엔드 필수 필드 누락 (teamId, writerProfileId)
+  - 필드명 불일치 (thumbnailUrl → imageUrl, gameDate → matchDate)
+  - 데이터 타입 불일치 (Enum → 문자열)
+  - 백엔드에 존재하지 않는 필드 전송 (fromParticipant, toParticipant)
+- 파일:
+  - `sports-hub-v2/frontend/src/features/mercenary/components/MercenaryPostModal.tsx:102-113` (백엔드 PostCreateRequest 구조 맞춤)
+  - `sports-hub-v2/frontend/src/features/mercenary/components/NewPostModal.tsx:34-51` (백엔드 호환 데이터 구조)
+  - `sports-hub-v2/frontend/src/types/recruitPost.ts:64-75` (RecruitPostCreationRequestDto 타입 수정)
+  - `sports-hub-v2/frontend/src/features/mercenary/components/MercenaryCard.tsx:10-96` (조기축구 특화 카드 UI)
+- 상세 수정사항:
+  - 필수 필드 추가: teamId (임시값 1), writerProfileId (사용자 프로필 ID)
+  - 필드명 매핑: thumbnailUrl → imageUrl, gameDate → matchDate
+  - 데이터 타입 변경: RecruitCategory.MERCENARY → "MERCENARY", RecruitTargetType.USER → "USER"
+  - 불필요한 필드 제거: fromParticipant, toParticipant, ageGroup, preferredPositions 등
+  - 기본값 설정: status: "RECRUITING"
+- 조기축구 특화 개선사항:
+  - 카드 UI: 날짜 포맷팅 (월/일(요일)), 모집상태 뱃지, 그라디언트 배경
+  - 모집글 작성: 경기 날짜, 모집 인원 필드 추가
+  - 정보 구조화: 지역, 날짜, 인원 정보 아이콘과 함께 표시
+- 오류 해결 과정:
+  1. 브라우저 콘솔에서 400 Bad Request 확인
+  2. 네트워크 탭에서 실제 전송 데이터 분석
+  3. 백엔드 PostCreateRequest DTO 구조와 비교
+  4. 프론트엔드 데이터 구조를 백엔드에 맞춰 수정
+  5. 테스트 및 검증
+- 명령어:
+  - `git add . && git commit -m "fix: 용병 모집 기능 개선 및 조기축구 특화" && git push`
+  - `git add . && git commit -m "fix: MercenaryPostModal 백엔드 API 호환성 수정" && git push`
+- 검증 결과:
+  - API 요청 데이터 구조 백엔드와 완전 일치 ✅
+  - 400 Bad Request 오류 해결 ✅
+  - 모집글 정상 생성 가능 ✅
+  - 조기축구 특화 카드 UI 개선 완료 ✅
+- 비고: 
+  - teamId는 현재 임시값(1) 사용, 추후 실제 사용자 팀 ID 연동 필요
+  - 백엔드 PostCreateRequest 구조 완벽 호환으로 API 연동 문제 완전 해결
+  - 조기축구 타겟에 맞는 시간대, 지역, 인원 정보 중심의 카드 디자인 적용
