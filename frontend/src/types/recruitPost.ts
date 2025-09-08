@@ -59,28 +59,19 @@ export enum ApplicationStatus {
 
 /**
  * 게시글 생성 요청 시 서버로 전송할 데이터 타입.
- * 백엔드 RecruitPostCreationRequest.java 와 필드 구조 및 타입을 일치시킵니다.
+ * 백엔드 PostCreateRequest.java 와 필드 구조 및 타입을 일치시킵니다.
  */
 export interface RecruitPostCreationRequestDto {
-  //authorId: number; // User 엔티티의 id 타입과 일치
+  teamId: number; // 필수 - 작성자의 팀 ID
+  writerProfileId: number; // 필수 - 작성자의 프로필 ID
   title: string;
-  content: string;
-  category: RecruitCategory; // Enum 값 전송
-  region: string;
-  subRegion?: string;
-  gameDate?: string; // YYYY-MM-DD 형식의 문자열
-  gameTime?: string; // HH:MM 형식의 문자열
-  matchRules?: string;
-  minPlayers?: number; // Java Integer -> number | undefined
-  maxPlayers?: number; // Java Integer -> number | undefined
-  ageGroup?: string;
-  preferredPositions?: string;
-  thumbnailUrl?: string;
-  requiredPersonnel?: number;
-  targetType: RecruitTargetType; // Enum 값 전송
-  fromParticipant: ParticipantType; // Enum 값 전송
-  toParticipant: ParticipantType;   // Enum 값 전송
-  //status: RecruitStatus; // Enum 값 전송 (생성 시 기본값은 보통 RECRUITING)
+  content?: string;
+  region?: string;
+  imageUrl?: string;
+  matchDate?: string; // LocalDate -> ISO string (YYYY-MM-DD)
+  category?: string; // "MERCENARY", "TEAM", "MATCH"
+  targetType?: string; // "USER", "TEAM"
+  status?: string; // "RECRUITING", "COMPLETED"
 }
 
 /**

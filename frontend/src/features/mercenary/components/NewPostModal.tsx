@@ -17,6 +17,8 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [region, setRegion] = useState("")
+  const [gameDate, setGameDate] = useState("")
+  const [requiredPersonnel, setRequiredPersonnel] = useState("")
 
   // ✅ 등록 버튼 클릭 핸들러
   const handleSubmit = () => {
@@ -30,21 +32,17 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
       return
     }
 
-    // v2 백엔드 타입에 맞춘 데이터 구성
-    const categoryMap: Record<string, RecruitCategory> = {
-      mercenary: RecruitCategory.MERCENARY,
-      team: RecruitCategory.TEAM,
-      match: RecruitCategory.MATCH,
-    };
-
+    // 백엔드 PostCreateRequest 구조에 맞춘 데이터 구성
     const postData: RecruitPostCreationRequestDto = {
+      teamId: 1, // TODO: 실제 사용자의 팀 ID 또는 기본값
+      writerProfileId: user.profileId || 1, // 현재 사용자의 프로필 ID
       title,
       content,
       region,
-      category: categoryMap[category] || RecruitCategory.MERCENARY,
-      targetType: RecruitTargetType.USER,
-      fromParticipant: ParticipantType.INDIVIDUAL,
-      toParticipant: ParticipantType.TEAM,
+      matchDate: gameDate || undefined, // 경기 날짜
+      category: category.toUpperCase(), // "MERCENARY", "TEAM", "MATCH"
+      targetType: "USER",
+      status: "RECRUITING"
     }
 
     onSubmit(postData) // 백엔드 API로 전달
@@ -58,24 +56,44 @@ const NewPostModal = ({ category, onClose, onSubmit }: Props) => {
 
         <input
           type="text"
-          placeholder="제목"
+          placeholder="제목 (예: 강남역 조기축구 용병 모집)"
           className="w-full border p-2 mb-3"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
+        
         <textarea
-          placeholder="내용"
+          placeholder="내용 (경기 시간, 위치, 레벨 등 상세 정보)"
           className="w-full border p-2 mb-3"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={4}
         />
+        
         <input
           type="text"
-          placeholder="지역"
+          placeholder="지역 (예: 강남구, 마포구)"
           className="w-full border p-2 mb-3"
           value={region}
           onChange={(e) => setRegion(e.target.value)}
+        />
+        
+        <input
+          type="date"
+          placeholder="경기 날짜"
+          className="w-full border p-2 mb-3"
+          value={gameDate}
+          onChange={(e) => setGameDate(e.target.value)}
+        />
+        
+        <input
+          type="number"
+          placeholder="모집 인원 (명)"
+          className="w-full border p-2 mb-3"
+          value={requiredPersonnel}
+          onChange={(e) => setRequiredPersonnel(e.target.value)}
+          min="1"
+          max="20"
         />
 
         <div className="flex justify-end gap-2">

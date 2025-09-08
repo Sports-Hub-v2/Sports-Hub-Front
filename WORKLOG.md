@@ -662,3 +662,31 @@
   - 수익 모델 및 위험 요소 분석
   - 기술 스택 확장 계획
 - 비고: 시간대별 모집, 출근경로 기반 매칭, 날씨 연동 등 조기축구만의 특화 기능 정의
+
+## [2025-09-09] [작성자: AI] [상태: completed]
+
+- 요약: 자동 설치 시스템 구축 완료 - 원클릭 프로젝트 설치 구현
+- 배경/이유: 다른 컴퓨터에서 프로젝트 설치 시 7개 리포지토리를 수동으로 다운로드해야 하는 복잡성 해결 필요
+- 파일:
+  - `sports-hub-v2/setup.ps1:1` (Windows PowerShell 자동 설치 스크립트)
+  - `sports-hub-v2/setup.sh:1` (Linux/macOS Shell 자동 설치 스크립트)
+  - `sports-hub-v2/configure.sh:1` (환경 설정 자동화 스크립트)
+  - `sports-hub-v2/README.md:27-146` (자동/수동 설치 가이드 및 개발자 도구 문서화)
+- 주요 기능:
+  - Docker/Git 설치 상태 자동 확인
+  - 7개 마이크로서비스 리포지토리 병렬 다운로드
+  - 디렉토리 구조 자동 정리 (backend-auth, backend-user, backend-team, backend-recruit, backend-notification, infra, frontend)
+  - 환경 설정 파일(.env) 자동 생성 및 보안 강화된 비밀번호 생성
+  - JWT Secret 자동 생성 (256비트)
+  - OAuth 설정 가이드 제공
+  - 시스템 요구사항 및 포트 정보 문서화
+- 사용법:
+  - Windows: `Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Sports-Hub-v2/Sports-Hub-Front/main/setup.ps1" -OutFile "setup.ps1" && .\setup.ps1`
+  - Linux/Mac: `curl -O https://raw.githubusercontent.com/Sports-Hub-v2/Sports-Hub-Front/main/setup.sh && chmod +x setup.sh && ./setup.sh`
+- 명령어:
+  - `git add . && git commit -m "feat: 자동 설치 시스템 구축" && git push` (Sports-Hub-Front 리포지토리에 푸시)
+- 검증 결과:
+  - 스크립트 파일 정상 생성 및 GitHub 업로드 완료 ✅
+  - README 자동/수동 설치 가이드 추가 완료 ✅
+  - 개발자 도구 및 시스템 요구사항 문서화 완료 ✅
+- 비고: 이제 다른 컴퓨터에서 setup 스크립트 파일 하나만 다운로드하여 실행하면 전체 프로젝트가 자동으로 설치됨. 설치 시간 대폭 단축 및 사용자 편의성 극대화 달성
