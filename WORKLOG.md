@@ -733,3 +733,56 @@
   - teamId는 현재 임시값(1) 사용, 추후 실제 사용자 팀 ID 연동 필요
   - 백엔드 PostCreateRequest 구조 완벽 호환으로 API 연동 문제 완전 해결
   - 조기축구 타겟에 맞는 시간대, 지역, 인원 정보 중심의 카드 디자인 적용
+
+## [2025-09-09] [작성자: AI] [상태: completed]
+- 요약: 조기축구 특화 카드 UI 고도화 및 알림 기능 설계 구조 준비
+- 배경/이유: 추후 알림 기능 구현을 염두에 두고 카드 컴포넌트 구조 개선 및 조기축구 특화 정보 표시 강화 필요
+- 파일:
+  - `sports-hub-v2/frontend/src/features/mercenary/components/MercenaryCard.tsx:32-235` (기존 카드 고도화)
+  - `sports-hub-v2/frontend/src/features/mercenary/components/EnhancedMercenaryCard.tsx:1-300` (신규 고급 카드 컴포넌트)
+  - `sports-hub-v2/frontend/src/types/recruitPost.ts:29-55` (PostType 확장: 알림/조기축구 특화 필드 추가)
+- 기존 MercenaryCard 개선사항:
+  - 조기축구 시간대 표시: 새벽 5-8시 🌅 아이콘으로 강조
+  - D-Day 계산 및 실시간 상태 표시 (오늘/내일/D-Day/시간 지남)
+  - 긴급도 표시: 24시간 내 경기 시 🚨 급구 배지 (animate-bounce)
+  - 상태별 뱃지 다양화: 모집중/완료/진행중/취소됨/시간지남 (각각 다른 색상과 애니메이션)
+  - 알림 설정 버튼 UI 추가 (추후 기능 연동 대비)
+  - 서브 지역 정보 표시 개선
+  - 생성 시간 및 게임 시간 동시 표시
+- EnhancedMercenaryCard 신규 기능:
+  - 조기축구 시간대 분류: 새벽(5-6시)/아침(6-8시)/오전(8-10시) 배지
+  - 모집 진행률 프로그레스바: 현재 참여자/모집 인원 시각화
+  - 날씨 정보 오버레이: 날씨 조건별 아이콘 표시
+  - 편의시설 표시: 주차(🅿️), 샤워(🚿) 아이콘
+  - 참가비 정보 표시: 우하단 오버레이
+  - 인기/긴급 모집글 특수 효과: ring 효과, 애니메이션
+  - 알림 토글 버튼: 개별 모집글별 알림 설정
+  - 마지막 활동 시간 표시: 모집글 활성도 확인
+- PostType 확장 설계:
+  - 조기축구 특화 필드: cost, weatherCondition, fieldLocation, parkingAvailable, showerFacilities
+  - 알림 관련 필드: notificationSettings (enabled, reminderBefore, weatherAlert, statusChange)
+  - 참여자 관리 필드: participants (current, confirmed, pending)
+  - 실시간 상태 필드: isUrgent, isHot, lastActivity
+- 알림 시스템 설계 전략:
+  - 개별 모집글별 알림 설정 가능
+  - 시간 기반 알림: 경기 전 지정된 시간(분) 전 알림
+  - 날씨 기반 알림: 비/눈 예보 시 자동 알림
+  - 상태 변경 알림: 모집 완료, 취소, 시간 변경 시 알림
+  - 긴급도 기반 우선순위: 24시간 내 경기는 우선 알림
+- UI/UX 개선사항:
+  - 애니메이션 효과: pulse, bounce, fade 등으로 상태 강조
+  - 컬러 시스템: 시간대/상태별 구분된 색상 체계
+  - 아이콘 활용: 직관적인 정보 전달 (이모지 + 텍스트)
+  - 반응형 레이아웃: 다양한 화면 크기 대응
+- 명령어:
+  - `git add . && git commit -m "feat: 조기축구 특화 카드 UI 고도화 및 알림 기능 준비" && git push`
+- 검증 결과:
+  - 기존 MercenaryCard 호환성 유지 ✅
+  - EnhancedMercenaryCard 신규 컴포넌트 생성 ✅
+  - PostType 확장으로 알림 기능 준비 완료 ✅
+  - 조기축구 특화 정보 표시 강화 ✅
+- 비고:
+  - EnhancedMercenaryCard는 기존 MercenaryCard와 독립적으로 운영 가능
+  - 추후 백엔드 API 확장 시 새로운 필드들 즉시 활용 가능
+  - 알림 시스템 구현 시 프론트엔드 구조 변경 최소화 설계
+  - 조기축구만의 특별한 니즈(시간대, 날씨, 편의시설) 반영한 차별화된 UI
