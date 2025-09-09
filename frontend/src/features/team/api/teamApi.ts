@@ -10,7 +10,8 @@ export interface TeamCreateRequestDto {
   subRegion?: string;
   description?: string;
   logoUrl?: string;
-  homeGround?: string만   captainProfileId?: number; // 백엔드 호환성을 위해 추가
+  homeGround?: string;
+  captainProfileId?: number; // 백엔드 호환성을 위해 추가
 }
 
 /**

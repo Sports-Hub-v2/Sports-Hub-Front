@@ -11,7 +11,7 @@ import {
 } from "@/types/recruitPost";
 import { createRecruitPostApi, updateRecruitPostApi, deleteRecruitPostApi } from "../api/recruitApi";
 
-import MercenaryPostModal from "../components/MercenaryPostModal"; 
+import NewPostModal from "../components/NewPostModal"; 
 import MercenaryDetailCard from "../components/MercenaryDetailCard";
 import RegionSelectTrigger from "@/components/common/RegionSelectTrigger";
 import RegionSelectModal from "@/components/common/RegionSelectModal";
@@ -162,12 +162,13 @@ const MercenaryPage = () => {
       </div>
 
       {/* ▼▼▼ 모달 호출부를 수정된 상태와 핸들러에 맞게 정리합니다. ▼▼▼ */}
-      <MercenaryPostModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSubmit={handleSavePost}
-        initialData={editingPost}
-      />
+      {isModalOpen && (
+        <NewPostModal
+          category="mercenary"
+          onClose={handleCloseModal}
+          onSubmit={handleSavePost}
+        />
+      )}
 
       <div className="mb-6 p-4 bg-gray-50 rounded-lg shadow">
         <div className="flex flex-wrap items-center gap-2 sm:gap-4">
