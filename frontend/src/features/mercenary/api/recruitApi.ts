@@ -91,13 +91,17 @@ export const deleteRecruitPostApi = async (postId: number): Promise<void> => {
 
 export const updateRecruitPostApi = async (postId: number, updateData: RecruitPostUpdateRequestDto): Promise<RecruitPostResponseDto> => {
   try {
+    console.log('updateRecruitPostApi 호출:', { postId, updateData });
     const response = await axiosInstance.put<RecruitPostResponseDto>(`${API_BASE_URL}/${postId}`, updateData);
+    console.log('updateRecruitPostApi 응답:', response.data);
     return response.data;
   } catch (error: unknown) {
+    console.error('updateRecruitPostApi 에러:', error);
     // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
     if (typeof error === 'object' && error !== null && 'response' in error) {
-      const err = error as { response?: { data?: { message?: string } } };
-      throw new Error(err.response?.data?.message || '게시글 수정 중 오류가 발생했습니다.');
+      const err = error as { response?: { data?: { message?: string }, status?: number } };
+      console.error('HTTP 응답 에러:', err.response);
+      throw new Error(err.response?.data?.message || `게시글 수정 중 오류가 발생했습니다. (HTTP ${err.response?.status})`);
     }
     throw new Error('알 수 없는 오류가 발생했습니다.');
   }
