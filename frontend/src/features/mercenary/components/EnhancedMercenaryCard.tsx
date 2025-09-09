@@ -24,70 +24,70 @@ const EnhancedMercenaryCard: React.FC<Props> = ({
     try {
       const [hour] = timeStr.split(":");
       const hourNum = parseInt(hour);
-      
+
       if (hourNum >= 5 && hourNum <= 6) {
-        return { 
-          label: "새벽", 
-          color: "purple", 
-          icon: "🌙", 
+        return {
+          label: "새벽",
+          color: "purple",
+          icon: "🌙",
           desc: "조용한 분위기",
-          bgColor: "bg-purple-500" 
+          bgColor: "bg-purple-500",
         };
       } else if (hourNum >= 6 && hourNum <= 8) {
-        return { 
-          label: "아침", 
-          color: "orange", 
-          icon: "🌅", 
+        return {
+          label: "아침",
+          color: "orange",
+          icon: "🌅",
           desc: "상쾌한 시작",
-          bgColor: "bg-orange-500" 
+          bgColor: "bg-orange-500",
         };
       } else if (hourNum >= 8 && hourNum <= 10) {
-        return { 
-          label: "오전", 
-          color: "blue", 
-          icon: "☀️", 
+        return {
+          label: "오전",
+          color: "blue",
+          icon: "☀️",
           desc: "활기찬 경기",
-          bgColor: "bg-blue-500" 
+          bgColor: "bg-blue-500",
         };
       } else if (hourNum >= 10 && hourNum <= 12) {
-        return { 
-          label: "늦은오전", 
-          color: "green", 
-          icon: "🕐", 
+        return {
+          label: "늦은오전",
+          color: "green",
+          icon: "🕐",
           desc: "여유로운 시간",
-          bgColor: "bg-green-500" 
+          bgColor: "bg-green-500",
         };
       } else if (hourNum >= 14 && hourNum <= 17) {
-        return { 
-          label: "오후", 
-          color: "yellow", 
-          icon: "🌤️", 
+        return {
+          label: "오후",
+          color: "yellow",
+          icon: "🌤️",
           desc: "따뜻한 햇살",
-          bgColor: "bg-yellow-500" 
+          bgColor: "bg-yellow-500",
         };
       } else if (hourNum >= 18 && hourNum <= 20) {
-        return { 
-          label: "저녁", 
-          color: "indigo", 
-          icon: "🌆", 
+        return {
+          label: "저녁",
+          color: "indigo",
+          icon: "🌆",
           desc: "퇴근 후 운동",
-          bgColor: "bg-indigo-500" 
+          bgColor: "bg-indigo-500",
         };
       } else if (hourNum >= 20 || hourNum <= 4) {
-        return { 
-          label: "야간", 
-          color: "gray", 
-          icon: "🌃", 
+        return {
+          label: "야간",
+          color: "gray",
+          icon: "🌃",
           desc: "나이트 게임",
-          bgColor: "bg-gray-500" 
+          bgColor: "bg-gray-500",
         };
       }
-      return { 
-        label: "일반", 
-        color: "gray", 
-        icon: "🕐", 
+      return {
+        label: "일반",
+        color: "gray",
+        icon: "🕐",
         desc: "자유 시간",
-        bgColor: "bg-gray-500" 
+        bgColor: "bg-gray-500",
       };
     } catch {
       return null;
@@ -168,19 +168,19 @@ const EnhancedMercenaryCard: React.FC<Props> = ({
         ${post.isUrgent ? "ring-2 ring-red-400" : ""}
       `}
     >
-       {/* 상단 배지들 */}
-       <div className="absolute top-2 left-2 z-10 flex gap-1">
-         {timeCategory && (
-           <span
-             className={`
+      {/* 상단 배지들 */}
+      <div className="absolute top-2 left-2 z-10 flex gap-1">
+        {timeCategory && (
+          <span
+            className={`
              text-xs px-2 py-1 rounded-full text-white font-medium
              ${timeCategory.bgColor}
            `}
-             title={timeCategory.desc}
-           >
-             {timeCategory.icon} {timeCategory.label}
-           </span>
-         )}
+            title={timeCategory.desc}
+          >
+            {timeCategory.icon} {timeCategory.label}
+          </span>
+        )}
 
         {post.isHot && (
           <span className="text-xs px-2 py-1 rounded-full bg-yellow-500 text-white font-medium animate-pulse">
@@ -237,8 +237,8 @@ const EnhancedMercenaryCard: React.FC<Props> = ({
           <div className="flex-1">
             <div className="text-xs text-blue-600 font-medium mb-1">
               {post.targetType === "USER"
-                ? "🏃‍♂️ 개인 용병 모집"
-                : "🤝 용병 지원"}
+                ? "🏃‍♂️ 팀 → 용병(개인)"
+                : "🤝 용병(개인) → 팀"}
             </div>
             <h3 className="text-lg font-semibold text-gray-900 leading-tight">
               {post.title}

@@ -244,7 +244,7 @@ const MercenaryPage = () => {
               onClose={handleCloseDetail}
               // ▼▼▼ 여기에 누락되었던 onEdit prop을 추가합니다. ▼▼▼
               onEdit={
-                user?.id === post.authorId
+                user // 임시로 로그인한 사용자는 모든 글 수정 가능
                   ? () => handleOpenEditModal(post)
                   : undefined
               }

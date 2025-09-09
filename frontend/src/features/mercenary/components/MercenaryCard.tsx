@@ -11,7 +11,7 @@ const MercenaryCard = ({ post, onClick }: Props) => {
   // 조기축구 특화 정보 표시
   const getPostTypeLabel = () => {
     if (post.category === "MERCENARY") {
-      return post.targetType === "USER" ? "🏃‍♂️ 개인 용병 모집" : "🤝 용병 지원";
+      return post.targetType === "USER" ? "🏃‍♂️ 팀 → 용병(개인)" : "🤝 용병(개인) → 팀";
     }
     return "⚽ 용병 모집";
   };
@@ -35,7 +35,7 @@ const MercenaryCard = ({ post, onClick }: Props) => {
     try {
       const [hour] = timeStr.split(":");
       const hourNum = parseInt(hour);
-      
+
       // 조기축구 특성에 맞는 시간대 분류
       if (hourNum >= 5 && hourNum <= 6) {
         return `🌙 ${timeStr}`; // 새벽
@@ -60,19 +60,49 @@ const MercenaryCard = ({ post, onClick }: Props) => {
     try {
       const [hour] = timeStr.split(":");
       const hourNum = parseInt(hour);
-      
+
       if (hourNum >= 5 && hourNum <= 6) {
-        return { label: "새벽", color: "purple", icon: "🌙", desc: "조용한 분위기" };
+        return {
+          label: "새벽",
+          color: "purple",
+          icon: "🌙",
+          desc: "조용한 분위기",
+        };
       } else if (hourNum >= 6 && hourNum <= 8) {
-        return { label: "아침", color: "orange", icon: "🌅", desc: "상쾌한 시작" };
+        return {
+          label: "아침",
+          color: "orange",
+          icon: "🌅",
+          desc: "상쾌한 시작",
+        };
       } else if (hourNum >= 8 && hourNum <= 10) {
-        return { label: "오전", color: "blue", icon: "☀️", desc: "활기찬 경기" };
+        return {
+          label: "오전",
+          color: "blue",
+          icon: "☀️",
+          desc: "활기찬 경기",
+        };
       } else if (hourNum >= 10 && hourNum <= 12) {
-        return { label: "늦은오전", color: "green", icon: "🕐", desc: "여유로운 시간" };
+        return {
+          label: "늦은오전",
+          color: "green",
+          icon: "🕐",
+          desc: "여유로운 시간",
+        };
       } else if (hourNum >= 18 && hourNum <= 20) {
-        return { label: "저녁", color: "indigo", icon: "🌆", desc: "퇴근 후 운동" };
+        return {
+          label: "저녁",
+          color: "indigo",
+          icon: "🌆",
+          desc: "퇴근 후 운동",
+        };
       } else if (hourNum >= 20 || hourNum <= 4) {
-        return { label: "야간", color: "gray", icon: "🌃", desc: "나이트 게임" };
+        return {
+          label: "야간",
+          color: "gray",
+          icon: "🌃",
+          desc: "나이트 게임",
+        };
       }
       return { label: "일반", color: "gray", icon: "🕐", desc: "자유 시간" };
     } catch {
