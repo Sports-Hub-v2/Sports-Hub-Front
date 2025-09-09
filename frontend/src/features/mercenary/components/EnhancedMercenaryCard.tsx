@@ -23,6 +23,7 @@ const EnhancedMercenaryCard: React.FC<Props> = ({
     if (!timeStr) return null;
     try {
       const [hour] = timeStr.split(":");
+      if (!hour) return null;
       const hourNum = parseInt(hour);
 
       if (hourNum >= 5 && hourNum <= 6) {

@@ -11,7 +11,9 @@ import type {
 const API_BASE_URL = "/api/auth";
 
 // Sign up: create account then profile
-export const signupApi = async (userData: UserSignUpRequestDto): Promise<any> => {
+export const signupApi = async (
+  userData: UserSignUpRequestDto
+): Promise<any> => {
   // 1) Create account
   const accountRes = await axiosInstance.post(
     `${API_BASE_URL}/accounts`,
@@ -30,10 +32,15 @@ export const signupApi = async (userData: UserSignUpRequestDto): Promise<any> =>
     name: userData.name,
     region: userData.region ?? undefined,
     preferredPosition: userData.preferredPosition ?? undefined,
-    isExPlayer: typeof userData.isExPlayer === "boolean" ? String(userData.isExPlayer) : undefined,
+    isExPlayer:
+      typeof userData.isExPlayer === "boolean"
+        ? String(userData.isExPlayer)
+        : undefined,
     phoneNumber: userData.phoneNumber ?? undefined,
   };
-  Object.keys(profileBody).forEach((k) => profileBody[k] === undefined && delete profileBody[k]);
+  Object.keys(profileBody).forEach(
+    (k) => profileBody[k] === undefined && delete profileBody[k]
+  );
 
   await axiosInstance.post(`/api/users/profiles`, profileBody, {
     headers: { "Content-Type": "application/json" },
@@ -48,6 +55,7 @@ const decodeJwt = (token: string): any => {
     const parts = token.split(".");
     if (parts.length !== 3) return {};
     const payload = parts[1];
+    if (!payload) throw new Error("Invalid token");
     const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
     return JSON.parse(json);
   } catch {
@@ -87,5 +95,7 @@ export const loginApi = async (
     localStorage.removeItem("refreshToken");
   }
 
-  return { token: accessToken, user, refreshToken } as AuthResponseDto & { refreshToken?: string };
+  return { token: accessToken, user, refreshToken } as AuthResponseDto & {
+    refreshToken?: string;
+  };
 };

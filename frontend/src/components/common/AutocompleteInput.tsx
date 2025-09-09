@@ -69,7 +69,10 @@ const AutocompleteInput: React.FC<Props> = ({
       case "Enter":
         e.preventDefault();
         if (highlightedIndex >= 0) {
-          handleSuggestionClick(filteredSuggestions[highlightedIndex]);
+          const suggestion = filteredSuggestions[highlightedIndex];
+          if (suggestion) {
+            handleSuggestionClick(suggestion);
+          }
         }
         break;
       case "Escape":
@@ -80,7 +83,7 @@ const AutocompleteInput: React.FC<Props> = ({
     }
   };
 
-  const handleBlur = (e: React.FocusEvent) => {
+  const handleBlur = () => {
     // listRef의 자식 요소로 focus가 이동하는 경우가 아닐 때만 닫기
     setTimeout(() => {
       if (!listRef.current?.contains(document.activeElement)) {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { RecruitPostCreationRequestDto, PostType } from "@/types/recruitPost";
-import { REGIONS, REGION_DETAIL_MAP } from "@/constants/regions";
+import { REGION_DETAIL_MAP } from "@/constants/regions";
 import AutocompleteInput from "@/components/common/AutocompleteInput";
 import RegionSelectModal from "@/components/common/RegionSelectModal";
 
@@ -70,6 +70,7 @@ const MercenaryCardModal = ({
     if (!timeStr) return null;
     try {
       const [hour] = timeStr.split(":");
+      if (!hour) return null;
       const hourNum = parseInt(hour);
 
       if (hourNum >= 5 && hourNum <= 6) {

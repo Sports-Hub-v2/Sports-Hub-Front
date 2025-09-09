@@ -36,6 +36,7 @@ const MercenaryCard = ({ post, onClick }: Props) => {
     if (!timeStr) return "";
     try {
       const [hour] = timeStr.split(":");
+      if (!hour) return timeStr;
       const hourNum = parseInt(hour);
 
       // 조기축구 특성에 맞는 시간대 분류
@@ -53,62 +54,6 @@ const MercenaryCard = ({ post, onClick }: Props) => {
       return `🕐 ${timeStr}`; // 기타 시간
     } catch {
       return timeStr;
-    }
-  };
-
-  // 시간대별 특성 정보
-  const getTimeCharacteristics = (timeStr?: string) => {
-    if (!timeStr) return null;
-    try {
-      const [hour] = timeStr.split(":");
-      const hourNum = parseInt(hour);
-
-      if (hourNum >= 5 && hourNum <= 6) {
-        return {
-          label: "새벽",
-          color: "purple",
-          icon: "🌙",
-          desc: "조용한 분위기",
-        };
-      } else if (hourNum >= 6 && hourNum <= 8) {
-        return {
-          label: "아침",
-          color: "orange",
-          icon: "🌅",
-          desc: "상쾌한 시작",
-        };
-      } else if (hourNum >= 8 && hourNum <= 10) {
-        return {
-          label: "오전",
-          color: "blue",
-          icon: "☀️",
-          desc: "활기찬 경기",
-        };
-      } else if (hourNum >= 10 && hourNum <= 12) {
-        return {
-          label: "늦은오전",
-          color: "green",
-          icon: "🕐",
-          desc: "여유로운 시간",
-        };
-      } else if (hourNum >= 18 && hourNum <= 20) {
-        return {
-          label: "저녁",
-          color: "indigo",
-          icon: "🌆",
-          desc: "퇴근 후 운동",
-        };
-      } else if (hourNum >= 20 || hourNum <= 4) {
-        return {
-          label: "야간",
-          color: "gray",
-          icon: "🌃",
-          desc: "나이트 게임",
-        };
-      }
-      return { label: "일반", color: "gray", icon: "🕐", desc: "자유 시간" };
-    } catch {
-      return null;
     }
   };
 

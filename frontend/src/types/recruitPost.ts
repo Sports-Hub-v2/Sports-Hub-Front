@@ -8,6 +8,7 @@ export interface PostType {
   region: string;
   subRegion?: string;
   thumbnailUrl?: string; // PostType에는 있지만 CreationRequest에는 없을 수 있음, 또는 반대
+  imageUrl?: string; // 개선된 컴포넌트에서 사용
   category: RecruitCategory; // Enum 값 사용
   targetType: RecruitTargetType; // Enum 값 사용
   fromParticipant: ParticipantType; // Enum 값 사용
@@ -18,6 +19,7 @@ export interface PostType {
   requiredPersonnel?: number;
   ageGroup?: string;
   preferredPositions?: string;
+  skillLevel?: string; // 개선된 컴포넌트에서 사용
   matchRules?: string;
   minPlayers?: number;
   maxPlayers?: number;
@@ -94,11 +96,24 @@ export interface RecruitPostCreationRequestDto {
   title: string;
   content?: string;
   region?: string;
+  subRegion?: string;
   imageUrl?: string;
+  // 백엔드 호환: PostCreateRequest.matchDate 사용 (gameDate는 프론트 내부 표현)
   matchDate?: string; // LocalDate -> ISO string (YYYY-MM-DD)
+  gameDate?: string; // LocalDate -> ISO string (YYYY-MM-DD)
+  gameTime?: string; // 경기 시간
   category?: string; // "MERCENARY", "TEAM", "MATCH"
   targetType?: string; // "USER", "TEAM"
   status?: string; // "RECRUITING", "COMPLETED"
+  requiredPersonnel?: number; // 모집 인원
+  preferredPositions?: string; // 선호 포지션
+  ageGroup?: string; // 연령대
+  skillLevel?: string; // 실력 수준
+  cost?: number; // 참가비
+  // 추가 필드 (선택)
+  fieldLocation?: string; // 구장 위치
+  parkingAvailable?: boolean;
+  showerFacilities?: boolean;
 }
 
 /**

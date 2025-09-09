@@ -2,13 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import {
-  RecruitCategory,
-  RecruitTargetType,
-  ParticipantType,
-  PostType,
-  RecruitPostCreationRequestDto,
-} from "@/types/recruitPost";
+import { PostType, RecruitPostCreationRequestDto } from "@/types/recruitPost";
 import { REGIONS } from "@/constants/regions";
 import Modal from "@/components/common/Modal";
 import RecruitPostBaseForm from "@/components/common/RecruitPostBaseForm";
