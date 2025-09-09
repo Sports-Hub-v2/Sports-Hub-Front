@@ -29,18 +29,54 @@ const MercenaryCard = ({ post, onClick }: Props) => {
     }
   };
 
-  // 조기축구 시간대 표시 (새벽 시간 강조)
+  // 조기축구 시간대 표시 (다양한 시간대 지원)
   const formatGameTime = (timeStr?: string) => {
     if (!timeStr) return "";
     try {
-      const [hour] = timeStr.split(':');
+      const [hour] = timeStr.split(":");
       const hourNum = parseInt(hour);
-      if (hourNum >= 5 && hourNum <= 8) {
-        return `🌅 ${timeStr}`;
+      
+      // 조기축구 특성에 맞는 시간대 분류
+      if (hourNum >= 5 && hourNum <= 6) {
+        return `🌙 ${timeStr}`; // 새벽
+      } else if (hourNum >= 6 && hourNum <= 8) {
+        return `🌅 ${timeStr}`; // 아침
+      } else if (hourNum >= 8 && hourNum <= 10) {
+        return `☀️ ${timeStr}`; // 오전
+      } else if (hourNum >= 18 && hourNum <= 20) {
+        return `🌆 ${timeStr}`; // 저녁
+      } else if (hourNum >= 20 || hourNum <= 4) {
+        return `🌃 ${timeStr}`; // 야간
       }
-      return timeStr;
+      return `🕐 ${timeStr}`; // 기타 시간
     } catch {
       return timeStr;
+    }
+  };
+
+  // 시간대별 특성 정보
+  const getTimeCharacteristics = (timeStr?: string) => {
+    if (!timeStr) return null;
+    try {
+      const [hour] = timeStr.split(":");
+      const hourNum = parseInt(hour);
+      
+      if (hourNum >= 5 && hourNum <= 6) {
+        return { label: "새벽", color: "purple", icon: "🌙", desc: "조용한 분위기" };
+      } else if (hourNum >= 6 && hourNum <= 8) {
+        return { label: "아침", color: "orange", icon: "🌅", desc: "상쾌한 시작" };
+      } else if (hourNum >= 8 && hourNum <= 10) {
+        return { label: "오전", color: "blue", icon: "☀️", desc: "활기찬 경기" };
+      } else if (hourNum >= 10 && hourNum <= 12) {
+        return { label: "늦은오전", color: "green", icon: "🕐", desc: "여유로운 시간" };
+      } else if (hourNum >= 18 && hourNum <= 20) {
+        return { label: "저녁", color: "indigo", icon: "🌆", desc: "퇴근 후 운동" };
+      } else if (hourNum >= 20 || hourNum <= 4) {
+        return { label: "야간", color: "gray", icon: "🌃", desc: "나이트 게임" };
+      }
+      return { label: "일반", color: "gray", icon: "🕐", desc: "자유 시간" };
+    } catch {
+      return null;
     }
   };
 
@@ -48,10 +84,10 @@ const MercenaryCard = ({ post, onClick }: Props) => {
   const getStatusBadge = () => {
     const now = new Date();
     const gameDate = post.gameDate ? new Date(post.gameDate) : null;
-    
+
     // 경기 시간이 지났는지 확인
     const isGamePassed = gameDate && gameDate < now;
-    
+
     switch (post.status) {
       case "RECRUITING":
         if (isGamePassed) {
@@ -120,7 +156,7 @@ const MercenaryCard = ({ post, onClick }: Props) => {
 
     const now = new Date();
     const diffHours = (gameDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-    
+
     if (diffHours <= 24 && diffHours > 0) {
       return (
         <div className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full animate-bounce">
@@ -138,7 +174,7 @@ const MercenaryCard = ({ post, onClick }: Props) => {
     >
       {/* 긴급도 표시 */}
       {getUrgencyIndicator()}
-      
+
       {/* 썸네일 이미지 또는 기본 이미지 */}
       <div className="h-32 w-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center relative">
         {post.thumbnailUrl ? (
@@ -150,7 +186,7 @@ const MercenaryCard = ({ post, onClick }: Props) => {
         ) : (
           <div className="text-white text-4xl">⚽</div>
         )}
-        
+
         {/* 조기축구 시간대 오버레이 */}
         {post.gameTime && (
           <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
@@ -178,7 +214,9 @@ const MercenaryCard = ({ post, onClick }: Props) => {
           <div className="flex items-center gap-1">
             <span>📍</span>
             <span>{post.region || "지역 미설정"}</span>
-            {post.subRegion && <span className="text-xs text-gray-400">・{post.subRegion}</span>}
+            {post.subRegion && (
+              <span className="text-xs text-gray-400">・{post.subRegion}</span>
+            )}
           </div>
 
           {post.gameDate && (
@@ -201,7 +239,7 @@ const MercenaryCard = ({ post, onClick }: Props) => {
               <span>{post.requiredPersonnel}명 모집</span>
             </div>
           )}
-          
+
           {/* 참가비/비용 정보 (추후 백엔드 필드 추가 시) */}
           {/* {post.cost && (
             <div className="flex items-center gap-1">
@@ -216,14 +254,14 @@ const MercenaryCard = ({ post, onClick }: Props) => {
           <span>작성자: {post.authorName || "익명"}</span>
           <span>{formatGameDate(post.createdAt)}</span>
         </div>
-        
+
         {/* 알림 설정 버튼 (추후 구현) */}
         <div className="flex justify-end">
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               // TODO: 알림 설정 기능
-              console.log('알림 설정:', post.id);
+              console.log("알림 설정:", post.id);
             }}
             className="text-xs text-gray-400 hover:text-blue-600 transition-colors"
           >

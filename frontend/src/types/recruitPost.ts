@@ -25,14 +25,14 @@ export interface PostType {
   authorName: string | null;
   createdAt: string;
   updatedAt: string;
-  
+
   // 조기축구 특화 필드들 (추후 백엔드 추가 예정)
   cost?: number; // 참가비
   weatherCondition?: string; // 날씨 조건
   fieldLocation?: string; // 구장 위치 상세
   parkingAvailable?: boolean; // 주차 가능 여부
   showerFacilities?: boolean; // 샤워 시설 여부
-  
+
   // 알림 관련 필드들 (추후 구현)
   notificationSettings?: {
     enabled: boolean; // 알림 활성화 여부
@@ -40,14 +40,14 @@ export interface PostType {
     weatherAlert: boolean; // 날씨 알림 여부
     statusChange: boolean; // 상태 변경 알림 여부
   };
-  
+
   // 참여자 관리 (추후 구현)
   participants?: {
     current: number; // 현재 참여자 수
     confirmed: number; // 확정된 참여자 수
     pending: number; // 대기 중인 참여자 수
   };
-  
+
   // 실시간 상태 (추후 구현)
   isUrgent?: boolean; // 긴급 모집 여부
   isHot?: boolean; // 인기 모집글 여부
