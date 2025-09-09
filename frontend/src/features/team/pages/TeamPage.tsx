@@ -6,7 +6,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { useRecruitStore } from "@/stores/useRecruitStore";
 import { RecruitCategory, RecruitPostCreationRequestDto } from "@/types/recruitPost";
 import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 또는 TeamDetailCard
-import NewPostModal from "@/features/mercenary/components/NewPostModal";
+import MercenaryCardModal from "@/features/mercenary/components/MercenaryCardModal";
 // 공용 컴포넌트 경로 사용
 import RegionSelectTrigger from "@/components/common/RegionSelectTrigger";
 import RegionSelectModal from "@/components/common/RegionSelectModal";
@@ -108,7 +108,7 @@ const TeamPage = () => {
       </div>
 
       {isModalOpen && (
-        <NewPostModal // 또는 NewTeamPostModal
+        <MercenaryCardModal // 또는 NewTeamPostModal
           category="team"
           onClose={() => setModalOpen(false)}
           onSubmit={handleCreate}
