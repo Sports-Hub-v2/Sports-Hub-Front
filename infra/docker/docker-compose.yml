@@ -4,8 +4,6 @@ services:
   mysql:
     image: mysql:8.0
     container_name: sportshub-mysql
-    ports:
-      - "3306:3306"  # MySQL 포트 노출 (개발용)
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}

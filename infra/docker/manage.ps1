@@ -55,7 +55,7 @@ function Show-Status {
     Write-Host "  Team Service:         http://localhost:8083"
     Write-Host "  Recruit Service:      http://localhost:8084"
     Write-Host "  Notification Service: http://localhost:8085"
-    Write-Host "  MySQL Database:       localhost:3306"
+    Write-Host "  MySQL Database:       localhost:3306 (컨테이너 내부)"
 }
 
 function Show-Logs {

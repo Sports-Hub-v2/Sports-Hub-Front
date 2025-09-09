@@ -53,7 +53,7 @@ show_status() {
     echo "  Team Service:         http://localhost:8083"
     echo "  Recruit Service:      http://localhost:8084"
     echo "  Notification Service: http://localhost:8085"
-    echo "  MySQL Database:       localhost:3306"
+    echo "  MySQL Database:       localhost:3306 (container internal)"
 }
 
 show_logs() {
