@@ -4,7 +4,10 @@ import { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRecruitStore } from "@/stores/useRecruitStore";
-import { RecruitCategory, RecruitPostCreationRequestDto } from "@/types/recruitPost";
+import {
+  RecruitCategory,
+  RecruitPostCreationRequestDto,
+} from "@/types/recruitPost";
 import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 또는 MatchDetailCard
 import MercenaryCardModal from "@/features/mercenary/components/MercenaryCardModal";
 // 공용 컴포넌트 경로 사용
@@ -20,7 +23,10 @@ const MatchPage = () => {
   const loadPosts = useRecruitStore((s) => s.loadPosts);
   const removePost = useRecruitStore((s) => s.removePost);
 
-  const focusedId = useMemo(() => new URLSearchParams(location.search).get("id"), [location.search]);
+  const focusedId = useMemo(
+    () => new URLSearchParams(location.search).get("id"),
+    [location.search]
+  );
 
   const [isModalOpen, setModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -48,16 +54,27 @@ const MatchPage = () => {
     return allPostsFromStore
       .filter((p) => {
         const titleMatch = p.title.toLowerCase().includes(search.toLowerCase());
-        const regionMatchInMain = p.region.toLowerCase().includes(search.toLowerCase());
-        const subRegionMatch = p.subRegion ? p.subRegion.toLowerCase().includes(search.toLowerCase()) : false;
-        return search === "" || titleMatch || regionMatchInMain || subRegionMatch;
+        const regionMatchInMain = p.region
+          .toLowerCase()
+          .includes(search.toLowerCase());
+        const subRegionMatch = p.subRegion
+          ? p.subRegion.toLowerCase().includes(search.toLowerCase())
+          : false;
+        return (
+          search === "" || titleMatch || regionMatchInMain || subRegionMatch
+        );
       })
-      .filter((p) => selectedRegion === "전체 지역" || p.region === selectedRegion || (p.subRegion && p.subRegion.includes(selectedRegion)));
+      .filter(
+        (p) =>
+          selectedRegion === "전체 지역" ||
+          p.region === selectedRegion ||
+          (p.subRegion && p.subRegion.includes(selectedRegion))
+      );
   }, [allPostsFromStore, search, selectedRegion]);
 
   const handleCreate = (postData: RecruitPostCreationRequestDto) => {
     // TODO: 실제 API 호출로 게시글 생성 후 스토어 업데이트
-    console.log('새 게시글 생성:', postData);
+    console.log("새 게시글 생성:", postData);
     loadPosts(RecruitCategory.MATCH);
     setModalOpen(false);
   };
@@ -80,24 +97,33 @@ const MatchPage = () => {
     if (focusedId) {
       const focused = filteredPosts.find((p) => String(p.id) === focusedId);
       if (focused) {
-        return [focused, ...filteredPosts.filter((p) => String(p.id) !== focusedId)];
+        return [
+          focused,
+          ...filteredPosts.filter((p) => String(p.id) !== focusedId),
+        ];
       }
     }
     return filteredPosts;
   }, [filteredPosts, focusedId]);
 
-  const handleExpand = (postId: string | number) => navigate(`/match?id=${postId}`); // 경기 페이지 경로로 수정
+  const handleExpand = (postId: string | number) =>
+    navigate(`/match?id=${postId}`); // 경기 페이지 경로로 수정
   const handleClose = () => navigate("/match", { replace: true }); // 경기 페이지 경로로 수정
 
-
   if (isLoading && allPostsFromStore.length === 0) {
-    return <div className="text-center py-20 pt-24">경기 목록을 불러오는 중입니다...</div>;
+    return (
+      <div className="text-center py-20 pt-24">
+        경기 목록을 불러오는 중입니다...
+      </div>
+    );
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 pt-24">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-center sm:text-left">🏟️ 경기 모집 목록</h1>
+        <h1 className="text-3xl font-bold text-center sm:text-left">
+          🏟️ 경기 모집 목록
+        </h1>
         {user && (
           <button
             onClick={() => setModalOpen(true)}
@@ -149,13 +175,15 @@ const MatchPage = () => {
           onClose={() => setIsRegionModalOpen(false)}
         />
       )}
-      
+
       {sortedPosts.length === 0 && !isLoading && (
         <p className="text-center text-gray-500 py-10">
-          {search || selectedRegion !== "전체 지역" ? "검색 결과가 없습니다." : "등록된 경기 모집글이 없습니다."}
+          {search || selectedRegion !== "전체 지역"
+            ? "검색 결과가 없습니다."
+            : "등록된 경기 모집글이 없습니다."}
         </p>
       )}
-      
+
       {sortedPosts.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {sortedPosts.map((post) => (

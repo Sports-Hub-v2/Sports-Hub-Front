@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import {
-  RecruitPostCreationRequestDto,
-  PostType,
-} from "@/types/recruitPost";
+import { RecruitPostCreationRequestDto, PostType } from "@/types/recruitPost";
+import { REGIONS, REGION_DETAIL_MAP } from "@/constants/regions";
+import AutocompleteInput from "@/components/common/AutocompleteInput";
+import RegionSelectModal from "@/components/common/RegionSelectModal";
 
 interface Props {
   category: "mercenary" | "team" | "match";
@@ -14,7 +14,12 @@ interface Props {
   initialData?: PostType | null; // 수정 모드를 위한 초기 데이터
 }
 
-const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props) => {
+const MercenaryCardModal = ({
+  category,
+  onClose,
+  onSubmit,
+  initialData,
+}: Props) => {
   const user = useAuthStore((s) => s.user);
   const isEditMode = !!initialData;
 
@@ -24,7 +29,7 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
   const [region, setRegion] = useState(initialData?.region || "");
   const [subRegion, setSubRegion] = useState(initialData?.subRegion || "");
   const [gameDate, setGameDate] = useState(
-    initialData?.gameDate ? initialData.gameDate.split('T')[0] : ""
+    initialData?.gameDate ? initialData.gameDate.split("T")[0] : ""
   );
   const [gameTime, setGameTime] = useState(initialData?.gameTime || "");
   const [requiredPersonnel, setRequiredPersonnel] = useState(
@@ -36,11 +41,13 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
   const [cost, setCost] = useState(
     initialData?.cost ? String(initialData.cost) : ""
   );
-  const [fieldLocation, setFieldLocation] = useState(initialData?.fieldLocation || "");
+  const [fieldLocation, setFieldLocation] = useState(
+    initialData?.fieldLocation || ""
+  );
   const [preferredPositions, setPreferredPositions] = useState(
     initialData?.preferredPositions || ""
   );
-  
+
   // 추가 옵션들
   const [parkingAvailable, setParkingAvailable] = useState(
     initialData?.parkingAvailable || false
@@ -48,9 +55,15 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
   const [showerFacilities, setShowerFacilities] = useState(
     initialData?.showerFacilities || false
   );
-  
+
   // UI 상태
   const [isDetailExpanded, setIsDetailExpanded] = useState(false);
+  const [isRegionModalOpen, setIsRegionModalOpen] = useState(false);
+
+  // 선택된 지역에 따른 상세 지역 목록
+  const getSubRegionSuggestions = (selectedRegion: string): string[] => {
+    return REGION_DETAIL_MAP[selectedRegion] || [];
+  };
 
   // 시간대별 특성 표시
   const getTimeCharacteristics = (timeStr: string) => {
@@ -58,7 +71,7 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
     try {
       const [hour] = timeStr.split(":");
       const hourNum = parseInt(hour);
-      
+
       if (hourNum >= 5 && hourNum <= 6) {
         return { label: "새벽", icon: "🌙", desc: "조용한 분위기" };
       } else if (hourNum >= 6 && hourNum <= 8) {
@@ -111,7 +124,9 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
       subRegion: subRegion || undefined,
       matchDate: gameDate || undefined,
       gameTime: gameTime || undefined,
-      requiredPersonnel: requiredPersonnel ? Number(requiredPersonnel) : undefined,
+      requiredPersonnel: requiredPersonnel
+        ? Number(requiredPersonnel)
+        : undefined,
       category: category.toUpperCase(), // "MERCENARY", "TEAM", "MATCH"
       targetType,
       status: "RECRUITING",
@@ -135,13 +150,18 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
         <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-6 rounded-t-xl">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold">⚽ {isEditMode ? "모집글 수정" : "모집글 작성"}</h2>
+              <h2 className="text-2xl font-bold">
+                ⚽ {isEditMode ? "모집글 수정" : "모집글 작성"}
+              </h2>
               <p className="text-blue-100 mt-1">
-                {category === "mercenary" ? "용병 카드 모달" : 
-                 category === "team" ? "팀 모집" : "경기 모집"}
+                {category === "mercenary"
+                  ? "용병 카드 모달"
+                  : category === "team"
+                  ? "팀 모집"
+                  : "경기 모집"}
               </p>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-colors"
             >
@@ -154,8 +174,10 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
         <div className="p-6 space-y-6">
           {/* 기본 정보 섹션 */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">📝 기본 정보</h3>
-            
+            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+              📝 기본 정보
+            </h3>
+
             {/* 모집 유형 선택 */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -166,8 +188,8 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
                   type="button"
                   onClick={() => setTargetType("USER")}
                   className={`flex-1 p-3 rounded-lg border-2 transition-all ${
-                    targetType === "USER" 
-                      ? "border-blue-500 bg-blue-50 text-blue-700" 
+                    targetType === "USER"
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
@@ -179,8 +201,8 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
                   type="button"
                   onClick={() => setTargetType("TEAM")}
                   className={`flex-1 p-3 rounded-lg border-2 transition-all ${
-                    targetType === "TEAM" 
-                      ? "border-blue-500 bg-blue-50 text-blue-700" 
+                    targetType === "TEAM"
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
                       : "border-gray-200 hover:border-gray-300"
                   }`}
                 >
@@ -205,33 +227,30 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
               />
             </div>
 
-            {/* 지역 정보 */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  📍 지역 *
-                </label>
-                <input
-                  type="text"
-                  placeholder="예: 강남구"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  📍 상세 지역
-                </label>
-                <input
-                  type="text"
-                  placeholder="예: 역삼동"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={subRegion}
-                  onChange={(e) => setSubRegion(e.target.value)}
-                />
-              </div>
-            </div>
+             {/* 지역 정보 */}
+             <div className="grid grid-cols-2 gap-3">
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                   📍 지역 *
+                 </label>
+                 <button
+                   type="button"
+                   onClick={() => setIsRegionModalOpen(true)}
+                   className="w-full border border-gray-300 rounded-lg px-4 py-3 text-left focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:bg-gray-50 transition-colors"
+                 >
+                   {region || "지역을 선택하세요"}
+                 </button>
+               </div>
+               <div>
+                 <AutocompleteInput
+                   label="📍 상세 지역"
+                   value={subRegion}
+                   onChange={(value) => setSubRegion(value)}
+                   suggestions={getSubRegionSuggestions(region)}
+                   placeholder={region ? `${region}의 구/시를 입력하세요` : "먼저 지역을 선택하세요"}
+                 />
+               </div>
+             </div>
 
             {/* 일시 설정 */}
             <div className="grid grid-cols-2 gap-3">
@@ -244,7 +263,7 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={gameDate}
                   onChange={(e) => setGameDate(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={new Date().toISOString().split("T")[0]}
                 />
               </div>
               <div>
@@ -266,7 +285,8 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
                 </div>
                 {timeCharacteristics && (
                   <div className="mt-1 text-xs text-gray-500 flex items-center gap-1">
-                    {timeCharacteristics.icon} {timeCharacteristics.label} • {timeCharacteristics.desc}
+                    {timeCharacteristics.icon} {timeCharacteristics.label} •{" "}
+                    {timeCharacteristics.desc}
                   </div>
                 )}
               </div>
@@ -317,11 +337,15 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
               className="w-full flex justify-between items-center text-lg font-semibold text-gray-800 hover:text-blue-600 transition-colors"
             >
               <span>⚙️ 상세 설정</span>
-              <span className={`transform transition-transform ${isDetailExpanded ? 'rotate-180' : ''}`}>
+              <span
+                className={`transform transition-transform ${
+                  isDetailExpanded ? "rotate-180" : ""
+                }`}
+              >
                 ⌄
               </span>
             </button>
-            
+
             {isDetailExpanded && (
               <div className="mt-4 space-y-4 p-4 bg-gray-50 rounded-lg">
                 {/* 상세 위치 */}
@@ -385,11 +409,13 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
                         <span className="text-lg">🅿️</span>
                         <div>
                           <div className="font-medium">주차 가능</div>
-                          <div className="text-sm text-gray-500">구장 내 주차공간 이용 가능</div>
+                          <div className="text-sm text-gray-500">
+                            구장 내 주차공간 이용 가능
+                          </div>
                         </div>
                       </div>
                     </label>
-                    
+
                     <label className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 cursor-pointer bg-white">
                       <input
                         type="checkbox"
@@ -401,7 +427,9 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
                         <span className="text-lg">🚿</span>
                         <div>
                           <div className="font-medium">샤워시설</div>
-                          <div className="text-sm text-gray-500">경기 후 샤워 가능</div>
+                          <div className="text-sm text-gray-500">
+                            경기 후 샤워 가능
+                          </div>
                         </div>
                       </div>
                     </label>
@@ -419,8 +447,8 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
               * 표시는 필수 입력 항목입니다
             </div>
             <div className="flex gap-3">
-              <button 
-                onClick={onClose} 
+              <button
+                onClick={onClose}
                 className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 취소
@@ -433,10 +461,22 @@ const MercenaryCardModal = ({ category, onClose, onSubmit, initialData }: Props)
               </button>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+         </div>
+
+         {/* 지역 선택 모달 */}
+         {isRegionModalOpen && (
+           <RegionSelectModal
+             onSelect={(selectedRegion) => {
+               setRegion(selectedRegion);
+               setSubRegion(""); // 지역 변경 시 상세지역 초기화
+               setIsRegionModalOpen(false);
+             }}
+             onClose={() => setIsRegionModalOpen(false)}
+           />
+         )}
+       </div>
+     </div>
+   );
+ };
 
 export default MercenaryCardModal;
