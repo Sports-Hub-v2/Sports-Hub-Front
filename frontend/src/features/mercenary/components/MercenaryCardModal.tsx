@@ -178,60 +178,68 @@ const MercenaryCardModal = ({
               📝 기본 정보
             </h3>
 
-             {/* 모집 유형 선택 */}
-             <div>
-               <label className="block text-sm font-medium text-gray-700 mb-2">
-                 📋 모집 유형 *
-               </label>
-               <div className="flex gap-3">
-                 <button
-                   type="button"
-                   onClick={() => setTargetType("USER")}
-                   className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                     targetType === "USER"
-                       ? "border-blue-500 bg-blue-50 text-blue-700"
-                       : "border-gray-200 hover:border-gray-300"
-                   }`}
-                 >
-                   <div className="text-2xl mb-2">🏃‍♂️</div>
-                   <div className="text-sm font-bold">개인 용병 모집</div>
-                   <div className="text-xs text-gray-500 mt-1">우리 팀에 합류할 용병을 찾습니다</div>
-                   <div className="text-xs text-blue-600 mt-1">• 팀 정보 및 경기 일정 제공</div>
-                 </button>
-                 <button
-                   type="button"
-                   onClick={() => setTargetType("TEAM")}
-                   className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                     targetType === "TEAM"
-                       ? "border-blue-500 bg-blue-50 text-blue-700"
-                       : "border-gray-200 hover:border-gray-300"
-                   }`}
-                 >
-                   <div className="text-2xl mb-2">🤝</div>
-                   <div className="text-sm font-bold">팀 합류 희망</div>
-                   <div className="text-xs text-gray-500 mt-1">함께 축구할 팀을 찾습니다</div>
-                   <div className="text-xs text-green-600 mt-1">• 개인 실력 및 희망 사항 어필</div>
-                 </button>
-               </div>
-             </div>
+            {/* 모집 유형 선택 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📋 모집 유형 *
+              </label>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setTargetType("USER")}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                    targetType === "USER"
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="text-2xl mb-2">🏃‍♂️</div>
+                  <div className="text-sm font-bold">개인 용병 모집</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    우리 팀에 합류할 용병을 찾습니다
+                  </div>
+                  <div className="text-xs text-blue-600 mt-1">
+                    • 팀 정보 및 경기 일정 제공
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTargetType("TEAM")}
+                  className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                    targetType === "TEAM"
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className="text-2xl mb-2">🤝</div>
+                  <div className="text-sm font-bold">용병 지원</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    용병으로 참여할 팀을 찾습니다
+                  </div>
+                  <div className="text-xs text-green-600 mt-1">
+                    • 개인 실력 및 가능 시간 어필
+                  </div>
+                </button>
+              </div>
+            </div>
 
-             {/* 제목 */}
-             <div>
-               <label className="block text-sm font-medium text-gray-700 mb-2">
-                 📝 제목 *
-               </label>
-               <input
-                 type="text"
+            {/* 제목 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📝 제목 *
+              </label>
+              <input
+                type="text"
                  placeholder={
                    targetType === "USER" 
                      ? "예: [강남구] 조기축구 용병 모집 - 오전 7시" 
-                     : "예: [개인] 조기축구 팀 찾습니다 - 미드필더"
+                     : "예: [개인] 조기축구 용병 지원 - 미드필더"
                  }
-                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                 value={title}
-                 onChange={(e) => setTitle(e.target.value)}
-               />
-             </div>
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
 
             {/* 지역 정보 */}
             <div className="grid grid-cols-2 gap-3">
@@ -302,26 +310,28 @@ const MercenaryCardModal = ({
               </div>
             </div>
 
-             {/* 모집 인원 */}
-             {targetType === "USER" && (
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                   👥 모집 인원
-                 </label>
-                 <input
-                   type="number"
-                   placeholder="예: 2명"
-                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                   value={requiredPersonnel}
-                   onChange={(e) => setRequiredPersonnel(e.target.value)}
-                   min="1"
-                   max="20"
-                 />
-                 <div className="text-xs text-gray-500 mt-1">💡 필요한 용병 수를 입력하세요</div>
-               </div>
-             )}
+            {/* 모집 인원 */}
+            {targetType === "USER" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  👥 모집 인원
+                </label>
+                <input
+                  type="number"
+                  placeholder="예: 2명"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={requiredPersonnel}
+                  onChange={(e) => setRequiredPersonnel(e.target.value)}
+                  min="1"
+                  max="20"
+                />
+                <div className="text-xs text-gray-500 mt-1">
+                  💡 필요한 용병 수를 입력하세요
+                </div>
+              </div>
+            )}
 
-             {/* 개인 정보 (팀 찾는 개인용) */}
+             {/* 개인 정보 (용병 지원용) */}
              {targetType === "TEAM" && (
                <div className="space-y-4">
                  <div>
@@ -330,7 +340,7 @@ const MercenaryCardModal = ({
                    </label>
                    <input
                      type="text"
-                     placeholder="예: 미드필더, 수비수"
+                     placeholder="예: 미드필더, 수비수, 포지션 무관"
                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                      value={preferredPositions}
                      onChange={(e) => setPreferredPositions(e.target.value)}
@@ -356,15 +366,15 @@ const MercenaryCardModal = ({
                </div>
              )}
 
-             {/* 내용 */}
-             <div>
-               <label className="block text-sm font-medium text-gray-700 mb-2">
-                 📄 상세 내용 *
-               </label>
-               <textarea
-                 placeholder={
-                   targetType === "USER" 
-                     ? `팀 정보와 경기 상세 내용을 적어주세요.
+            {/* 내용 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                📄 상세 내용 *
+              </label>
+              <textarea
+                placeholder={
+                  targetType === "USER"
+                    ? `팀 정보와 경기 상세 내용을 적어주세요.
 
 팀 모집 예시:
 • 팀명: 강남 FC
@@ -373,22 +383,22 @@ const MercenaryCardModal = ({
 • 경기 스타일: 패스 위주의 안정적인 플레이
 • 준비사항: 개인 축구화, 물
 • 연락처: 카카오톡 @teamleader`
-                     : `개인 정보와 팀 합류 희망사항을 적어주세요.
+                     : `개인 실력과 용병 지원 정보를 적어주세요.
 
-개인 어필 예시:
+용병 지원 예시:
 • 축구 경력: 3년 (고등학교 축구부)
-• 주 포지션: 공격형 미드필더, 우윙
+• 주 포지션: 공격형 미드필더, 우윙 (포지션 무관도 가능)
 • 플레이 스타일: 빠른 스피드와 정확한 패스
-• 희망 팀 레벨: 초중급~중급
-• 가능 요일: 주말, 평일 저녁
+• 실력 수준: 초중급~중급
+• 가능 시간: 주말 오전, 평일 저녁 7시 이후
 • 연락처: 카카오톡 @playerid`
-                 }
-                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                 value={content}
-                 onChange={(e) => setContent(e.target.value)}
-                 rows={8}
-               />
-             </div>
+                }
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={8}
+              />
+            </div>
           </div>
 
           {/* 상세 설정 섹션 (접히는 방식) */}
@@ -440,38 +450,43 @@ const MercenaryCardModal = ({
                   />
                 </div>
 
-                 {/* 포지션 정보 (타입별로 다르게) */}
-                 {targetType === "USER" && (
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                       ⚽ 모집 포지션
-                     </label>
-                     <input
-                       type="text"
-                       placeholder="예: 미드필더, 수비수 / 또는 포지션 무관"
-                       className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       value={preferredPositions}
-                       onChange={(e) => setPreferredPositions(e.target.value)}
-                     />
-                     <div className="text-xs text-gray-500 mt-1">💡 필요한 포지션을 명시하면 더 적합한 용병을 찾을 수 있어요</div>
-                   </div>
-                 )}
+                {/* 포지션 정보 (타입별로 다르게) */}
+                {targetType === "USER" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ⚽ 모집 포지션
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="예: 미드필더, 수비수 / 또는 포지션 무관"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={preferredPositions}
+                      onChange={(e) => setPreferredPositions(e.target.value)}
+                    />
+                    <div className="text-xs text-gray-500 mt-1">
+                      💡 필요한 포지션을 명시하면 더 적합한 용병을 찾을 수
+                      있어요
+                    </div>
+                  </div>
+                )}
 
-                 {targetType === "TEAM" && (
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                       🎯 희망 활동 지역
-                     </label>
-                     <input
-                       type="text"
-                       placeholder="예: 강남구, 서초구 인근 / 또는 지역 무관"
-                       className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       value={preferredPositions}
-                       onChange={(e) => setPreferredPositions(e.target.value)}
-                     />
-                     <div className="text-xs text-gray-500 mt-1">💡 활동 가능한 지역을 입력하면 근처 팀을 찾을 수 있어요</div>
-                   </div>
-                 )}
+                {targetType === "TEAM" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      🎯 가능 지역
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="예: 강남구, 서초구 인근 / 또는 지역 무관"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={preferredPositions}
+                      onChange={(e) => setPreferredPositions(e.target.value)}
+                    />
+                    <div className="text-xs text-gray-500 mt-1">
+                      💡 용병으로 뛸 수 있는 지역을 입력하세요
+                    </div>
+                  </div>
+                )}
 
                 {/* 편의시설 */}
                 <div>
