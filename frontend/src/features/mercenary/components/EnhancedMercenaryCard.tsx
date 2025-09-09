@@ -236,9 +236,9 @@ const EnhancedMercenaryCard: React.FC<Props> = ({
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <div className="text-xs text-blue-600 font-medium mb-1">
-              {post.targetType === "TEAM"
-                ? "🏃‍♂️ 팀 찾는 개인"
-                : "🤝 개인 찾는 팀"}
+              {post.targetType === "USER"
+                ? "🏃‍♂️ 개인 용병 모집"
+                : "🤝 용병 지원"}
             </div>
             <h3 className="text-lg font-semibold text-gray-900 leading-tight">
               {post.title}

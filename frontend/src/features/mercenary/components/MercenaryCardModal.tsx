@@ -230,11 +230,11 @@ const MercenaryCardModal = ({
               </label>
               <input
                 type="text"
-                 placeholder={
-                   targetType === "USER" 
-                     ? "예: [강남구] 조기축구 용병 모집 - 오전 7시" 
-                     : "예: [개인] 조기축구 용병 지원 - 미드필더"
-                 }
+                placeholder={
+                  targetType === "USER"
+                    ? "예: [강남구] 조기축구 용병 모집 - 오전 7시"
+                    : "예: [개인] 조기축구 용병 지원 - 미드필더"
+                }
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -331,40 +331,40 @@ const MercenaryCardModal = ({
               </div>
             )}
 
-             {/* 개인 정보 (용병 지원용) */}
-             {targetType === "TEAM" && (
-               <div className="space-y-4">
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                     ⚽ 주 포지션
-                   </label>
-                   <input
-                     type="text"
-                     placeholder="예: 미드필더, 수비수, 포지션 무관"
-                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     value={preferredPositions}
-                     onChange={(e) => setPreferredPositions(e.target.value)}
-                   />
-                 </div>
-                 <div>
-                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                     📊 실력 수준
-                   </label>
-                   <select
-                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     value={fieldLocation} // 임시로 fieldLocation 사용
-                     onChange={(e) => setFieldLocation(e.target.value)}
-                   >
-                     <option value="">실력 수준을 선택하세요</option>
-                     <option value="초급">초급 (축구 경험 1년 미만)</option>
-                     <option value="초중급">초중급 (축구 경험 1-3년)</option>
-                     <option value="중급">중급 (축구 경험 3-5년)</option>
-                     <option value="중고급">중고급 (축구 경험 5-10년)</option>
-                     <option value="고급">고급 (10년 이상, 리그 경험)</option>
-                   </select>
-                 </div>
-               </div>
-             )}
+            {/* 개인 정보 (용병 지원용) */}
+            {targetType === "TEAM" && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ⚽ 주 포지션
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="예: 미드필더, 수비수, 포지션 무관"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={preferredPositions}
+                    onChange={(e) => setPreferredPositions(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    📊 실력 수준
+                  </label>
+                  <select
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={fieldLocation} // 임시로 fieldLocation 사용
+                    onChange={(e) => setFieldLocation(e.target.value)}
+                  >
+                    <option value="">실력 수준을 선택하세요</option>
+                    <option value="초급">초급 (축구 경험 1년 미만)</option>
+                    <option value="초중급">초중급 (축구 경험 1-3년)</option>
+                    <option value="중급">중급 (축구 경험 3-5년)</option>
+                    <option value="중고급">중고급 (축구 경험 5-10년)</option>
+                    <option value="고급">고급 (10년 이상, 리그 경험)</option>
+                  </select>
+                </div>
+              </div>
+            )}
 
             {/* 내용 */}
             <div>
@@ -383,7 +383,7 @@ const MercenaryCardModal = ({
 • 경기 스타일: 패스 위주의 안정적인 플레이
 • 준비사항: 개인 축구화, 물
 • 연락처: 카카오톡 @teamleader`
-                     : `개인 실력과 용병 지원 정보를 적어주세요.
+                    : `개인 실력과 용병 지원 정보를 적어주세요.
 
 용병 지원 예시:
 • 축구 경력: 3년 (고등학교 축구부)

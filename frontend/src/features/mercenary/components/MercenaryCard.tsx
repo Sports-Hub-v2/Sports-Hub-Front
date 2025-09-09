@@ -11,7 +11,7 @@ const MercenaryCard = ({ post, onClick }: Props) => {
   // 조기축구 특화 정보 표시
   const getPostTypeLabel = () => {
     if (post.category === "MERCENARY") {
-      return post.targetType === "TEAM" ? "🏃‍♂️ 팀 찾는 개인" : "🤝 개인 찾는 팀";
+      return post.targetType === "USER" ? "🏃‍♂️ 개인 용병 모집" : "🤝 용병 지원";
     }
     return "⚽ 용병 모집";
   };
