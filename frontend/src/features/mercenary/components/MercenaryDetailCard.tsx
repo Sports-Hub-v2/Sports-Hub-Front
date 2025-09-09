@@ -44,8 +44,8 @@ const getStatusDisplayForDetail = (statusValue: PostType["status"]): React.React
 const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({ post, isExpanded, onClose, onExpand, onEdit, onDelete, onAuthorNameClick }) => {
   const { user } = useAuthStore();
   const navigate = useNavigate(); // 라우팅에 사용
-  const isTeamToIndividual = post.fromParticipant === 'TEAM';
-  const flowLabel = isTeamToIndividual ? "팀 → 개인" : "개인 → 팀";
+  const isTeamToIndividual = post.targetType === 'USER';
+  const flowLabel = isTeamToIndividual ? "🏃‍♂️ 팀 → 용병(개인)" : "🤝 용병(개인) → 팀";
   const dateLabel = isTeamToIndividual ? '경기 날짜' : '활동 가능 날짜';
   const timeLabel = isTeamToIndividual ? '경기 시간' : '활동 가능 시간';
   const positionLabel = isTeamToIndividual ? '모집 포지션' : '선호 포지션';
