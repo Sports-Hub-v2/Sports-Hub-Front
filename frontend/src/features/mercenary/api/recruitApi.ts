@@ -8,7 +8,7 @@ import type {
   RecruitPostUpdateRequestDto,
   RecruitCategory,
 } from "@/types/recruitPost";
-import type { ApplicationRequestDto } from '@/types/application';
+import type { ApplicationRequestDto } from "@/types/application";
 
 const API_BASE_URL = "/api/recruit/posts";
 
@@ -57,22 +57,32 @@ export const fetchRecruitPosts = async (
 
     return items.map(toPostType);
   } catch (error) {
-    console.error(`Error fetching recruit posts for category ${category}:`, error);
+    console.error(
+      `Error fetching recruit posts for category ${category}:`,
+      error
+    );
     throw error;
   }
 };
 
-export const createRecruitPostApi = async (postData: RecruitPostCreationRequestDto): Promise<RecruitPostResponseDto> => {
+export const createRecruitPostApi = async (
+  postData: RecruitPostCreationRequestDto
+): Promise<RecruitPostResponseDto> => {
   try {
-    const response = await axiosInstance.post<RecruitPostResponseDto>(API_BASE_URL, postData);
+    const response = await axiosInstance.post<RecruitPostResponseDto>(
+      API_BASE_URL,
+      postData
+    );
     return response.data;
   } catch (error: unknown) {
     // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
-    if (typeof error === 'object' && error !== null && 'response' in error) {
+    if (typeof error === "object" && error !== null && "response" in error) {
       const err = error as { response?: { data?: { message?: string } } };
-      throw new Error(err.response?.data?.message || '게시글 생성 중 오류가 발생했습니다.');
+      throw new Error(
+        err.response?.data?.message || "게시글 생성 중 오류가 발생했습니다."
+      );
     }
-    throw new Error('알 수 없는 오류가 발생했습니다.');
+    throw new Error("알 수 없는 오류가 발생했습니다.");
   }
 };
 
@@ -81,42 +91,63 @@ export const deleteRecruitPostApi = async (postId: number): Promise<void> => {
     await axiosInstance.delete(`${API_BASE_URL}/${postId}`);
   } catch (error: unknown) {
     // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
-    if (typeof error === 'object' && error !== null && 'response' in error) {
+    if (typeof error === "object" && error !== null && "response" in error) {
       const err = error as { response?: { data?: { message?: string } } };
-      throw new Error(err.response?.data?.message || '게시글 삭제 중 오류가 발생했습니다.');
+      throw new Error(
+        err.response?.data?.message || "게시글 삭제 중 오류가 발생했습니다."
+      );
     }
-    throw new Error('알 수 없는 오류가 발생했습니다.');
+    throw new Error("알 수 없는 오류가 발생했습니다.");
   }
 };
 
-export const updateRecruitPostApi = async (postId: number, updateData: RecruitPostUpdateRequestDto): Promise<RecruitPostResponseDto> => {
+export const updateRecruitPostApi = async (
+  postId: number,
+  updateData: RecruitPostUpdateRequestDto
+): Promise<RecruitPostResponseDto> => {
   try {
-    console.log('updateRecruitPostApi 호출:', { postId, updateData });
-    const response = await axiosInstance.put<RecruitPostResponseDto>(`${API_BASE_URL}/${postId}`, updateData);
-    console.log('updateRecruitPostApi 응답:', response.data);
+    console.log("updateRecruitPostApi 호출:", { postId, updateData });
+    const response = await axiosInstance.patch<RecruitPostResponseDto>(
+      `${API_BASE_URL}/${postId}`,
+      updateData
+    );
+    console.log("updateRecruitPostApi 응답:", response.data);
     return response.data;
   } catch (error: unknown) {
-    console.error('updateRecruitPostApi 에러:', error);
+    console.error("updateRecruitPostApi 에러:", error);
     // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
-    if (typeof error === 'object' && error !== null && 'response' in error) {
-      const err = error as { response?: { data?: { message?: string }, status?: number } };
-      console.error('HTTP 응답 에러:', err.response);
-      throw new Error(err.response?.data?.message || `게시글 수정 중 오류가 발생했습니다. (HTTP ${err.response?.status})`);
+    if (typeof error === "object" && error !== null && "response" in error) {
+      const err = error as {
+        response?: { data?: { message?: string }; status?: number };
+      };
+      console.error("HTTP 응답 에러:", err.response);
+      throw new Error(
+        err.response?.data?.message ||
+          `게시글 수정 중 오류가 발생했습니다. (HTTP ${err.response?.status})`
+      );
     }
-    throw new Error('알 수 없는 오류가 발생했습니다.');
+    throw new Error("알 수 없는 오류가 발생했습니다.");
   }
 };
 
-export const applyToPostApi = async (postId: number, applicationData: ApplicationRequestDto): Promise<any> => {
+export const applyToPostApi = async (
+  postId: number,
+  applicationData: ApplicationRequestDto
+): Promise<any> => {
   try {
-    const response = await axiosInstance.post(`${API_BASE_URL}/${postId}/applications`, applicationData);
+    const response = await axiosInstance.post(
+      `${API_BASE_URL}/${postId}/applications`,
+      applicationData
+    );
     return response.data;
   } catch (error: unknown) {
     // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
-    if (typeof error === 'object' && error !== null && 'response' in error) {
+    if (typeof error === "object" && error !== null && "response" in error) {
       const err = error as { response?: { data?: { message?: string } } };
-      throw new Error(err.response?.data?.message || '신청 처리 중 오류가 발생했습니다.');
+      throw new Error(
+        err.response?.data?.message || "신청 처리 중 오류가 발생했습니다."
+      );
     }
-    throw new Error('알 수 없는 오류가 발생했습니다.');
+    throw new Error("알 수 없는 오류가 발생했습니다.");
   }
 };

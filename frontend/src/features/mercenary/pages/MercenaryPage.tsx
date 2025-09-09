@@ -106,7 +106,12 @@ const MercenaryPage = () => {
     try {
       if (editingPost) {
         // 수정 모드
-        console.log("수정 모드 - postId:", editingPost.id, "formData:", formData);
+        console.log(
+          "수정 모드 - postId:",
+          editingPost.id,
+          "formData:",
+          formData
+        );
         await updateRecruitPostApi(editingPost.id, formData);
         alert("게시글이 성공적으로 수정되었습니다.");
       } else {
