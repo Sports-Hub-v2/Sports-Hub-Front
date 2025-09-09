@@ -1,6 +1,6 @@
 // src/components/common/AutocompleteInput.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 
 interface Props {
   value: string;
@@ -17,7 +17,7 @@ const AutocompleteInput: React.FC<Props> = ({
   suggestions,
   placeholder,
   className = "",
-  label
+  label,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
@@ -26,13 +26,13 @@ const AutocompleteInput: React.FC<Props> = ({
   const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    if (value.trim() === '') {
+    if (value.trim() === "") {
       setFilteredSuggestions([]);
       setIsOpen(false);
       return;
     }
 
-    const filtered = suggestions.filter(suggestion =>
+    const filtered = suggestions.filter((suggestion) =>
       suggestion.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredSuggestions(filtered);
@@ -54,25 +54,25 @@ const AutocompleteInput: React.FC<Props> = ({
     if (!isOpen) return;
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex((prev) =>
           prev < filteredSuggestions.length - 1 ? prev + 1 : 0
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setHighlightedIndex(prev => 
+        setHighlightedIndex((prev) =>
           prev > 0 ? prev - 1 : filteredSuggestions.length - 1
         );
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (highlightedIndex >= 0) {
           handleSuggestionClick(filteredSuggestions[highlightedIndex]);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setIsOpen(false);
         setHighlightedIndex(-1);
         inputRef.current?.blur();
@@ -104,12 +104,14 @@ const AutocompleteInput: React.FC<Props> = ({
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onBlur={handleBlur}
-        onFocus={() => value.trim() && setIsOpen(filteredSuggestions.length > 0)}
+        onFocus={() =>
+          value.trim() && setIsOpen(filteredSuggestions.length > 0)
+        }
         placeholder={placeholder}
         className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent ${className}`}
         autoComplete="off"
       />
-      
+
       {isOpen && filteredSuggestions.length > 0 && (
         <ul
           ref={listRef}
@@ -120,7 +122,7 @@ const AutocompleteInput: React.FC<Props> = ({
               key={suggestion}
               onClick={() => handleSuggestionClick(suggestion)}
               className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                index === highlightedIndex ? 'bg-blue-100' : ''
+                index === highlightedIndex ? "bg-blue-100" : ""
               }`}
               onMouseEnter={() => setHighlightedIndex(index)}
             >

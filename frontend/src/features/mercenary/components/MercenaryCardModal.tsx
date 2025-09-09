@@ -178,79 +178,89 @@ const MercenaryCardModal = ({
               📝 기본 정보
             </h3>
 
-            {/* 모집 유형 선택 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                📋 모집 유형 *
-              </label>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setTargetType("USER")}
-                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
-                    targetType === "USER"
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="text-lg">🏃‍♂️</div>
-                  <div className="text-sm font-medium">개인 찾는 팀</div>
-                  <div className="text-xs text-gray-500">팀에서 개인 모집</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTargetType("TEAM")}
-                  className={`flex-1 p-3 rounded-lg border-2 transition-all ${
-                    targetType === "TEAM"
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="text-lg">🤝</div>
-                  <div className="text-sm font-medium">팀 찾는 개인</div>
-                  <div className="text-xs text-gray-500">개인이 팀 찾기</div>
-                </button>
-              </div>
-            </div>
-
-            {/* 제목 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                📝 제목 *
-              </label>
-              <input
-                type="text"
-                placeholder="예: 강남역 조기축구 용병 모집 (오전 7시)"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-
-             {/* 지역 정보 */}
-             <div className="grid grid-cols-2 gap-3">
-               <div>
-                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                   📍 지역 *
-                 </label>
+             {/* 모집 유형 선택 */}
+             <div>
+               <label className="block text-sm font-medium text-gray-700 mb-2">
+                 📋 모집 유형 *
+               </label>
+               <div className="flex gap-3">
                  <button
                    type="button"
-                   onClick={() => setIsRegionModalOpen(true)}
-                   className="w-full border border-gray-300 rounded-lg px-4 py-3 text-left focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:bg-gray-50 transition-colors"
+                   onClick={() => setTargetType("USER")}
+                   className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                     targetType === "USER"
+                       ? "border-blue-500 bg-blue-50 text-blue-700"
+                       : "border-gray-200 hover:border-gray-300"
+                   }`}
                  >
-                   {region || "지역을 선택하세요"}
+                   <div className="text-2xl mb-2">🏃‍♂️</div>
+                   <div className="text-sm font-bold">개인 용병 모집</div>
+                   <div className="text-xs text-gray-500 mt-1">우리 팀에 합류할 용병을 찾습니다</div>
+                   <div className="text-xs text-blue-600 mt-1">• 팀 정보 및 경기 일정 제공</div>
+                 </button>
+                 <button
+                   type="button"
+                   onClick={() => setTargetType("TEAM")}
+                   className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                     targetType === "TEAM"
+                       ? "border-blue-500 bg-blue-50 text-blue-700"
+                       : "border-gray-200 hover:border-gray-300"
+                   }`}
+                 >
+                   <div className="text-2xl mb-2">🤝</div>
+                   <div className="text-sm font-bold">팀 합류 희망</div>
+                   <div className="text-xs text-gray-500 mt-1">함께 축구할 팀을 찾습니다</div>
+                   <div className="text-xs text-green-600 mt-1">• 개인 실력 및 희망 사항 어필</div>
                  </button>
                </div>
-               <div>
-                 <AutocompleteInput
-                   label="📍 상세 지역"
-                   value={subRegion}
-                   onChange={(value) => setSubRegion(value)}
-                   suggestions={getSubRegionSuggestions(region)}
-                   placeholder={region ? `${region}의 구/시를 입력하세요` : "먼저 지역을 선택하세요"}
-                 />
-               </div>
              </div>
+
+             {/* 제목 */}
+             <div>
+               <label className="block text-sm font-medium text-gray-700 mb-2">
+                 📝 제목 *
+               </label>
+               <input
+                 type="text"
+                 placeholder={
+                   targetType === "USER" 
+                     ? "예: [강남구] 조기축구 용병 모집 - 오전 7시" 
+                     : "예: [개인] 조기축구 팀 찾습니다 - 미드필더"
+                 }
+                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                 value={title}
+                 onChange={(e) => setTitle(e.target.value)}
+               />
+             </div>
+
+            {/* 지역 정보 */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  📍 지역 *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsRegionModalOpen(true)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-left focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:bg-gray-50 transition-colors"
+                >
+                  {region || "지역을 선택하세요"}
+                </button>
+              </div>
+              <div>
+                <AutocompleteInput
+                  label="📍 상세 지역"
+                  value={subRegion}
+                  onChange={(value) => setSubRegion(value)}
+                  suggestions={getSubRegionSuggestions(region)}
+                  placeholder={
+                    region
+                      ? `${region}의 구/시를 입력하세요`
+                      : "먼저 지역을 선택하세요"
+                  }
+                />
+              </div>
+            </div>
 
             {/* 일시 설정 */}
             <div className="grid grid-cols-2 gap-3">
@@ -292,41 +302,93 @@ const MercenaryCardModal = ({
               </div>
             </div>
 
-            {/* 모집 인원 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                👥 모집 인원
-              </label>
-              <input
-                type="number"
-                placeholder="예: 2"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={requiredPersonnel}
-                onChange={(e) => setRequiredPersonnel(e.target.value)}
-                min="1"
-                max="20"
-              />
-            </div>
+             {/* 모집 인원 */}
+             {targetType === "USER" && (
+               <div>
+                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                   👥 모집 인원
+                 </label>
+                 <input
+                   type="number"
+                   placeholder="예: 2명"
+                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                   value={requiredPersonnel}
+                   onChange={(e) => setRequiredPersonnel(e.target.value)}
+                   min="1"
+                   max="20"
+                 />
+                 <div className="text-xs text-gray-500 mt-1">💡 필요한 용병 수를 입력하세요</div>
+               </div>
+             )}
 
-            {/* 내용 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                📄 상세 내용 *
-              </label>
-              <textarea
-                placeholder={`경기에 대한 상세 정보를 적어주세요.
+             {/* 개인 정보 (팀 찾는 개인용) */}
+             {targetType === "TEAM" && (
+               <div className="space-y-4">
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                     ⚽ 주 포지션
+                   </label>
+                   <input
+                     type="text"
+                     placeholder="예: 미드필더, 수비수"
+                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     value={preferredPositions}
+                     onChange={(e) => setPreferredPositions(e.target.value)}
+                   />
+                 </div>
+                 <div>
+                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                     📊 실력 수준
+                   </label>
+                   <select
+                     className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     value={fieldLocation} // 임시로 fieldLocation 사용
+                     onChange={(e) => setFieldLocation(e.target.value)}
+                   >
+                     <option value="">실력 수준을 선택하세요</option>
+                     <option value="초급">초급 (축구 경험 1년 미만)</option>
+                     <option value="초중급">초중급 (축구 경험 1-3년)</option>
+                     <option value="중급">중급 (축구 경험 3-5년)</option>
+                     <option value="중고급">중고급 (축구 경험 5-10년)</option>
+                     <option value="고급">고급 (10년 이상, 리그 경험)</option>
+                   </select>
+                 </div>
+               </div>
+             )}
 
-예시:
-• 레벨: 초급자 환영
-• 구장: 인조잔디 풋살장
+             {/* 내용 */}
+             <div>
+               <label className="block text-sm font-medium text-gray-700 mb-2">
+                 📄 상세 내용 *
+               </label>
+               <textarea
+                 placeholder={
+                   targetType === "USER" 
+                     ? `팀 정보와 경기 상세 내용을 적어주세요.
+
+팀 모집 예시:
+• 팀명: 강남 FC
+• 팀 레벨: 초중급 (경험자 환영)
+• 구장: 강남 스포츠센터 인조잔디
+• 경기 스타일: 패스 위주의 안정적인 플레이
 • 준비사항: 개인 축구화, 물
-• 연락처: 카카오톡 @username`}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={6}
-              />
-            </div>
+• 연락처: 카카오톡 @teamleader`
+                     : `개인 정보와 팀 합류 희망사항을 적어주세요.
+
+개인 어필 예시:
+• 축구 경력: 3년 (고등학교 축구부)
+• 주 포지션: 공격형 미드필더, 우윙
+• 플레이 스타일: 빠른 스피드와 정확한 패스
+• 희망 팀 레벨: 초중급~중급
+• 가능 요일: 주말, 평일 저녁
+• 연락처: 카카오톡 @playerid`
+                 }
+                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                 value={content}
+                 onChange={(e) => setContent(e.target.value)}
+                 rows={8}
+               />
+             </div>
           </div>
 
           {/* 상세 설정 섹션 (접히는 방식) */}
@@ -378,19 +440,38 @@ const MercenaryCardModal = ({
                   />
                 </div>
 
-                {/* 선호 포지션 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ⚽ 선호/모집 포지션
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="예: 미드필더, 수비수 / 또는 포지션 무관"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={preferredPositions}
-                    onChange={(e) => setPreferredPositions(e.target.value)}
-                  />
-                </div>
+                 {/* 포지션 정보 (타입별로 다르게) */}
+                 {targetType === "USER" && (
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                       ⚽ 모집 포지션
+                     </label>
+                     <input
+                       type="text"
+                       placeholder="예: 미드필더, 수비수 / 또는 포지션 무관"
+                       className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       value={preferredPositions}
+                       onChange={(e) => setPreferredPositions(e.target.value)}
+                     />
+                     <div className="text-xs text-gray-500 mt-1">💡 필요한 포지션을 명시하면 더 적합한 용병을 찾을 수 있어요</div>
+                   </div>
+                 )}
+
+                 {targetType === "TEAM" && (
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                       🎯 희망 활동 지역
+                     </label>
+                     <input
+                       type="text"
+                       placeholder="예: 강남구, 서초구 인근 / 또는 지역 무관"
+                       className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       value={preferredPositions}
+                       onChange={(e) => setPreferredPositions(e.target.value)}
+                     />
+                     <div className="text-xs text-gray-500 mt-1">💡 활동 가능한 지역을 입력하면 근처 팀을 찾을 수 있어요</div>
+                   </div>
+                 )}
 
                 {/* 편의시설 */}
                 <div>
@@ -461,22 +542,22 @@ const MercenaryCardModal = ({
               </button>
             </div>
           </div>
-         </div>
+        </div>
 
-         {/* 지역 선택 모달 */}
-         {isRegionModalOpen && (
-           <RegionSelectModal
-             onSelect={(selectedRegion) => {
-               setRegion(selectedRegion);
-               setSubRegion(""); // 지역 변경 시 상세지역 초기화
-               setIsRegionModalOpen(false);
-             }}
-             onClose={() => setIsRegionModalOpen(false)}
-           />
-         )}
-       </div>
-     </div>
-   );
- };
+        {/* 지역 선택 모달 */}
+        {isRegionModalOpen && (
+          <RegionSelectModal
+            onSelect={(selectedRegion) => {
+              setRegion(selectedRegion);
+              setSubRegion(""); // 지역 변경 시 상세지역 초기화
+              setIsRegionModalOpen(false);
+            }}
+            onClose={() => setIsRegionModalOpen(false)}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default MercenaryCardModal;
