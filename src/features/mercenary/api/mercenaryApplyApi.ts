@@ -2,6 +2,7 @@
 import axiosInstance from "@/lib/axiosInstance.ts";
 import { ApplicationRequestDto } from "@/types/application.ts";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { getProfileByAccountIdApi } from "@/features/auth/api/userApi";
 
 const API_BASE_URL = "/api/recruit/posts";
 
@@ -15,7 +16,13 @@ export const applyMercenary = async (
 ) => {
   try {
     const { user } = useAuthStore.getState();
-    const applicantProfileId = user?.profileId;
+    let applicantProfileId = user?.profileId;
+    if (!applicantProfileId && user?.id) {
+      try {
+        const prof = await getProfileByAccountIdApi(user.id);
+        applicantProfileId = (prof as any).id;
+      } catch {}
+    }
     const body: any = {
       applicantProfileId,
       description: payload.description ?? payload.message ?? undefined,
@@ -30,4 +37,3 @@ export const applyMercenary = async (
     throw error;
   }
 };
-

@@ -15,6 +15,7 @@ import MatchPage from "@/features/match/pages/MatchPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import SignupPage from "@/features/auth/pages/SignupPage";
 import OAuthCallback from "@/features/auth/pages/OAuthCallback";
+import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 
 // Team Detail Page
 import TeamDetailPage from "@/features/team/pages/TeamDetailPage";
@@ -64,6 +65,7 @@ const AppRouter = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       </Routes>
     </BrowserRouter>
   );

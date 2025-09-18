@@ -1,4 +1,4 @@
-// src/lib/axiosInstance.ts
+﻿// src/lib/axiosInstance.ts
 import axios from 'axios'
 
 const axiosInstance = axios.create({
@@ -65,3 +65,9 @@ axiosInstance.interceptors.response.use(
 
 export default axiosInstance
 
+// Debug switch for HTTP logs (set VITE_HTTP_DEBUG=true or localStorage.httpDebug = "true")
+const HTTP_DEBUG = ((): boolean => {
+  try { if (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_HTTP_DEBUG === 'true') return true } catch {}
+  try { return localStorage.getItem('httpDebug') === 'true' } catch {}
+  return false
+})()

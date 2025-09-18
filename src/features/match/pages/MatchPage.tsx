@@ -8,13 +8,10 @@ import {
   RecruitCategory,
   RecruitPostCreationRequestDto,
 } from "@/types/recruitPost";
-import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 또는 MatchDetailCard
+import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 공용 상세 카드 사용
 import MatchRecruitModal from "@/features/match/components/MatchRecruitModal";
 import MatchDayStyleCard from "@/components/common/MatchDayStyleCard";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
-// mock 데이터 제거
-// 공용 컴포넌트 경로 사용
-import RegionSelectTrigger from "@/components/common/RegionSelectTrigger";
 import RegionSelectModal from "@/components/common/RegionSelectModal";
 
 const MatchPage = () => {
@@ -53,13 +50,15 @@ const MatchPage = () => {
   }, [loadPosts]);
 
   const filteredPosts = useMemo(() => {
-    // 샘플 데이터와 실제 데이터 병합 (데모용)
-    const allPosts = [...(allPostsFromStore || [])];
+    // MATCH 카테고리만 선별
+    const matchOnly = (allPostsFromStore || []).filter(
+      (p) => p.category === RecruitCategory.MATCH
+    );
 
-    return allPosts
+    return matchOnly
       .filter((p) => {
         const titleMatch = p.title.toLowerCase().includes(search.toLowerCase());
-        const regionMatchInMain = p.region
+        const regionMatchInMain = (p.region || "")
           .toLowerCase()
           .includes(search.toLowerCase());
         const subRegionMatch = p.subRegion
@@ -79,8 +78,8 @@ const MatchPage = () => {
   }, [allPostsFromStore, search, selectedRegion]);
 
   const handleCreate = (postData: RecruitPostCreationRequestDto) => {
-    // TODO: 실제 API 호출로 게시글 생성 후 스토어 업데이트
-    console.log("새 게시글 생성:", postData);
+    // TODO: 실제 API 호출과 게시글 생성 후 스토어 업데이트
+    console.log("경기 모집글 생성:", postData);
     loadPosts(RecruitCategory.MATCH);
     setModalOpen(false);
   };
@@ -91,11 +90,11 @@ const MatchPage = () => {
       return;
     }
 
-    const message = prompt("경기 참가 신청 메시지를 입력해주세요:");
+    const message = prompt("경기 참여 신청 메시지를 입력해주세요:");
     if (message) {
       // TODO: 실제 API 호출
-      console.log(`경기 "${post.title}"에 참가 신청:`, message);
-      alert("경기 참가 신청이 완료되었습니다!");
+      console.log(`경기 "${post.title}"에 참여 신청:`, message);
+      alert("경기 참여 신청이 완료되었습니다.");
     }
   };
 
@@ -104,7 +103,7 @@ const MatchPage = () => {
       try {
         await removePost(postId);
         if (String(postId) === focusedId) {
-          navigate("/match", { replace: true }); // 경기 페이지 경로로 수정
+          navigate("/match", { replace: true }); // 경기 페이지 경로로 지정
         }
       } catch (error) {
         console.error("Error deleting post:", error);
@@ -127,8 +126,8 @@ const MatchPage = () => {
   }, [filteredPosts, focusedId]);
 
   const handleExpand = (postId: string | number) =>
-    navigate(`/match?id=${postId}`); // 경기 페이지 경로로 수정
-  const handleClose = () => navigate("/match", { replace: true }); // 경기 페이지 경로로 수정
+    navigate(`/match?id=${postId}`); // 경기 페이지 경로로 지정
+  const handleClose = () => navigate("/match", { replace: true }); // 경기 페이지 경로로 지정
 
   if (isLoading && allPostsFromStore.length === 0) {
     return (
@@ -140,14 +139,12 @@ const MatchPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 매치데이 스타일 헤더 */}
+      {/* 페이지 헤더 */}
       <div className="bg-white shadow-sm border-b border-gray-200 pt-16">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                모집 중인 경기
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-900">모집 중인 경기</h1>
               <p className="text-gray-500 mt-1">함께할 경기를 찾아보세요</p>
             </div>
             {user && (
@@ -162,7 +159,7 @@ const MatchPage = () => {
         </div>
       </div>
 
-      {/* 매치데이 스타일 필터 */}
+      {/* 필터 */}
       <MatchDayStyleFilter
         searchValue={search}
         selectedRegion={selectedRegion}
@@ -190,7 +187,7 @@ const MatchPage = () => {
 
       {/* 메인 콘텐츠 영역 */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* 확장된 카드 표시 */}
+        {/* 확장 카드 표시 */}
         {focusedId && sortedPosts.length > 0 && (
           <div className="mb-8">
             {sortedPosts
@@ -218,7 +215,7 @@ const MatchPage = () => {
         {/* 빈 상태 */}
         {sortedPosts.length === 0 && !isLoading && (
           <div className="text-center py-20">
-            <div className="text-gray-400 text-6xl mb-4">🏟️</div>
+            <div className="text-gray-400 text-6xl mb-4">🛈</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               {search || selectedRegion !== "전체 지역"
                 ? "검색 결과가 없습니다"
@@ -226,13 +223,13 @@ const MatchPage = () => {
             </h3>
             <p className="text-gray-500">
               {search || selectedRegion !== "전체 지역"
-                ? "다른 조건으로 검색해보세요."
+                ? "다른 조건으로 검색해보세요"
                 : "첫 번째 경기를 만들어보세요!"}
             </p>
           </div>
         )}
 
-        {/* 경기 카드 그리드 - 매치데이 스타일 */}
+        {/* 경기 카드 그리드 */}
         {sortedPosts.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {sortedPosts
@@ -254,3 +251,4 @@ const MatchPage = () => {
 };
 
 export default MatchPage;
+

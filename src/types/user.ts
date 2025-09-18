@@ -1,14 +1,13 @@
-// src/types/user.ts
+﻿// src/types/user.ts
 
 /**
- * 서버 응답 또는 앱 내부에서 사용될 사용자 정보 타입.
- * 백엔드 UserResponseDto.java 와 필드 구조를 일치시킵니다.
+ * ?쒕쾭 ?묐떟 ?먮뒗 ???대??먯꽌 ?ъ슜???ъ슜???뺣낫 ???
+ * 諛깆뿏??UserResponseDto.java ? ?꾨뱶 援ъ“瑜??쇱튂?쒗궢?덈떎.
  */
-export interface UserResponseDto { // 백엔드 UserResponseDto와 일치시킬 타입
-  id: number;
+export interface UserResponseDto { // 諛깆뿏??UserResponseDto? ?쇱튂?쒗궗 ???  id: number;
   name: string;
   email: string;
-  userid: string; // User.java 및 UserResponseDto.java 기준
+  userid: string; // User.java 諛?UserResponseDto.java 湲곗?
   role?: string;
   isExPlayer?: boolean;
   region?: string;
@@ -22,20 +21,20 @@ export interface UserResponseDto { // 백엔드 UserResponseDto와 일치시킬 
 }
 
 /**
- * 기존 User 인터페이스 (UserResponseDto와 동일하게 사용하거나,
- * 앱 내부 표현에 맞게 필드를 추가/제외할 수 있습니다.)
- * 여기서는 UserResponseDto와 동일하게 정의합니다.
+ * 湲곗〈 User ?명꽣?섏씠??(UserResponseDto? ?숈씪?섍쾶 ?ъ슜?섍굅??
+ * ???대? ?쒗쁽??留욊쾶 ?꾨뱶瑜?異붽?/?쒖쇅?????덉뒿?덈떎.)
+ * ?ш린?쒕뒗 UserResponseDto? ?숈씪?섍쾶 ?뺤쓽?⑸땲??
  */
 export type User = UserResponseDto;
 
 
 /**
- * 회원가입 요청 시 서버로 전송할 데이터의 구조를 정의하는 타입.
+ * ?뚯썝媛???붿껌 ???쒕쾭濡??꾩넚???곗씠?곗쓽 援ъ“瑜??뺤쓽?섎뒗 ???
  */
 export interface UserSignUpRequestDto {
   name: string;
   email: string;
-  userid: string; // 백엔드 UserSignUpRequestDto.java는 'userid'를 사용
+  userid: string; // 諛깆뿏??UserSignUpRequestDto.java??'userid'瑜??ъ슜
   password: string;
   isExPlayer?: boolean;
   region?: string;
@@ -44,43 +43,42 @@ export interface UserSignUpRequestDto {
 }
 
 /**
- * 로그인 요청 DTO.
- * 백엔드 로그인 DTO는 "loginId" 필드를 기대합니다 (오류 메시지 기반).
+ * 濡쒓렇???붿껌 DTO.
+ * 諛깆뿏??濡쒓렇??DTO??"loginId" ?꾨뱶瑜?湲곕??⑸땲??(?ㅻ쪟 硫붿떆吏 湲곕컲).
  */
 export interface UserLoginRequestDto {
-  loginId: string; // ✅ 백엔드에서 기대하는 필드명
-  password: string;
+  loginId: string; // ??諛깆뿏?쒖뿉??湲곕??섎뒗 ?꾨뱶紐?  password: string;
 }
 
 /**
- * 인증 응답 DTO.
- * 백엔드의 AuthLoginResponseDto.java 구조와 일치시킵니다.
+ * ?몄쬆 ?묐떟 DTO.
+ * 諛깆뿏?쒖쓽 AuthLoginResponseDto.java 援ъ“? ?쇱튂?쒗궢?덈떎.
  */
 export interface AuthResponseDto {
-  token: string; // 백엔드 AuthLoginResponseDto.java의 필드명 'token'
-  user: UserResponseDto; // 로그인 후 반환되는 사용자 정보
+  token: string; // 諛깆뿏??AuthLoginResponseDto.java???꾨뱶紐?'token'
+  user: UserResponseDto; // 濡쒓렇????諛섑솚?섎뒗 ?ъ슜???뺣낫
 }
 
 export interface UserProfileUpdateDto {
   name?: string;                 // @Size(max = 50)
   email?: string;                // @Email, @Size(max = 100)
-  password?: string;             // @Size(max = 255), 보통 별도 API 사용
+  password?: string;             // @Size(max = 255), 蹂댄넻 蹂꾨룄 API ?ъ슜
   isExPlayer?: boolean;          //
   region?: string;               //
   preferredPosition?: string;    //
   phoneNumber?: string;          // @Size(max = 20)
-  activityStartDate?: string;    // Java의 LocalDate는 string으로
-  activityEndDate?: string;      // Java의 LocalDate는 string으로
-  birthDate?: string;            // Java의 LocalDate는 string으로
+  activityStartDate?: string;    // Java??LocalDate??string?쇰줈
+  activityEndDate?: string;      // Java??LocalDate??string?쇰줈
+  birthDate?: string;            // Java??LocalDate??string?쇰줈
 }
 
 export interface PublicUserProfileResponseDto {
   id: number;
   name: string;
-  userid: string; // 또는 loginId 등 백엔드 DTO 필드명과 일치
+  userid: string; // ?먮뒗 loginId ??諛깆뿏??DTO ?꾨뱶紐낃낵 ?쇱튂
   region?: string;
   preferredPosition?: string;
   isExPlayer?: boolean;
-  // 백엔드 PublicUserProfileResponseDto에 정의된 다른 공개 필드들
-}
+  // 諛깆뿏??PublicUserProfileResponseDto???뺤쓽???ㅻⅨ 怨듦컻 ?꾨뱶??}
+
 

@@ -2,6 +2,7 @@
 
 import axiosInstance from "@/lib/axiosInstance";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { getProfileByAccountIdApi } from "@/features/auth/api/userApi";
 import type {
   PostType,
   RecruitPostCreationRequestDto,
@@ -72,11 +73,12 @@ export const createRecruitPostApi = async (
   try {
     // 보장: 작성자 프로필 ID 주입
     const { user } = useAuthStore.getState();
-    const enriched = {
-      ...postData,
-      writerProfileId:
-        (postData as any).writerProfileId ?? (user && user.profileId ? user.profileId : undefined),
-    } as any;
+    let writerProfileId = (postData as any).writerProfileId;
+    if (!writerProfileId && user?.profileId) writerProfileId = user.profileId;
+    if (!writerProfileId && user?.id) {
+      try { const prof = await getProfileByAccountIdApi(user.id); writerProfileId = (prof as any).id; } catch {}
+    }
+    const enriched = { ...postData, writerProfileId } as any;
 
     const response = await axiosInstance.post<RecruitPostResponseDto>(
       API_BASE_URL,
@@ -145,7 +147,10 @@ export const applyToPostApi = async (
 ): Promise<any> => {
   try {
     const { user } = useAuthStore.getState();
-    const applicantProfileId = user?.profileId;
+    let applicantProfileId = user?.profileId;
+    if (!applicantProfileId && user?.id) {
+      try { const prof = await getProfileByAccountIdApi(user.id); applicantProfileId = (prof as any).id; } catch {}
+    }
     const payload: any = {
       applicantProfileId,
       description: (applicationData as any).message ?? (applicationData as any).description ?? undefined,

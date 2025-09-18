@@ -8,13 +8,10 @@ import {
   RecruitCategory,
   RecruitPostCreationRequestDto,
 } from "@/types/recruitPost";
-import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 또는 TeamDetailCard
+import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 공용 상세 카드 사용
 import TeamRecruitModal from "@/features/team/components/TeamRecruitModal";
-import MatchDayStyleCard from "@/components/common/MatchDayStyleCard";
+import TeamRecruitCard from "@/components/common/TeamRecruitCard";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
-// mock 데이터 제거
-// 공용 컴포넌트 경로 사용
-import RegionSelectTrigger from "@/components/common/RegionSelectTrigger";
 import RegionSelectModal from "@/components/common/RegionSelectModal";
 
 const TeamPage = () => {
@@ -53,13 +50,15 @@ const TeamPage = () => {
   }, [loadPosts]);
 
   const filteredPosts = useMemo(() => {
-    // 샘플 데이터와 실제 데이터 병합 (데모용)
-    const allPosts = [...(allPostsFromStore || [])];
+    // TEAM 카테고리만 선별
+    const teamOnly = (allPostsFromStore || []).filter(
+      (p) => p.category === RecruitCategory.TEAM
+    );
 
-    return allPosts
+    return teamOnly
       .filter((p) => {
         const titleMatch = p.title.toLowerCase().includes(search.toLowerCase());
-        const regionMatchInMain = p.region
+        const regionMatchInMain = (p.region || "")
           .toLowerCase()
           .includes(search.toLowerCase());
         const subRegionMatch = p.subRegion
@@ -79,8 +78,8 @@ const TeamPage = () => {
   }, [allPostsFromStore, search, selectedRegion]);
 
   const handleCreate = (postData: RecruitPostCreationRequestDto) => {
-    // TODO: 실제 API 호출로 게시글 생성 후 스토어 업데이트
-    console.log("새 게시글 생성:", postData);
+    // TODO: 실제 API 호출과 게시글 생성 후 스토어 업데이트
+    console.log("팀 모집글 생성:", postData);
     loadPosts(RecruitCategory.TEAM);
     setModalOpen(false);
   };
@@ -95,7 +94,7 @@ const TeamPage = () => {
     if (message) {
       // TODO: 실제 API 호출
       console.log(`팀 "${post.title}"에 가입 신청:`, message);
-      alert("팀 가입 신청이 완료되었습니다!");
+      alert("팀 가입 신청이 완료되었습니다.");
     }
   };
 
@@ -104,7 +103,7 @@ const TeamPage = () => {
       try {
         await removePost(postId);
         if (String(postId) === focusedId) {
-          navigate("/team", { replace: true }); // 팀 페이지 경로로 수정
+          navigate("/team", { replace: true }); // 팀 페이지 경로로 지정
         }
       } catch (error) {
         console.error("Error deleting post:", error);
@@ -127,8 +126,8 @@ const TeamPage = () => {
   }, [filteredPosts, focusedId]);
 
   const handleExpand = (postId: string | number) =>
-    navigate(`/team?id=${postId}`); // 팀 페이지 경로로 수정
-  const handleClose = () => navigate("/team", { replace: true }); // 팀 페이지 경로로 수정
+    navigate(`/team?id=${postId}`); // 팀 페이지 경로로 지정
+  const handleClose = () => navigate("/team", { replace: true }); // 팀 페이지 경로로 지정
 
   if (isLoading && allPostsFromStore.length === 0) {
     return (
@@ -140,7 +139,7 @@ const TeamPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 매치데이 스타일 헤더 */}
+      {/* 페이지 헤더 */}
       <div className="bg-white shadow-sm border-b border-gray-200 pt-16">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -160,7 +159,7 @@ const TeamPage = () => {
         </div>
       </div>
 
-      {/* 매치데이 스타일 필터 */}
+      {/* 필터 */}
       <MatchDayStyleFilter
         searchValue={search}
         selectedRegion={selectedRegion}
@@ -188,7 +187,7 @@ const TeamPage = () => {
 
       {/* 메인 콘텐츠 영역 */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* 확장된 카드 표시 */}
+        {/* 확장 카드 표시 */}
         {focusedId && sortedPosts.length > 0 && (
           <div className="mb-8">
             {sortedPosts
@@ -216,7 +215,7 @@ const TeamPage = () => {
         {/* 빈 상태 */}
         {sortedPosts.length === 0 && !isLoading && (
           <div className="text-center py-20">
-            <div className="text-gray-400 text-6xl mb-4">⚽</div>
+            <div className="text-gray-400 text-6xl mb-4">🛈</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               {search || selectedRegion !== "전체 지역"
                 ? "검색 결과가 없습니다"
@@ -224,22 +223,21 @@ const TeamPage = () => {
             </h3>
             <p className="text-gray-500">
               {search || selectedRegion !== "전체 지역"
-                ? "다른 조건으로 검색해보세요."
+                ? "다른 조건으로 검색해보세요"
                 : "첫 번째 팀을 만들어보세요!"}
             </p>
           </div>
         )}
 
-        {/* 팀 카드 그리드 - 매치데이 스타일 */}
+        {/* 팀 카드 그리드 */}
         {sortedPosts.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {sortedPosts
               .filter((post) => String(post.id) !== focusedId)
               .map((post) => (
-                <MatchDayStyleCard
+                <TeamRecruitCard
                   key={post.id}
                   post={post}
-                  cardType="team"
                   onApply={() => handleTeamApply(post)}
                   onClick={() => handleExpand(post.id)}
                 />
@@ -252,3 +250,4 @@ const TeamPage = () => {
 };
 
 export default TeamPage;
+
