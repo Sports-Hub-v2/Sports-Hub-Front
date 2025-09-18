@@ -1,0 +1,165 @@
+// src/features/mercenary/api/recruitApi.ts
+
+import axiosInstance from "@/lib/axiosInstance";
+import { useAuthStore } from "@/stores/useAuthStore";
+import type {
+  PostType,
+  RecruitPostCreationRequestDto,
+  RecruitPostResponseDto,
+  RecruitPostUpdateRequestDto,
+  RecruitCategory,
+} from "@/types/recruitPost";
+import type { ApplicationRequestDto } from "@/types/application";
+
+const API_BASE_URL = "/api/recruit/posts";
+
+export const fetchRecruitPosts = async (
+  category: string,
+  page: number = 0,
+  size: number = 10
+): Promise<PostType[]> => {
+  try {
+    const response = await axiosInstance.get(`${API_BASE_URL}`, {
+      params: { category, page, size },
+    });
+    const data: any = response.data;
+    const items: any[] = Array.isArray(data)
+      ? data
+      : data && Array.isArray(data.content)
+      ? data.content
+      : [];
+
+    // 백엔드 구조(간단 RecruitPost) → 프론트 PostType으로 안전하게 매핑
+    const toPostType = (it: any): PostType => ({
+      id: it.id ?? 0,
+      title: it.title ?? "",
+      content: it.content ?? "",
+      region: it.region ?? "",
+      subRegion: it.subRegion ?? null,
+      thumbnailUrl: it.imageUrl ?? null,
+      category: (category as unknown as RecruitCategory) ?? "MERCENARY",
+      targetType: it.targetType ?? "USER",
+      fromParticipant: it.fromParticipant ?? "INDIVIDUAL",
+      toParticipant: it.toParticipant ?? "TEAM",
+      gameDate: it.matchDate ?? null,
+      gameTime: undefined,
+      status: (it.status ?? "RECRUITING") as any,
+      requiredPersonnel: it.requiredPersonnel ?? null,
+      ageGroup: it.ageGroup ?? null,
+      preferredPositions: it.preferredPositions ?? null,
+      matchRules: it.matchRules ?? null,
+      minPlayers: it.minPlayers ?? null,
+      maxPlayers: it.maxPlayers ?? null,
+      authorId: it.writerProfileId ?? null,
+      authorName: it.authorName ?? null,
+      createdAt: it.createdAt ?? new Date().toISOString(),
+      updatedAt: it.updatedAt ?? new Date().toISOString(),
+    });
+
+    return items.map(toPostType);
+  } catch (error) {
+    console.error(
+      `Error fetching recruit posts for category ${category}:`,
+      error
+    );
+    throw error;
+  }
+};
+
+export const createRecruitPostApi = async (
+  postData: RecruitPostCreationRequestDto
+): Promise<RecruitPostResponseDto> => {
+  try {
+    // 보장: 작성자 프로필 ID 주입
+    const { user } = useAuthStore.getState();
+    const enriched = {
+      ...postData,
+      writerProfileId:
+        (postData as any).writerProfileId ?? (user && user.profileId ? user.profileId : undefined),
+    } as any;
+
+    const response = await axiosInstance.post<RecruitPostResponseDto>(
+      API_BASE_URL,
+      enriched
+    );
+    return response.data;
+  } catch (error: unknown) {
+    // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
+    if (typeof error === "object" && error !== null && "response" in error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      throw new Error(
+        err.response?.data?.message || "게시글 생성 중 오류가 발생했습니다."
+      );
+    }
+    throw new Error("알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+export const deleteRecruitPostApi = async (postId: number): Promise<void> => {
+  try {
+    await axiosInstance.delete(`${API_BASE_URL}/${postId}`);
+  } catch (error: unknown) {
+    // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
+    if (typeof error === "object" && error !== null && "response" in error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      throw new Error(
+        err.response?.data?.message || "게시글 삭제 중 오류가 발생했습니다."
+      );
+    }
+    throw new Error("알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+export const updateRecruitPostApi = async (
+  postId: number,
+  updateData: RecruitPostUpdateRequestDto
+): Promise<RecruitPostResponseDto> => {
+  try {
+    console.log("updateRecruitPostApi 호출:", { postId, updateData });
+    const response = await axiosInstance.patch<RecruitPostResponseDto>(
+      `${API_BASE_URL}/${postId}`,
+      updateData
+    );
+    console.log("updateRecruitPostApi 응답:", response.data);
+    return response.data;
+  } catch (error: unknown) {
+    console.error("updateRecruitPostApi 에러:", error);
+    // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
+    if (typeof error === "object" && error !== null && "response" in error) {
+      const err = error as {
+        response?: { data?: { message?: string }; status?: number };
+      };
+      console.error("HTTP 응답 에러:", err.response);
+      throw new Error(
+        err.response?.data?.message ||
+          `게시글 수정 중 오류가 발생했습니다. (HTTP ${err.response?.status})`
+      );
+    }
+    throw new Error("알 수 없는 오류가 발생했습니다.");
+  }
+};
+
+export const applyToPostApi = async (
+  postId: number,
+  applicationData: ApplicationRequestDto
+): Promise<any> => {
+  try {
+    const { user } = useAuthStore.getState();
+    const applicantProfileId = user?.profileId;
+    const payload: any = {
+      applicantProfileId,
+      description: (applicationData as any).message ?? (applicationData as any).description ?? undefined,
+    };
+    const response = await axiosInstance.post(`${API_BASE_URL}/${postId}/applications`, payload);
+    return response.data;
+  } catch (error: unknown) {
+    // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
+    if (typeof error === "object" && error !== null && "response" in error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      throw new Error(
+        err.response?.data?.message || "신청 처리 중 오류가 발생했습니다."
+      );
+    }
+    throw new Error("알 수 없는 오류가 발생했습니다.");
+  }
+};
