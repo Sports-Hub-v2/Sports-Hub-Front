@@ -35,9 +35,13 @@ const MercenaryCardModal = ({
   const [requiredPersonnel, setRequiredPersonnel] = useState(
     initialData?.requiredPersonnel ? String(initialData.requiredPersonnel) : ""
   );
-  const [targetType, setTargetType] = useState<"USER" | "TEAM">(
-    (initialData?.targetType as "USER" | "TEAM") || "USER"
-  );
+  const [targetType, setTargetType] = useState<"USER" | "TEAM">(() => {
+    if (initialData?.targetType) {
+      return initialData.targetType as "USER" | "TEAM";
+    }
+    // 팀과 경기 모집은 항상 USER 타입 (새로운 멤버나 상대팀을 찾음)
+    return category === "mercenary" ? "USER" : "USER";
+  });
   const [cost, setCost] = useState(
     initialData?.cost ? String(initialData.cost) : ""
   );
@@ -179,50 +183,52 @@ const MercenaryCardModal = ({
               📝 기본 정보
             </h3>
 
-            {/* 모집 유형 선택 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                📋 모집 유형 *
-              </label>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setTargetType("USER")}
-                  className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                    targetType === "USER"
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="text-2xl mb-2">🏃‍♂️</div>
-                  <div className="text-sm font-bold">개인 용병 모집</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    우리 팀에 합류할 용병을 찾습니다
-                  </div>
-                  <div className="text-xs text-blue-600 mt-1">
-                    • 팀 정보 및 경기 일정 제공
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTargetType("TEAM")}
-                  className={`flex-1 p-4 rounded-lg border-2 transition-all ${
-                    targetType === "TEAM"
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="text-2xl mb-2">🤝</div>
-                  <div className="text-sm font-bold">용병 지원</div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    용병으로 참여할 팀을 찾습니다
-                  </div>
-                  <div className="text-xs text-green-600 mt-1">
-                    • 개인 실력 및 가능 시간 어필
-                  </div>
-                </button>
+            {/* 모집 유형 선택 (용병 모집만) */}
+            {category === "mercenary" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  📋 모집 유형 *
+                </label>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setTargetType("USER")}
+                    className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                      targetType === "USER"
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="text-2xl mb-2">🏃‍♂️</div>
+                    <div className="text-sm font-bold">개인 용병 모집</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      우리 팀에 합류할 용병을 찾습니다
+                    </div>
+                    <div className="text-xs text-blue-600 mt-1">
+                      • 팀 정보 및 경기 일정 제공
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTargetType("TEAM")}
+                    className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                      targetType === "TEAM"
+                        ? "border-blue-500 bg-blue-50 text-blue-700"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="text-2xl mb-2">🤝</div>
+                    <div className="text-sm font-bold">용병 지원</div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      용병으로 참여할 팀을 찾습니다
+                    </div>
+                    <div className="text-xs text-green-600 mt-1">
+                      • 개인 실력 및 가능 시간 어필
+                    </div>
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* 제목 */}
             <div>
@@ -232,9 +238,13 @@ const MercenaryCardModal = ({
               <input
                 type="text"
                 placeholder={
-                  targetType === "USER"
-                    ? "예: [강남구] 조기축구 용병 모집 - 오전 7시"
-                    : "예: [개인] 조기축구 용병 지원 - 미드필더"
+                  category === "mercenary"
+                    ? targetType === "USER"
+                      ? "예: [강남구] 조기축구 용병 모집 - 오전 7시"
+                      : "예: [개인] 조기축구 용병 지원 - 미드필더"
+                    : category === "team"
+                    ? "예: [강남구] 조기축구팀 신규 멤버 모집"
+                    : "예: [강남구] 토요일 오전 풋살 상대팀 구합니다"
                 }
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={title}
@@ -312,14 +322,18 @@ const MercenaryCardModal = ({
             </div>
 
             {/* 모집 인원 */}
-            {targetType === "USER" && (
+            {(category === "mercenary" && targetType === "USER") ||
+            category === "team" ||
+            category === "match" ? (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  👥 모집 인원
+                  👥 {category === "match" ? "참가 인원" : "모집 인원"}
                 </label>
                 <input
                   type="number"
-                  placeholder="예: 2명"
+                  placeholder={
+                    category === "match" ? "예: 11명 (한 팀 기준)" : "예: 2명"
+                  }
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={requiredPersonnel}
                   onChange={(e) => setRequiredPersonnel(e.target.value)}
@@ -327,10 +341,15 @@ const MercenaryCardModal = ({
                   max="20"
                 />
                 <div className="text-xs text-gray-500 mt-1">
-                  💡 필요한 용병 수를 입력하세요
+                  💡{" "}
+                  {category === "match"
+                    ? "한 팀당 참가 인원 수를 입력하세요"
+                    : category === "team"
+                    ? "필요한 신규 멤버 수를 입력하세요"
+                    : "필요한 용병 수를 입력하세요"}
                 </div>
               </div>
-            )}
+            ) : null}
 
             {/* 개인 정보 (용병 지원용) */}
             {targetType === "TEAM" && (
@@ -374,8 +393,9 @@ const MercenaryCardModal = ({
               </label>
               <textarea
                 placeholder={
-                  targetType === "USER"
-                    ? `팀 정보와 경기 상세 내용을 적어주세요.
+                  category === "mercenary"
+                    ? targetType === "USER"
+                      ? `팀 정보와 경기 상세 내용을 적어주세요.
 
 팀 모집 예시:
 • 팀명: 강남 FC
@@ -384,7 +404,7 @@ const MercenaryCardModal = ({
 • 경기 스타일: 패스 위주의 안정적인 플레이
 • 준비사항: 개인 축구화, 물
 • 연락처: 카카오톡 @teamleader`
-                    : `개인 실력과 용병 지원 정보를 적어주세요.
+                      : `개인 실력과 용병 지원 정보를 적어주세요.
 
 용병 지원 예시:
 • 축구 경력: 3년 (고등학교 축구부)
@@ -393,6 +413,29 @@ const MercenaryCardModal = ({
 • 실력 수준: 초중급~중급
 • 가능 시간: 주말 오전, 평일 저녁 7시 이후
 • 연락처: 카카오톡 @playerid`
+                    : category === "team"
+                    ? `팀 정보와 신규 멤버 모집 상세 내용을 적어주세요.
+
+팀 모집 예시:
+• 팀명: 강남 FC
+• 창단년도: 2020년
+• 팀 레벨: 초중급 (초보자도 환영)
+• 정기 훈련: 매주 토요일 오전 10시
+• 훈련 장소: 강남 스포츠센터
+• 팀 분위기: 친목 위주, 실력 향상 목표
+• 회비: 월 10만원 (훈련비, 유니폼 포함)
+• 연락처: 카카오톡 @teamcaptain`
+                    : `경기 모집 상세 내용을 적어주세요.
+
+경기 모집 예시:
+• 경기 형식: 11vs11 정식 경기
+• 구장: 강남 스포츠센터 천연잔디
+• 경기 시간: 90분 (전후반 각 45분)
+• 상대팀 수준: 초중급 ~ 중급
+• 심판: 공인 심판 (별도 비용)
+• 참가비: 팀당 20만원 (구장비 포함)
+• 준비사항: 공식 유니폼, 축구화
+• 연락처: 카카오톡 @matchmaker`
                 }
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={content}

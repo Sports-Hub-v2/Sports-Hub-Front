@@ -1,8 +1,7 @@
 ﻿import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { getMyApplicationsByApplicantApi, cancelApplicationApi } from '@/features/application/api/applicationApi';
-import { getProfileByAccountIdApi } from '@/features/auth/api/userApi';
+import { useApplicationStore } from '@/stores/useApplicationStore';
 import type { MyApplication } from '@/types/application';
 import { ApplicationStatus } from '@/types/recruitPost';
 
@@ -18,44 +17,39 @@ const StatusBadge: React.FC<{ status: ApplicationStatus }> = ({ status }) => {
 
 const MySentApplications: React.FC = () => {
   const { user } = useAuthStore();
-  const [applications, setApplications] = useState<MyApplication[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    myApplications, 
+    isLoadingMy, 
+    loadMyApplications, 
+    cancelApplication 
+  } = useApplicationStore();
 
-  const fetchApplications = useCallback(async () => {
-    if (!user) return;
-    setIsLoading(true);
-    try {
-      const profile = await getProfileByAccountIdApi(user.id);
-      const data = await getMyApplicationsByApplicantApi(profile.id);
-      setApplications(data);
-    } catch (err: any) { if (err?.response?.status === 404) { setApplications([]); setError(null); } else { setError(err instanceof Error ? err.message : "신청 내역 조회 실패"); } } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    if (user?.id) {
+      loadMyApplications(user.id);
     }
-  }, [user]);
-
-  useEffect(() => { fetchApplications(); }, [fetchApplications]);
+  }, [user?.id, loadMyApplications]);
 
   const handleCancel = async (applicationId: number, postId: number) => {
     if (!window.confirm('해당 신청을 취소하시겠어요?')) return;
     try {
-      await cancelApplicationApi(applicationId, postId);
+      await cancelApplication(applicationId, postId);
       alert('신청이 취소되었습니다.');
-      fetchApplications();
-    } catch (err: any) { if (err?.response?.status === 404) { setApplications([]); setError(null); } else { setError(err instanceof Error ? err.message : "신청 내역 조회 실패"); } }
+    } catch (error) {
+      alert(error instanceof Error ? error.message : '신청 취소 중 오류가 발생했습니다.');
+    }
   };
 
-  if (isLoading) return <div className="py-8 text-center text-gray-500">신청 내역을 불러오는 중...</div>;
-  if (error) return <div className="py-8 text-center text-red-500">{error}</div>;
+  if (isLoadingMy) return <div className="py-8 text-center text-gray-500">신청 내역을 불러오는 중...</div>;
 
   return (
     <div className="space-y-4">
       <h3 className="text-xl font-semibold border-b pb-2">내가 보낸 신청</h3>
-      {applications.length === 0 ? (
+      {myApplications.length === 0 ? (
         <p className="py-8 text-center text-gray-500">보낸 신청이 없습니다.</p>
       ) : (
         <ul className="divide-y divide-gray-200">
-          {applications.map((app) => (
+          {myApplications.map((app) => (
             <li key={app.applicationId} className="py-4 flex items-center justify-between">
               <div>
                 <Link to={`/recruit-posts/${app.postId}`} className="font-semibold text-blue-600 hover:underline">{app.postTitle || '모집글'}</Link>
@@ -79,7 +73,3 @@ const MySentApplications: React.FC = () => {
 };
 
 export default MySentApplications;
-
-
-
-

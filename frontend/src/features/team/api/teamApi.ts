@@ -1,6 +1,7 @@
 // src/features/team/api/teamApi.ts
 
 import axiosInstance from "@/lib/axiosInstance";
+import { useAuthStore } from "@/stores/useAuthStore";
 import type { Team } from "@/types/team"; // Team 전체 타입을 정의했다고 가정
 
 // 팀 생성 시 보낼 데이터 타입
@@ -15,6 +16,27 @@ export interface TeamCreateRequestDto {
 }
 
 /**
+ * 특정 프로필이 소속된 팀 목록 조회 API
+ * @param profileId 조회할 프로필 ID
+ */
+export const getTeamsByProfileApi = async (profileId: number): Promise<Team[]> => {
+  try {
+    const response = await axiosInstance.get<Team[]>(`/api/teams/memberships/by-profile/${profileId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching teams for profile ID ${profileId}:`, error);
+    // 404 에러인 경우 빈 배열 반환 (소속된 팀이 없는 경우)
+    if (typeof error === "object" && error !== null && "response" in error) {
+      const err = error as { response?: { status?: number } };
+      if (err.response?.status === 404) {
+        return [];
+      }
+    }
+    throw new Error("소속 팀 목록을 불러오는 데 실패했습니다.");
+  }
+};
+
+/**
  * 새로운 팀 생성 API
  * @param teamData 생성할 팀의 정보
  */
@@ -24,12 +46,13 @@ export const createTeamApi = async (
   try {
     // 현재 로그인한 사용자의 프로필 ID를 가져와서 captain으로 설정
     let requestData = { ...teamData };
+    const { user } = useAuthStore.getState();
 
     // captainProfileId가 없으면 현재 사용자를 captain으로 설정
     if (!requestData.captainProfileId) {
       // 임시로 1로 설정 (실제로는 현재 사용자의 프로필 ID를 가져와야 함)
       // TODO: 현재 로그인한 사용자의 프로필 ID를 가져오도록 수정
-      requestData.captainProfileId = 1;
+      requestData.captainProfileId = (user?.profileId as number | undefined) ?? 1;
     }
 
     const response = await axiosInstance.post<Team>("/api/teams", requestData);

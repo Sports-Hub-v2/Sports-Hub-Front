@@ -4,15 +4,17 @@ import { useEffect, useState, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useRecruitStore } from "@/stores/useRecruitStore";
+import { useApplicationStore } from "@/stores/useApplicationStore";
 import {
   RecruitCategory,
   RecruitPostCreationRequestDto,
 } from "@/types/recruitPost";
-import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 또는 TeamDetailCard
-import MercenaryCardModal from "@/features/mercenary/components/MercenaryCardModal";
-// 공용 컴포넌트 경로 사용
-import RegionSelectTrigger from "@/components/common/RegionSelectTrigger";
+import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 공용 상세 카드 사용
+import TeamRecruitModal from "@/features/team/components/TeamRecruitModal";
+import TeamRecruitCard from "@/components/common/TeamRecruitCard";
+import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
 import RegionSelectModal from "@/components/common/RegionSelectModal";
+import UserProfileModal from "@/components/common/UserProfileModal";
 
 const TeamPage = () => {
   const location = useLocation();
@@ -22,6 +24,7 @@ const TeamPage = () => {
   const allPostsFromStore = useRecruitStore((s) => s.posts);
   const loadPosts = useRecruitStore((s) => s.loadPosts);
   const removePost = useRecruitStore((s) => s.removePost);
+  const { refreshApplications } = useApplicationStore();
 
   const focusedId = useMemo(
     () => new URLSearchParams(location.search).get("id"),
@@ -34,6 +37,7 @@ const TeamPage = () => {
   const [search, setSearch] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("전체 지역");
   const [isRegionModalOpen, setIsRegionModalOpen] = useState(false);
+  const [selectedUserIdForProfile, setSelectedUserIdForProfile] = useState<number | string | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -50,11 +54,15 @@ const TeamPage = () => {
   }, [loadPosts]);
 
   const filteredPosts = useMemo(() => {
-    if (!allPostsFromStore) return [];
-    return allPostsFromStore
+    // TEAM 카테고리만 선별
+    const teamOnly = (allPostsFromStore || []).filter(
+      (p) => p.category === RecruitCategory.TEAM
+    );
+
+    return teamOnly
       .filter((p) => {
         const titleMatch = p.title.toLowerCase().includes(search.toLowerCase());
-        const regionMatchInMain = p.region
+        const regionMatchInMain = (p.region || "")
           .toLowerCase()
           .includes(search.toLowerCase());
         const subRegionMatch = p.subRegion
@@ -66,6 +74,7 @@ const TeamPage = () => {
       })
       .filter(
         (p) =>
+          selectedRegion === "전체" ||
           selectedRegion === "전체 지역" ||
           p.region === selectedRegion ||
           (p.subRegion && p.subRegion.includes(selectedRegion))
@@ -73,10 +82,34 @@ const TeamPage = () => {
   }, [allPostsFromStore, search, selectedRegion]);
 
   const handleCreate = (postData: RecruitPostCreationRequestDto) => {
-    // TODO: 실제 API 호출로 게시글 생성 후 스토어 업데이트
-    console.log("새 게시글 생성:", postData);
+    // TODO: 실제 API 호출과 게시글 생성 후 스토어 업데이트
+    console.log("팀 모집글 생성:", postData);
     loadPosts(RecruitCategory.TEAM);
     setModalOpen(false);
+  };
+
+  const handleTeamApply = async (post: any) => {
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    const message = prompt("팀 가입 신청 메시지를 입력해주세요:");
+    if (message) {
+      try {
+        // applyToPostApi 사용하여 실제 API 호출
+        const { applyToPostApi } = await import("@/features/mercenary/api/recruitApi");
+        await applyToPostApi(post.id, { message });
+        alert("팀 가입 신청이 완료되었습니다.");
+        // 신청 후 마이페이지 신청 내역 업데이트
+        if (user.id) {
+          await refreshApplications(user.id);
+        }
+      } catch (error) {
+        console.error("팀 가입 신청 오류:", error);
+        alert(error instanceof Error ? error.message : "신청 처리 중 오류가 발생했습니다.");
+      }
+    }
   };
 
   const handleDelete = async (postId: number) => {
@@ -84,7 +117,7 @@ const TeamPage = () => {
       try {
         await removePost(postId);
         if (String(postId) === focusedId) {
-          navigate("/team", { replace: true }); // 팀 페이지 경로로 수정
+          navigate("/team", { replace: true }); // 팀 페이지 경로로 지정
         }
       } catch (error) {
         console.error("Error deleting post:", error);
@@ -107,8 +140,10 @@ const TeamPage = () => {
   }, [filteredPosts, focusedId]);
 
   const handleExpand = (postId: string | number) =>
-    navigate(`/team?id=${postId}`); // 팀 페이지 경로로 수정
-  const handleClose = () => navigate("/team", { replace: true }); // 팀 페이지 경로로 수정
+    navigate(`/team?id=${postId}`); // 팀 페이지 경로로 지정
+  const handleCloseDetail = () => navigate("/team", { replace: true }); // 팀 페이지 경로로 지정
+  const openUserProfileModal = (id: number | string) => setSelectedUserIdForProfile(id);
+  const closeUserProfileModal = () => setSelectedUserIdForProfile(null);
 
   if (isLoading && allPostsFromStore.length === 0) {
     return (
@@ -119,52 +154,42 @@ const TeamPage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 pt-24">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-center sm:text-left">
-          🛡️ 팀 모집 목록
-        </h1>
-        {user && (
-          <button
-            onClick={() => setModalOpen(true)}
-            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors w-full sm:w-auto"
-          >
-            ✏️ 팀 모집 글쓰기
-          </button>
-        )}
+    <div className="min-h-screen bg-gray-50">
+      {/* 페이지 헤더 */}
+      <div className="bg-white shadow-sm border-b border-gray-200 pt-16">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">모집 중인 팀</h1>
+              <p className="text-gray-500 mt-1">함께할 팀을 찾아보세요</p>
+            </div>
+            {user && (
+              <button
+                onClick={() => setModalOpen(true)}
+                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors"
+              >
+                + 팀 만들기
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
+      {/* 필터 */}
+      <MatchDayStyleFilter
+        searchValue={search}
+        selectedRegion={selectedRegion}
+        onSearch={(value) => setSearch(value)}
+        onRegionChange={(region) => setSelectedRegion(region)}
+      />
+
       {isModalOpen && (
-        <MercenaryCardModal // 또는 NewTeamPostModal
-          category="team"
+        <TeamRecruitModal
+          isOpen={isModalOpen}
           onClose={() => setModalOpen(false)}
           onSubmit={handleCreate}
         />
       )}
-
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg shadow">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="팀 이름 또는 지역으로 검색" // 플레이스홀더 텍스트 수정
-            className="border rounded px-3 py-2 w-full sm:w-auto sm:flex-grow text-sm"
-          />
-          <RegionSelectTrigger
-            selected={selectedRegion}
-            onClick={() => setIsRegionModalOpen(true)}
-          />
-          <button
-            onClick={() => {
-              setSearch("");
-              setSelectedRegion("전체 지역");
-            }}
-            className="text-red-500 text-sm underline px-3 py-2 hover:bg-red-50 rounded"
-          >
-            초기화
-          </button>
-        </div>
-      </div>
 
       {isRegionModalOpen && (
         <RegionSelectModal
@@ -176,31 +201,73 @@ const TeamPage = () => {
         />
       )}
 
-      {sortedPosts.length === 0 && !isLoading && (
-        <p className="text-center text-gray-500 py-10">
-          {search || selectedRegion !== "전체 지역"
-            ? "검색 결과가 없습니다."
-            : "등록된 팀 모집글이 없습니다."}
-        </p>
-      )}
+      {/* 메인 콘텐츠 영역 */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* 빈 상태 */}
+        {sortedPosts.length === 0 && !isLoading && (
+          <div className="text-center py-20">
+            <div className="text-gray-400 text-6xl mb-4">🛈</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {search || selectedRegion !== "전체 지역"
+                ? "검색 결과가 없습니다"
+                : "등록된 팀이 없습니다"}
+            </h3>
+            <p className="text-gray-500">
+              {search || selectedRegion !== "전체 지역"
+                ? "다른 조건으로 검색해보세요"
+                : "첫 번째 팀을 만들어보세요!"}
+            </p>
+          </div>
+        )}
 
-      {sortedPosts.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {sortedPosts.map((post) => (
-            <MercenaryDetailCard // 또는 TeamDetailCard
-              key={post.id}
-              post={post}
-              isExpanded={String(post.id) === focusedId}
-              onExpand={() => handleExpand(post.id)}
-              onClose={handleClose}
-              onDelete={
-                user && user.id && post.authorId && user.id === post.authorId
-                  ? () => handleDelete(post.id)
-                  : undefined
-              }
-            />
-          ))}
-        </div>
+        {/* 팀 카드 그리드 */}
+        {sortedPosts.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {sortedPosts.map((post) => (
+              <TeamRecruitCard
+                key={post.id}
+                post={post}
+                onApply={() => handleTeamApply(post)}
+                onClick={() => handleExpand(post.id)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* 상세 모달 */}
+        {focusedId && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              {sortedPosts
+                .filter((post) => String(post.id) === focusedId)
+                .map((post) => (
+                  <MercenaryDetailCard
+                    key={post.id}
+                    post={post}
+                    isExpanded={true}
+                    onExpand={() => {}}
+                    onClose={handleCloseDetail}
+                    onEdit={user ? () => {} : undefined}
+                    onDelete={
+                      user &&
+                      user.id &&
+                      post.authorId &&
+                      user.id === post.authorId
+                        ? () => handleDelete(post.id)
+                        : undefined
+                    }
+                    onAuthorNameClick={() => {
+                      if (post.authorId !== null) openUserProfileModal(post.authorId);
+                    }}
+                  />
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {selectedUserIdForProfile !== null && (
+        <UserProfileModal userId={selectedUserIdForProfile} onClose={closeUserProfileModal} />
       )}
     </div>
   );

@@ -1,0 +1,705 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SportsHub Admin Skeleton</title>
+    <link rel="stylesheet" href="./admin-skeleton.css" />
+  </head>
+  <body>
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">SportsHub Admin</div>
+          <button class="sidebar-toggle" type="button">접기</button>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="nav-item" href="#dashboard">
+            <span class="nav-icon">📊</span>
+            <span class="nav-meta">
+              <span class="nav-label">운영 대시보드</span>
+              <span class="nav-description">핵심 지표와 오늘의 운영 현황</span>
+              <span class="nav-badge nav-badge-ready">v1</span>
+            </span>
+          </a>
+          <a class="nav-item" href="#users">
+            <span class="nav-icon">👥</span>
+            <span class="nav-meta">
+              <span class="nav-label">회원 관리</span>
+              <span class="nav-description">회원 현황, 권한, 활동 로그</span>
+              <span class="nav-badge nav-badge-ready">주요</span>
+            </span>
+          </a>
+          <a class="nav-item" href="#applications">
+            <span class="nav-icon">🗂️</span>
+            <span class="nav-meta">
+              <span class="nav-label">가입 · 매칭 신청</span>
+              <span class="nav-description">지원서 검토와 처리 프로세스</span>
+              <span class="nav-badge nav-badge-ready">핵심</span>
+            </span>
+          </a>
+          <a class="nav-item" href="#posts">
+            <span class="nav-icon">✅</span>
+            <span class="nav-meta">
+              <span class="nav-label">모집글 관리</span>
+              <span class="nav-description">콘텐츠 모니터링과 품질 관리</span>
+            </span>
+          </a>
+          <a class="nav-item" href="#teams">
+            <span class="nav-icon">🤝</span>
+            <span class="nav-meta">
+              <span class="nav-label">팀 관리</span>
+              <span class="nav-description">팀 등록, 활동 현황, 멤버 구성</span>
+            </span>
+          </a>
+          <a class="nav-item" href="#notifications">
+            <span class="nav-icon">🔔</span>
+            <span class="nav-meta">
+              <span class="nav-label">알림 센터</span>
+              <span class="nav-description">시스템 · 운영 알림 모니터링</span>
+            </span>
+          </a>
+          <a class="nav-item" href="#reports">
+            <span class="nav-icon">🛡️</span>
+            <span class="nav-meta">
+              <span class="nav-label">신고 처리</span>
+              <span class="nav-description">신고 접수와 조치 이력</span>
+              <span class="nav-badge nav-badge-planned">Plan</span>
+            </span>
+          </a>
+          <a class="nav-item" href="#system">
+            <span class="nav-icon">🖥️</span>
+            <span class="nav-meta">
+              <span class="nav-label">시스템 모니터링</span>
+              <span class="nav-description">서비스 가용성과 성능 지표</span>
+              <span class="nav-badge nav-badge-planned">Plan</span>
+            </span>
+          </a>
+          <a class="nav-item" href="#analytics">
+            <span class="nav-icon">📈</span>
+            <span class="nav-meta">
+              <span class="nav-label">지표 분석</span>
+              <span class="nav-description">운영 리포트와 추세 분석</span>
+              <span class="nav-badge nav-badge-planned">Plan</span>
+            </span>
+          </a>
+        </nav>
+      </aside>
+      <main class="admin-main">
+        <header class="admin-header">
+          <div class="header-left">
+            <p class="header-eyebrow">Sports Hub Operation Center</p>
+            <h1 class="header-title">운영 관리자 콘솔</h1>
+            <p class="header-subtitle">서비스 상태와 주요 데이터를 한눈에 조망합니다.</p>
+          </div>
+          <div class="header-right">
+            <div class="header-status">
+              <span class="status-dot"></span>
+              <span>서비스 정상 운영 중</span>
+            </div>
+            <button class="notification-btn" type="button">오늘의 알림 4건</button>
+          </div>
+        </header>
+        <div class="admin-content">
+          <div class="admin-sections">
+            <section id="dashboard" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">운영 대시보드</h2>
+                <p class="section-subtitle">서비스 핵심 지표와 오늘의 우선 순위를 요약합니다.</p>
+              </div>
+              <div class="metric-grid">
+                <div class="metric-card">
+                  <span class="metric-label">일일 활성 사용자</span>
+                  <strong class="metric-value">12,480명</strong>
+                  <span class="metric-delta metric-positive">+8.2%</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">매칭 성사율</span>
+                  <strong class="metric-value">78%</strong>
+                  <span class="metric-delta metric-positive">+2.4%</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">신규 가입</span>
+                  <strong class="metric-value">246명</strong>
+                  <span class="metric-delta metric-neutral">+12명</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">CS 처리율</span>
+                  <strong class="metric-value">92%</strong>
+                  <span class="metric-delta metric-negative">-3%</span>
+                </div>
+              </div>
+              <div class="section-grid two-column">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">시스템 알림</h3>
+                    <span class="card-meta">실시간 모니터링</span>
+                  </div>
+                  <ul class="divide-list">
+                    <li class="divide-item">
+                      <div>
+                        <span class="item-title">보안 경보</span>
+                        <p class="item-subtitle">이상 로그인 차단</p>
+                      </div>
+                      <div class="item-side">
+                        <span class="item-value">1건</span>
+                        <span class="status-chip status-critical">주의</span>
+                      </div>
+                    </li>
+                    <li class="divide-item">
+                      <div>
+                        <span class="item-title">서비스 장애</span>
+                        <p class="item-subtitle">발견 없음</p>
+                      </div>
+                      <div class="item-side">
+                        <span class="item-value">0건</span>
+                        <span class="status-chip status-positive">정상</span>
+                      </div>
+                    </li>
+                    <li class="divide-item">
+                      <div>
+                        <span class="item-title">고객 CS</span>
+                        <p class="item-subtitle">우선 순위 확인</p>
+                      </div>
+                      <div class="item-side">
+                        <span class="item-value">7건</span>
+                        <span class="status-chip status-warning">처리 중</span>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">오늘의 운영 업무</h3>
+                    <span class="card-meta">우선 순위 정렬</span>
+                  </div>
+                  <ul class="timeline">
+                    <li class="timeline-item">
+                      <div>
+                        <span class="item-title">신규 팀 승인</span>
+                        <p class="item-subtitle">담당 운영1팀 · 마감 오늘 12시</p>
+                      </div>
+                      <span class="status-chip status-warning">대기</span>
+                    </li>
+                    <li class="timeline-item">
+                      <div>
+                        <span class="item-title">매칭 취소 요청</span>
+                        <p class="item-subtitle">담당 운영2팀 · 마감 오늘 15시</p>
+                      </div>
+                      <span class="status-chip status-neutral">확인 중</span>
+                    </li>
+                    <li class="timeline-item">
+                      <div>
+                        <span class="item-title">주간 리포트 검토</span>
+                        <p class="item-subtitle">담당 운영리드 · 마감 내일</p>
+                      </div>
+                      <span class="status-chip status-positive">준비</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+            <section id="users" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">회원 관리</h2>
+                <p class="section-subtitle">회원 현황, 위험 계정, 최근 활동을 점검합니다.</p>
+              </div>
+              <div class="metric-grid compact">
+                <div class="metric-card">
+                  <span class="metric-label">전체 회원</span>
+                  <strong class="metric-value">18,240명</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">활성 회원</span>
+                  <strong class="metric-value">15,872명</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">검토 대상</span>
+                  <strong class="metric-value">124명</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">정지 회원</span>
+                  <strong class="metric-value">41명</strong>
+                </div>
+              </div>
+              <div class="toolbar">
+                <div class="filters">
+                  <input class="search-box" placeholder="이름, 이메일, 회원 ID 검색" />
+                  <select class="filter-select">
+                    <option>상태 전체</option>
+                    <option>활성</option>
+                    <option>검토</option>
+                    <option>정지</option>
+                  </select>
+                  <select class="filter-select">
+                    <option>권한 전체</option>
+                    <option>일반</option>
+                    <option>팀 리더</option>
+                    <option>운영자</option>
+                  </select>
+                </div>
+                <div class="toolbar-actions">
+                  <button class="btn btn-secondary" type="button">CSV 내보내기</button>
+                  <button class="btn btn-primary" type="button">새 회원 등록</button>
+                </div>
+              </div>
+              <div class="section-grid two-column">
+                <div class="card table-card">
+                  <div class="card-header">
+                    <h3 class="card-title">회원 목록</h3>
+                    <span class="card-meta">최근 24시간 업데이트</span>
+                  </div>
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>회원</th>
+                        <th>지역</th>
+                        <th>권한</th>
+                        <th>가입일</th>
+                        <th>상태</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>U-10432</td>
+                        <td>
+                          <div class="table-primary">김도윤</div>
+                          <div class="table-secondary">doyun.kim@example.com</div>
+                        </td>
+                        <td>서울 강남</td>
+                        <td>일반</td>
+                        <td>2024-02-11</td>
+                        <td><span class="status-chip status-positive">활성</span></td>
+                      </tr>
+                      <tr>
+                        <td>U-10401</td>
+                        <td>
+                          <div class="table-primary">박서연</div>
+                          <div class="table-secondary">seoyeon.park@example.com</div>
+                        </td>
+                        <td>부산 해운대</td>
+                        <td>팀 리더</td>
+                        <td>2024-01-30</td>
+                        <td><span class="status-chip status-positive">활성</span></td>
+                      </tr>
+                      <tr>
+                        <td>U-10388</td>
+                        <td>
+                          <div class="table-primary">이현우</div>
+                          <div class="table-secondary">hyunwoo.lee@example.com</div>
+                        </td>
+                        <td>대전 유성</td>
+                        <td>일반</td>
+                        <td>2024-01-18</td>
+                        <td><span class="status-chip status-warning">검토</span></td>
+                      </tr>
+                      <tr>
+                        <td>U-10372</td>
+                        <td>
+                          <div class="table-primary">최민서</div>
+                          <div class="table-secondary">minseo.choi@example.com</div>
+                        </td>
+                        <td>인천 연수</td>
+                        <td>심판</td>
+                        <td>2023-12-22</td>
+                        <td><span class="status-chip status-negative">정지</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">최근 조치 로그</h3>
+                    <span class="card-meta">지난 24시간</span>
+                  </div>
+                  <ul class="timeline">
+                    <li class="timeline-item">
+                      <div>
+                        <span class="item-title">FC 비스트 팀 리더 권한 변경</span>
+                        <p class="item-subtitle">09:15</p>
+                      </div>
+                    </li>
+                    <li class="timeline-item">
+                      <div>
+                        <span class="item-title">신고 회원 (U-10372) 조치 완료</span>
+                        <p class="item-subtitle">08:40</p>
+                      </div>
+                    </li>
+                    <li class="timeline-item">
+                      <div>
+                        <span class="item-title">신규 등급 정책 배포</span>
+                        <p class="item-subtitle">어제</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+            <section id="applications" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">가입 · 매칭 신청</h2>
+                <p class="section-subtitle">처리 대기 건과 우선 검토 항목을 정리합니다.</p>
+              </div>
+              <div class="metric-grid compact">
+                <div class="metric-card">
+                  <span class="metric-label">오늘 접수</span>
+                  <strong class="metric-value">32건</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">승인 대기</span>
+                  <strong class="metric-value">18건</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">승인 완료</span>
+                  <strong class="metric-value">9건</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">반려</span>
+                  <strong class="metric-value">5건</strong>
+                </div>
+              </div>
+              <div class="card table-card">
+                <div class="card-header">
+                  <h3 class="card-title">신청 내역</h3>
+                  <span class="card-meta">승인 SLA 24시간</span>
+                </div>
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>신청자</th>
+                      <th>구분</th>
+                      <th>대상</th>
+                      <th>접수일</th>
+                      <th>상태</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>A-2401</td>
+                      <td>문영빈</td>
+                      <td>팀 가입</td>
+                      <td>FC 네오</td>
+                      <td>2024-03-14 10:22</td>
+                      <td><span class="status-chip status-warning">대기</span></td>
+                    </tr>
+                    <tr>
+                      <td>A-2394</td>
+                      <td>정하린</td>
+                      <td>매칭 신청</td>
+                      <td>4/2 토요 매치</td>
+                      <td>2024-03-14 09:05</td>
+                      <td><span class="status-chip status-neutral">검토 중</span></td>
+                    </tr>
+                    <tr>
+                      <td>A-2388</td>
+                      <td>오지후</td>
+                      <td>팀 등록</td>
+                      <td>FC 솔라</td>
+                      <td>2024-03-13 18:42</td>
+                      <td><span class="status-chip status-positive">승인</span></td>
+                    </tr>
+                    <tr>
+                      <td>A-2384</td>
+                      <td>배가윤</td>
+                      <td>팀 가입</td>
+                      <td>FC 프리즘</td>
+                      <td>2024-03-13 16:20</td>
+                      <td><span class="status-chip status-negative">반려</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section id="posts" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">모집글 관리</h2>
+                <p class="section-subtitle">콘텐츠 품질과 신고 건을 우선 점검합니다.</p>
+              </div>
+              <div class="metric-grid compact">
+                <div class="metric-card">
+                  <span class="metric-label">게시 중</span>
+                  <strong class="metric-value">412건</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">승인 대기</span>
+                  <strong class="metric-value">17건</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">신고 접수</span>
+                  <strong class="metric-value">6건</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">보류</span>
+                  <strong class="metric-value">3건</strong>
+                </div>
+              </div>
+              <div class="card table-card">
+                <div class="card-header">
+                  <h3 class="card-title">게시글 상태</h3>
+                  <span class="card-meta">신고 접수 순</span>
+                </div>
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>제목</th>
+                      <th>작성 팀</th>
+                      <th>등록일</th>
+                      <th>상태</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>P-7841</td>
+                      <td>
+                        <div class="table-primary">4/2 토요 매치 - 용인 보정 체육공원</div>
+                        <div class="table-secondary">FC 네오</div>
+                      </td>
+                      <td>FC 네오</td>
+                      <td>2024-03-13</td>
+                      <td><span class="status-chip status-warning">승인 대기</span></td>
+                    </tr>
+                    <tr>
+                      <td>P-7836</td>
+                      <td>
+                        <div class="table-primary">여성 풋살 클럽 신규 멤버 모집</div>
+                        <div class="table-secondary">SSS Ladies</div>
+                      </td>
+                      <td>SSS Ladies</td>
+                      <td>2024-03-12</td>
+                      <td><span class="status-chip status-positive">게시 중</span></td>
+                    </tr>
+                    <tr>
+                      <td>P-7830</td>
+                      <td>
+                        <div class="table-primary">주중 야간 매치 (화/목) 함께 하실 분</div>
+                        <div class="table-secondary">Night Owls</div>
+                      </td>
+                      <td>Night Owls</td>
+                      <td>2024-03-11</td>
+                      <td><span class="status-chip status-critical">신고 접수</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section id="teams" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">팀 관리</h2>
+                <p class="section-subtitle">팀 등록 상태와 활동 현황을 모니터링합니다.</p>
+              </div>
+              <div class="metric-grid compact">
+                <div class="metric-card">
+                  <span class="metric-label">등록 팀</span>
+                  <strong class="metric-value">286팀</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">활성 팀</span>
+                  <strong class="metric-value">241팀</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">신규 요청</span>
+                  <strong class="metric-value">8건</strong>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">휴면 전환</span>
+                  <strong class="metric-value">5팀</strong>
+                </div>
+              </div>
+              <div class="card table-card">
+                <div class="card-header">
+                  <h3 class="card-title">팀 목록</h3>
+                  <span class="card-meta">변경사항 최신순</span>
+                </div>
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>팀명</th>
+                      <th>지역</th>
+                      <th>멤버 수</th>
+                      <th>대표자</th>
+                      <th>업데이트</th>
+                      <th>상태</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>T-4012</td>
+                      <td>FC 네오</td>
+                      <td>서울</td>
+                      <td>18</td>
+                      <td>김도윤</td>
+                      <td>2024-03-14</td>
+                      <td><span class="status-chip status-positive">활성</span></td>
+                    </tr>
+                    <tr>
+                      <td>T-3988</td>
+                      <td>광안리 서퍼즈</td>
+                      <td>부산</td>
+                      <td>14</td>
+                      <td>박서연</td>
+                      <td>2024-03-13</td>
+                      <td><span class="status-chip status-warning">점검</span></td>
+                    </tr>
+                    <tr>
+                      <td>T-3924</td>
+                      <td>Night Owls</td>
+                      <td>경기</td>
+                      <td>19</td>
+                      <td>최민서</td>
+                      <td>2024-03-11</td>
+                      <td><span class="status-chip status-neutral">휴면</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section id="notifications" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">알림 센터</h2>
+                <p class="section-subtitle">시스템과 운영 이벤트를 중앙에서 관리합니다.</p>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">실시간 알림</h3>
+                  <span class="card-meta">가중치 우선순</span>
+                </div>
+                <ul class="timeline">
+                  <li class="timeline-item">
+                    <div>
+                      <span class="item-title">[시스템] 결제 모듈 2회 지연 감지</span>
+                      <p class="item-subtitle">10분 전</p>
+                    </div>
+                    <span class="status-chip status-critical">중요</span>
+                  </li>
+                  <li class="timeline-item">
+                    <div>
+                      <span class="item-title">[운영] 신고 접수 (게시글 P-7830)</span>
+                      <p class="item-subtitle">35분 전</p>
+                    </div>
+                    <span class="status-chip status-warning">주의</span>
+                  </li>
+                  <li class="timeline-item">
+                    <div>
+                      <span class="item-title">[운영] FC 네오 팀 승인 완료</span>
+                      <p class="item-subtitle">1시간 전</p>
+                    </div>
+                    <span class="status-chip status-positive">완료</span>
+                  </li>
+                  <li class="timeline-item">
+                    <div>
+                      <span class="item-title">[시스템] 백오피스 배포 v1.4 완료</span>
+                      <p class="item-subtitle">2시간 전</p>
+                    </div>
+                    <span class="status-chip status-neutral">공지</span>
+                  </li>
+                </ul>
+              </div>
+            </section>
+            <section id="reports" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">신고 처리</h2>
+                <p class="section-subtitle">신고 접수 현황과 조치 내역을 확인합니다.</p>
+              </div>
+              <div class="card table-card">
+                <div class="card-header">
+                  <h3 class="card-title">신고 목록</h3>
+                  <span class="card-meta">응답 SLA 12시간</span>
+                </div>
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>대상</th>
+                      <th>사유</th>
+                      <th>상태</th>
+                      <th>업데이트</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>R-229</td>
+                      <td>게시글 P-7830</td>
+                      <td>부적절한 언어</td>
+                      <td><span class="status-chip status-positive">조치 완료</span></td>
+                      <td>2024-03-14</td>
+                    </tr>
+                    <tr>
+                      <td>R-228</td>
+                      <td>회원 U-10372</td>
+                      <td>허위 매칭</td>
+                      <td><span class="status-chip status-warning">조치 진행</span></td>
+                      <td>2024-03-13</td>
+                    </tr>
+                    <tr>
+                      <td>R-227</td>
+                      <td>팀 T-3924</td>
+                      <td>불성실 참여</td>
+                      <td><span class="status-chip status-neutral">모니터링</span></td>
+                      <td>2024-03-12</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+            <section id="system" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">시스템 모니터링</h2>
+                <p class="section-subtitle">가용성, 배포, 확장성 지표를 확인합니다.</p>
+              </div>
+              <div class="metric-grid compact">
+                <div class="metric-card">
+                  <span class="metric-label">API 평균 응답</span>
+                  <strong class="metric-value">182ms</strong>
+                  <span class="metric-delta metric-positive">-12%</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">오류율</span>
+                  <strong class="metric-value">0.21%</strong>
+                  <span class="metric-delta metric-warning">+0.05%</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">DB 연결</span>
+                  <strong class="metric-value">정상</strong>
+                  <span class="metric-delta metric-positive">12/12</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">배포 상태</span>
+                  <strong class="metric-value">v1.4.3</strong>
+                  <span class="metric-delta metric-neutral">안정</span>
+                </div>
+              </div>
+            </section>
+            <section id="analytics" class="admin-section">
+              <div class="section-header">
+                <h2 class="section-title">지표 분석</h2>
+                <p class="section-subtitle">주요 성장 지표와 사용자 행동을 요약합니다.</p>
+              </div>
+              <div class="metric-grid compact">
+                <div class="metric-card">
+                  <span class="metric-label">주간 예약 증가</span>
+                  <strong class="metric-value">+18%</strong>
+                  <span class="metric-note">전주 대비</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">재방문율</span>
+                  <strong class="metric-value">42%</strong>
+                  <span class="metric-note">최근 30일</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-label">평균 매칭 시간</span>
+                  <strong class="metric-value">3.4일</strong>
+                  <span class="metric-note">요청 → 확정</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
+

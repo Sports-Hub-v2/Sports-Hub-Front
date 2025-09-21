@@ -1,4 +1,4 @@
-// src/features/auth/api/authApi.ts
+﻿// src/features/auth/api/authApi.ts
 
 import axiosInstance from "@/lib/axiosInstance";
 import type {
@@ -14,13 +14,14 @@ const API_BASE_URL = "/api/auth";
 export const signupApi = async (
   userData: UserSignUpRequestDto
 ): Promise<any> => {
-  // 1) Create account
+  // 1) Create account (userid optional)
   const accountRes = await axiosInstance.post(
     `${API_BASE_URL}/accounts`,
     {
       email: userData.email,
       password: userData.password,
       role: "USER",
+      userid: (userData as any).userid ?? undefined,
     },
     { headers: { "Content-Type": "application/json" } }
   );
@@ -69,9 +70,9 @@ export const loginApi = async (
   opts?: { persistRefresh?: boolean }
 ): Promise<AuthResponseDto & { refreshToken?: string }> => {
   const body = {
-    email: (credentials as any).loginId ?? (credentials as any).email,
-    password: (credentials as any).password,
-  };
+    loginId: credentials.loginId,
+    password: credentials.password,
+  } as const;
 
   const res = await axiosInstance.post(`${API_BASE_URL}/login`, body, {
     headers: { "Content-Type": "application/json" },
@@ -83,10 +84,13 @@ export const loginApi = async (
   const claims = decodeJwt(accessToken);
   const user: UserResponseDto = {
     id: Number(claims.accountId ?? 0),
-    name: (claims.email?.split("@")[0] as string) ?? "사용자",
-    email: claims.email ?? "",
-    userid: claims.email ?? "",
-    role: claims.role ?? "USER",
+    name:
+      typeof claims.email === "string" && (claims.email as string).includes("@")
+        ? (claims.email as string).split("@")[0]
+        : "user",
+    userid: (claims.userid as string) ?? "",
+    email: (claims.email as string) ?? "",
+    role: (claims.role as string) ?? "USER",
   } as UserResponseDto;
 
   if (opts?.persistRefresh) {

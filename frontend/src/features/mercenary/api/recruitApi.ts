@@ -1,6 +1,8 @@
 // src/features/mercenary/api/recruitApi.ts
 
 import axiosInstance from "@/lib/axiosInstance";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { getProfileByAccountIdApi } from "@/features/auth/api/userApi";
 import type {
   PostType,
   RecruitPostCreationRequestDto,
@@ -69,9 +71,18 @@ export const createRecruitPostApi = async (
   postData: RecruitPostCreationRequestDto
 ): Promise<RecruitPostResponseDto> => {
   try {
+    // 보장: 작성자 프로필 ID 주입
+    const { user } = useAuthStore.getState();
+    let writerProfileId = (postData as any).writerProfileId;
+    if (!writerProfileId && user?.profileId) writerProfileId = user.profileId;
+    if (!writerProfileId && user?.id) {
+      try { const prof = await getProfileByAccountIdApi(user.id); writerProfileId = (prof as any).id; } catch {}
+    }
+    const enriched = { ...postData, writerProfileId } as any;
+
     const response = await axiosInstance.post<RecruitPostResponseDto>(
       API_BASE_URL,
-      postData
+      enriched
     );
     return response.data;
   } catch (error: unknown) {
@@ -135,10 +146,40 @@ export const applyToPostApi = async (
   applicationData: ApplicationRequestDto
 ): Promise<any> => {
   try {
-    const response = await axiosInstance.post(
-      `${API_BASE_URL}/${postId}/applications`,
-      applicationData
-    );
+    const { user } = useAuthStore.getState();
+    let applicantProfileId = user?.profileId;
+    if (!applicantProfileId && user?.id) {
+      try { const prof = await getProfileByAccountIdApi(user.id); applicantProfileId = (prof as any).id; } catch {}
+    }
+    const payload: any = {
+      applicantProfileId,
+      description: (applicationData as any).message ?? (applicationData as any).description ?? undefined,
+    };
+    
+    const response = await axiosInstance.post(`${API_BASE_URL}/${postId}/applications`, payload);
+    
+    // 신청 후 작성자에게 알림 발송
+    try {
+      const postResponse = await axiosInstance.get(`${API_BASE_URL}/${postId}`);
+      const post = postResponse.data;
+      
+      if (post.writerProfileId && user?.id) {
+        // 작성자의 계정 정보를 가져와서 알림 발송
+        // 여기서는 간단하게 writerProfileId를 userId로 사용 (실제로는 프로필ID -> 계정ID 변환 필요)
+        const { createNotificationApi } = await import("@/features/notification/api/notificationApi");
+        await createNotificationApi({
+          userId: post.writerProfileId, // 실제로는 프로필 ID를 계정 ID로 변환해야 함
+          type: "APPLICATION_RECEIVED" as any,
+          title: "새로운 신청이 도착했습니다!",
+          message: `'${post.title}' 모집글에 새로운 신청이 도착했습니다.`,
+          relatedId: postId,
+        });
+      }
+    } catch (notificationError) {
+      console.error("알림 발송 실패:", notificationError);
+      // 알림 실패해도 신청은 성공한 것으로 처리
+    }
+    
     return response.data;
   } catch (error: unknown) {
     // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼

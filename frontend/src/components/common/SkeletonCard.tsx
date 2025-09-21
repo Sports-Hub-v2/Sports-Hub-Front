@@ -54,3 +54,4 @@ const SkeletonCard: React.FC<SkeletonCardProps> = ({ count = 1 }) => {
 };
 
 export default SkeletonCard;
+

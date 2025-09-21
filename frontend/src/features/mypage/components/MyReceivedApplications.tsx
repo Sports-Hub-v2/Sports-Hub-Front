@@ -1,10 +1,9 @@
 // src/features/myPage/components/MyReceivedApplications.tsx
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { getProfileByAccountIdApi } from '@/features/auth/api/userApi';
-import { getReceivedApplicationsApi, acceptApplicationApi, rejectApplicationApi } from '@/features/application/api/applicationApi';
+import { useApplicationStore } from '@/stores/useApplicationStore';
 import type { ReceivedApplication } from '@/types/application';
 import { ApplicationStatus } from '@/types/recruitPost';
 
@@ -20,74 +19,51 @@ const StatusBadge: React.FC<{ status: ApplicationStatus }> = ({ status }) => {
 
 const MyReceivedApplications: React.FC = () => {
   const { user } = useAuthStore();
-  const [applications, setApplications] = useState<ReceivedApplication[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [profileId, setProfileId] = useState<number | null>(null);
+  const { 
+    receivedApplications, 
+    isLoadingReceived, 
+    loadReceivedApplications, 
+    acceptApplication, 
+    rejectApplication 
+  } = useApplicationStore();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) { setIsLoading(false); return; }
-      try {
-        const profile = await getProfileByAccountIdApi(user.id);
-        setProfileId(profile.id);
-      } catch (error) {
-        console.error('프로필 조회 실패:', error);
-        setIsLoading(false);
-      }
-    };
-    fetchProfile();
-  }, [user]);
-
-  const fetchReceivedApplications = useCallback(async () => {
-    if (!profileId) return;
-    setIsLoading(true);
-    try {
-      const data = await getReceivedApplicationsApi(profileId);
-      setApplications(data);
-    } catch (error) {
-      console.error('받은 신청 조회 실패:', error);
-    } finally {
-      setIsLoading(false);
+    if (user?.profileId) {
+      loadReceivedApplications(user.profileId);
     }
-  }, [profileId]);
-
-  useEffect(() => {
-    if (profileId) fetchReceivedApplications();
-  }, [profileId, fetchReceivedApplications]);
+  }, [user?.profileId, loadReceivedApplications]);
 
   const handleAccept = async (applicationId: number, postId: number) => {
     if (!window.confirm('정말 이 신청을 수락하시겠습니까?')) return;
     try {
-      const message = await acceptApplicationApi(applicationId, postId);
-      alert(message);
-      fetchReceivedApplications(); // 목록 새로고침
-    } catch (err) {
-      alert(err instanceof Error ? err.message : '오류 발생');
+      await acceptApplication(applicationId, postId);
+      alert('신청을 승인했습니다.');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : '오류 발생');
     }
   };
 
   const handleReject = async (applicationId: number, postId: number) => {
     if (!window.confirm('정말 이 신청을 거절하시겠습니까?')) return;
     try {
-      const message = await rejectApplicationApi(applicationId, postId);
-      alert(message);
-      fetchReceivedApplications();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : '오류 발생');
+      await rejectApplication(applicationId, postId);
+      alert('신청을 거절했습니다.');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : '오류 발생');
     }
   };
 
-  if (isLoading) return <div className="py-8 text-center">받은 신청을 불러오는 중...</div>;
+  if (isLoadingReceived) return <div className="py-8 text-center">받은 신청을 불러오는 중...</div>;
   if (!user) return <div className="py-8 text-center text-gray-500">로그인이 필요합니다.</div>;
 
   return (
     <div className="space-y-4">
       <h3 className="text-xl font-semibold border-b pb-2">받은 신청 목록</h3>
-      {applications.length === 0 ? (
+      {receivedApplications.length === 0 ? (
         <p className="py-8 text-center text-gray-500">받은 신청이 없습니다.</p>
       ) : (
         <ul className="divide-y divide-gray-200">
-          {applications.map((app) => (
+          {receivedApplications.map((app) => (
             <li key={app.applicationId} className="py-4 flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">

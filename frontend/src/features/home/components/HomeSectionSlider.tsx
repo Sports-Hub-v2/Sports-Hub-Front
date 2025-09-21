@@ -58,32 +58,6 @@ const HomeSectionSlider = ({ title, category, posts, basePath }: Props) => {
 
   return (
     <section className="space-y-4 px-4">
-      <div className="flex justify-between items-center">
-        <h2
-          className="text-2xl font-bold cursor-pointer hover:underline"
-          onClick={() => navigate(categoryPagePath)}
-        >
-          {title}
-        </h2>
-        {posts && posts.length > 0 && (
-          // ▼▼▼ 3. '글쓰기'와 '더보기' 버튼을 함께 묶어줍니다. ▼▼▼
-          <div className="flex items-center space-x-4">
-            {/* 로그인한 사용자에게만 '글쓰기' 버튼이 보입니다. */}
-            {user && (
-              <Link 
-                to={`${basePath}?action=create`} 
-                className="text-sm bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition-colors"
-              >
-                + 글쓰기
-              </Link>
-            )}
-            <Link to={categoryPagePath} className="text-sm text-blue-600 hover:underline">
-              더보기
-            </Link>
-          </div>
-        )}
-      </div>
-
       {(!posts || posts.length === 0) ? (
         <p className="text-gray-500 py-8 text-center">해당 카테고리의 모집글이 없습니다.</p>
       ) : (

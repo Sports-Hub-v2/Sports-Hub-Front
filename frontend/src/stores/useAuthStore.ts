@@ -1,11 +1,11 @@
-// src/stores/useAuthStore.ts
+﻿// src/stores/useAuthStore.ts
 
 import { create } from "zustand";
 import type { UserResponseDto } from "@/types/user";
 
 interface StoreUser {
   id: number;
-  profileId?: number; // 추가
+  profileId?: number; // 異붽?
   name: string;
   userid: string;
   email?: string;
@@ -83,6 +83,20 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(userToStore));
     set({ token, user: userToStore, isLoggedIn: true });
+
+    // Fetch profile by accountId to attach profileId
+    const accountId = userToStore.id;
+    fetch(`/api/users/profiles/by-account/${accountId}`)
+      .then(async (res) => (res.ok ? ((await res.json()) as any) : null))
+      .then((prof) => {
+        if (prof && typeof prof.id === "number") {
+          const current = JSON.parse(localStorage.getItem("user") || "null") as any;
+          const nextUser = { ...(current ?? userToStore), profileId: prof.id };
+          localStorage.setItem("user", JSON.stringify(nextUser));
+          set({ user: nextUser });
+        }
+      })
+      .catch(() => {});
   },
 
   logout: () => {
@@ -123,15 +137,53 @@ export const useAuthStore = create<AuthState>((set) => ({
       const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
       const claims = JSON.parse(json || "{}");
       const userToStore: StoreUser = {
-        id: Number(claims.accountId ?? 0),
-        name: (claims.email?.split("@")[0] as string) ?? "사용자",
-        userid: claims.email ?? "",
-        email: claims.email ?? "",
-        role: claims.role ?? "USER",
+        id: Number((claims as any).accountId ?? 0),
+        name:
+          typeof (claims as any).email === "string" && (claims as any).email.includes("@")
+            ? ((claims as any).email as string).split("@")[0]
+            : "user",
+        userid: ((claims as any).userid as string) ?? "",
+        email: ((claims as any).email as string) ?? "",
+        role: ((claims as any).role as string) ?? "USER",
       } as StoreUser;
       set({ token: accessToken, user: userToStore, isLoggedIn: true });
+
+      // Attach profileId in background
+      try {
+        const res2 = await fetch(`/api/users/profiles/by-account/${userToStore.id}`);
+        if (res2.ok) {
+          const prof: any = await res2.json();
+          if (prof && typeof prof.id === "number") {
+            const nextUser = { ...userToStore, profileId: prof.id } as StoreUser;
+            localStorage.setItem("user", JSON.stringify(nextUser));
+            set({ user: nextUser });
+          }
+        }
+      } catch {}
     } catch (e) {
       // ignore
     }
   },
 }));
+
+// Ensure profileId is present in store/localStorage after reload
+if (typeof window !== 'undefined') {
+  (async () => {
+    try {
+      const raw = localStorage.getItem('user');
+      const u = raw ? (JSON.parse(raw) as any) : null;
+      if (u && !u.profileId && typeof u.id === 'number') {
+        const res = await fetch(`/api/users/profiles/by-account/${u.id}`);
+        if (res.ok) {
+          const prof: any = await res.json();
+          if (prof && typeof prof.id === 'number') {
+            const nextUser = { ...u, profileId: prof.id };
+            localStorage.setItem('user', JSON.stringify(nextUser));
+            // Zustand direct set
+            (useAuthStore as any).setState({ user: nextUser });
+          }
+        }
+      }
+    } catch {}
+  })();
+}
