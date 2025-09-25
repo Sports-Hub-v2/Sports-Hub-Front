@@ -1,4 +1,4 @@
-// src/routes/AppRouter.tsx
+﻿// src/routes/AppRouter.tsx
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -16,7 +16,16 @@ import LoginPage from "@/features/auth/pages/LoginPage";
 import SignupPage from "@/features/auth/pages/SignupPage";
 import OAuthCallback from "@/features/auth/pages/OAuthCallback";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
-import AdminWorkspace from "@/features/admin/pages/AdminWorkspace";
+
+// Admin Pages
+import DashboardPage from "@/features/admin/pages/DashboardPage";
+import MatchesPage from "@/features/admin/pages/MatchesPage";
+import MembersPage from "@/features/admin/pages/MembersPage";
+import TeamsPage from "@/features/admin/pages/TeamsPage";
+import ContentPage from "@/features/admin/pages/ContentPage";
+import ReportsPage from "@/features/admin/pages/ReportsPage";
+import SystemPage from "@/features/admin/pages/SystemPage";
+import SettingsPage from "@/features/admin/pages/SettingsPage";
 
 // Team Detail Page
 import TeamDetailPage from "@/features/team/pages/TeamDetailPage";
@@ -41,7 +50,7 @@ const AppRouter = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* 루트 레이아웃 하위에 들어가는 경로들 정의 */}
+        {/* Root layout routes */}
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="mercenary" element={<MercenaryPage />} />
@@ -51,7 +60,7 @@ const AppRouter = () => {
           <Route path="teams/:id" element={<TeamDetailPage />} />
           <Route path="team-manage" element={<TeamManagePage />} />
 
-          {/* 마이페이지 (중첩) */}
+          {/* MyPage nested routes */}
           <Route path="mypage" element={<MyPageLayout />}>
             <Route index element={<MyProfileInfo />} />
             <Route path="notifications" element={<MyNotifications />} />
@@ -64,9 +73,18 @@ const AppRouter = () => {
           <Route path="*" element={<NotFound />} />
         </Route>
 
-        {/* 관리자 프리뷰 */}
-        <Route path="/admin-preview" element={<AdminWorkspace />} />
+        {/* Admin pages */}
+        <Route path="/admin-preview" element={<DashboardPage />} />
+        <Route path="/admin" element={<DashboardPage />} />
+        <Route path="/admin/matches" element={<MatchesPage />} />
+        <Route path="/admin/members" element={<MembersPage />} />
+        <Route path="/admin/teams" element={<TeamsPage />} />
+        <Route path="/admin/content" element={<ContentPage />} />
+        <Route path="/admin/reports" element={<ReportsPage />} />
+        <Route path="/admin/system" element={<SystemPage />} />
+        <Route path="/admin/settings" element={<SettingsPage />} />
 
+        {/* Auth pages */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
