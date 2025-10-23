@@ -4,10 +4,18 @@ import {
   ArrowLeft, Edit, Ban, Trash2, AlertCircle, CheckCircle,
   Clock, MapPin, Mail, Phone, Calendar, Activity,
   Shield, Users, FileText, Bell, TrendingUp, Award,
-  Download, Send, Eye, Check, X, AlertTriangle, Star,
-  Share2, MessageCircle, BarChart3, Target, Zap, CreditCard, PartyPopper
+  Download, Send, Eye, Check, X, AlertTriangle,
+  MessageCircle, BarChart3, Target, Zap, CreditCard, PartyPopper,
+  Plus, Filter, Search, RotateCcw
 } from 'lucide-react';
 import AdminLayout from '../components/AdminLayout';
+import AdminLogTimeline from '../components/AdminLogTimeline';
+import AdminLogModal, { type AdminLogFormData } from '../components/AdminLogModal';
+import AdminLogDetailModal from '../components/AdminLogDetailModal';
+import MessageUserModal from '../components/MessageUserModal';
+import EditUserModal from '../components/EditUserModal';
+import type { AdminLog } from '../types/adminLog';
+import { mockUserAdminLogs } from '../types/adminLog';
 
 // 임시 타입 정의
 interface UserDetail {
@@ -193,13 +201,16 @@ interface UserDetail {
     }>;
     notes: string;
   };
+
+  // 관리 기록
+  adminLogs: AdminLog[];
 }
 
 const UserDetailPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'activity' | 'teams' | 'written-posts' | 'comments' | 'applications' | 'payments' | 'events' | 'security'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'activity' | 'teams' | 'written-posts' | 'comments' | 'applications' | 'payments' | 'events' | 'security' | 'admin-logs'>('overview');
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null);
   const [user, setUser] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -208,8 +219,31 @@ const UserDetailPage = () => {
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
   const [showCommentModal, setShowCommentModal] = useState(false);
+  const [showAdminLogModal, setShowAdminLogModal] = useState(false);
+  const [showAdminLogDetailModal, setShowAdminLogDetailModal] = useState(false);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [selectedComment, setSelectedComment] = useState<any>(null);
+  const [selectedAdminLog, setSelectedAdminLog] = useState<AdminLog | null>(null);
+  const [showActivityModal, setShowActivityModal] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+
+  // 관리내역 필터 state
+  const [adminLogFilter, setAdminLogFilter] = useState({
+    actionType: 'all',
+    dateFrom: '',
+    dateTo: '',
+    adminName: '',
+    severity: 'all',
+    sortBy: 'newest'
+  });
+  const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [showBanDetailModal, setShowBanDetailModal] = useState(false);
+  const [selectedBanRecord, setSelectedBanRecord] = useState<any>(null);
 
   useEffect(() => {
     // TODO: 실제 API 호출로 대체
@@ -636,7 +670,8 @@ const UserDetailPage = () => {
             }
           ],
           notes: '활발한 활동. 응답률 우수.'
-        }
+        },
+        adminLogs: mockUserAdminLogs
       });
       setLoading(false);
     }, 500);
@@ -676,6 +711,72 @@ const UserDetailPage = () => {
     alert('사용자가 정지되었습니다. (목업)');
   };
 
+  const handleAddNote = (logId: number, noteContent: string) => {
+    console.log('메모 추가:', logId, noteContent);
+    // TODO: 실제 API 호출
+    if (user) {
+      const newNote = {
+        id: Date.now(),
+        adminId: 1001, // TODO: 실제 로그인한 관리자 ID
+        adminName: '현재 관리자', // TODO: 실제 로그인한 관리자 이름
+        content: noteContent,
+        createdAt: new Date().toISOString()
+      };
+
+      const updatedLogs = user.adminLogs.map(log =>
+        log.id === logId
+          ? { ...log, notes: [...(log.notes || []), newNote] }
+          : log
+      );
+
+      setUser({
+        ...user,
+        adminLogs: updatedLogs
+      });
+
+      // 현재 선택된 로그도 업데이트
+      if (selectedAdminLog && selectedAdminLog.id === logId) {
+        setSelectedAdminLog({
+          ...selectedAdminLog,
+          notes: [...(selectedAdminLog.notes || []), newNote]
+        });
+      }
+    }
+    alert('메모가 추가되었습니다.');
+  };
+
+  const handleAdminLogSave = (formData: AdminLogFormData) => {
+    console.log('관리 기록 저장:', formData);
+    // TODO: 실제 API 호출
+    if (user) {
+      const newLog: AdminLog = {
+        id: Date.now(),
+        targetType: 'USER',
+        targetId: user.id,
+        targetName: user.name,
+        adminId: 1001, // TODO: 실제 로그인한 관리자 ID
+        adminName: '현재 관리자', // TODO: 실제 로그인한 관리자 이름
+        actionType: formData.actionType,
+        title: formData.title,
+        content: formData.content,
+        createdAt: new Date().toISOString(),
+        metadata: {
+          severity: formData.severity,
+          duration: formData.duration,
+          reason: formData.reason,
+          tags: formData.tags ? formData.tags.split(',').map(t => t.trim()) : undefined
+        }
+      };
+
+      setUser({
+        ...user,
+        adminLogs: [newLog, ...user.adminLogs]
+      });
+    }
+    setShowAdminLogModal(false);
+    alert('관리 기록이 추가되었습니다. (목업)');
+  };
+
   const handleDelete = () => {
     if (window.confirm('이 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
       console.log('삭제:', userId);
@@ -687,7 +788,7 @@ const UserDetailPage = () => {
   if (loading) {
     return (
       <AdminLayout activePage="users">
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-700 flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
         </div>
       </AdminLayout>
@@ -697,13 +798,13 @@ const UserDetailPage = () => {
   if (!user) {
     return (
       <AdminLayout activePage="users">
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-gray-700 flex items-center justify-center">
           <div className="text-center">
             <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">사용자를 찾을 수 없습니다.</p>
+            <p className="text-gray-300">사용자를 찾을 수 없습니다.</p>
             <button
               onClick={() => navigate('/admin/users')}
-              className="mt-4 text-blue-600 hover:text-blue-700"
+              className="mt-4 text-blue-600 hover:text-blue-300"
             >
               목록으로 돌아가기
             </button>
@@ -715,7 +816,7 @@ const UserDetailPage = () => {
 
   const getStatusBadge = () => {
     const statusConfig = {
-      ACTIVE: { color: 'bg-green-100 text-green-700', icon: '⚡', text: '활성' },
+      ACTIVE: { color: 'bg-green-100 text-green-300', icon: '⚡', text: '활성' },
       INACTIVE: { color: 'bg-gray-100 text-gray-700', icon: '💤', text: '비활성' },
       BANNED: { color: 'bg-red-100 text-red-700', icon: '🚫', text: '정지' }
     };
@@ -730,7 +831,7 @@ const UserDetailPage = () => {
 
   const getRoleBadge = () => {
     const roleConfig = {
-      USER: { color: 'bg-blue-100 text-blue-700', text: '일반' },
+      USER: { color: 'bg-blue-100 text-blue-300', text: '일반' },
       CAPTAIN: { color: 'bg-purple-100 text-purple-700', text: '팀장' },
       ADMIN: { color: 'bg-red-100 text-red-700', text: '관리자' }
     };
@@ -758,51 +859,37 @@ const UserDetailPage = () => {
   };
 
   const getFormColor = (result: string) => {
-    if (result === 'WIN') return 'bg-green-500 text-white';
+    if (result === 'WIN') return 'bg-green-9000 text-white';
     if (result === 'DRAW') return 'bg-gray-400 text-white';
     if (result === 'LOSS') return 'bg-red-500 text-white';
     if (result === 'SUCCESS') return 'bg-blue-500 text-white';
     if (result === 'PENDING') return 'bg-yellow-500 text-white';
-    return 'bg-gray-500 text-white';
+    return 'bg-gray-7000 text-white';
   };
 
   return (
     <AdminLayout activePage="users">
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-900">
       {/* 헤더 */}
-      <div className="bg-white border-b">
+      <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate('/admin/users')}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+              className="flex items-center gap-2 text-gray-300 hover:text-white"
             >
               <ArrowLeft className="w-5 h-5" />
               <span>사용자 목록으로</span>
             </button>
 
             <div className="flex items-center gap-2">
-              {/* FotMob 스타일 액션 버튼들 */}
-              <button
-                onClick={() => alert('팔로우 기능 (목업)')}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                <Star className="w-4 h-4" />
-                팔로우
-              </button>
-              <button
-                onClick={() => alert('공유 기능 (목업)')}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                <Share2 className="w-4 h-4" />
-                공유
-              </button>
+              {/* 액션 버튼 */}
               <button
                 onClick={() => setShowMessageModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
-                메시지
+                메시지 보내기
               </button>
               <div className="border-l h-8 mx-2"></div>
               <button
@@ -832,11 +919,11 @@ const UserDetailPage = () => {
       </div>
 
       {/* 프로필 헤더 - FotMob 스타일 (조기축구 테마) */}
-      <div className="bg-gradient-to-r from-green-600 to-green-700 border-b shadow-lg">
+      <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-b shadow-lg">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="flex items-start gap-6">
             {/* 프로필 사진 */}
-            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-green-600 text-3xl font-bold shadow-lg border-4 border-white">
+            <div className="w-24 h-24 rounded-full bg-green-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg border-4 border-white">
               {user.name.charAt(0)}
             </div>
 
@@ -844,11 +931,11 @@ const UserDetailPage = () => {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold text-white">{user.name}</h1>
-                <span className="text-green-100">#{user.id}</span>
+                <span className="text-gray-300">#{user.id}</span>
                 {getRoleBadge()}
                 {getStatusBadge()}
                 {user.verified && (
-                  <span className="inline-flex items-center gap-1 bg-white text-green-600 px-2 py-1 rounded-full text-xs font-medium">
+                  <span className="inline-flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium">
                     <CheckCircle className="w-3 h-3" />
                     본인인증
                   </span>
@@ -905,17 +992,17 @@ const UserDetailPage = () => {
 
             {/* 핵심 통계 카드 - 조기축구 특화 */}
             <div className="grid grid-cols-3 gap-3">
-              <div className="bg-white p-4 rounded-lg text-center shadow-md">
-                <div className="text-3xl font-bold text-green-600">{user.stats.matchesPlayed}</div>
-                <div className="text-xs text-gray-600 mt-1">총 경기 수</div>
+              <div className="bg-gray-700 p-4 rounded-lg text-center shadow-md border border-gray-600">
+                <div className="text-3xl font-bold text-green-400">{user.stats.matchesPlayed}</div>
+                <div className="text-xs text-gray-300 mt-1">총 경기 수</div>
               </div>
-              <div className="bg-white p-4 rounded-lg text-center shadow-md">
-                <div className="text-3xl font-bold text-blue-600">{user.stats.winRate}%</div>
-                <div className="text-xs text-gray-600 mt-1">승률</div>
+              <div className="bg-gray-700 p-4 rounded-lg text-center shadow-md border border-gray-600">
+                <div className="text-3xl font-bold text-blue-400">{user.stats.winRate}%</div>
+                <div className="text-xs text-gray-300 mt-1">승률</div>
               </div>
-              <div className="bg-white p-4 rounded-lg text-center shadow-md">
-                <div className="text-3xl font-bold text-purple-600">{user.stats.punctuality}%</div>
-                <div className="text-xs text-gray-600 mt-1">시간 준수율</div>
+              <div className="bg-gray-700 p-4 rounded-lg text-center shadow-md border border-gray-600">
+                <div className="text-3xl font-bold text-purple-400">{user.stats.punctuality}%</div>
+                <div className="text-xs text-gray-300 mt-1">시간 준수율</div>
               </div>
             </div>
           </div>
@@ -923,9 +1010,9 @@ const UserDetailPage = () => {
       </div>
 
       {/* 탭 네비게이션 */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="bg-gray-800 border-b border-gray-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4">
-          <nav className="flex gap-8">
+          <nav className="flex gap-4 overflow-x-auto">
             {[
               { id: 'overview', label: '개요', icon: Activity },
               { id: 'stats', label: '통계 & 평점', icon: BarChart3 },
@@ -936,18 +1023,19 @@ const UserDetailPage = () => {
               { id: 'applications', label: '용병/팀원 신청', icon: Send },
               { id: 'payments', label: '결제 내역', icon: CreditCard },
               { id: 'events', label: '이벤트 참여', icon: PartyPopper },
-              { id: 'security', label: '보안/제재', icon: Shield }
+              { id: 'security', label: '보안/제재', icon: Shield },
+              { id: 'admin-logs', label: '관리내역', icon: FileText }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex items-center gap-2 px-4 py-4 border-b-2 font-medium transition-colors ${
+                className={`flex items-center gap-2 px-5 py-4 border-b-2 font-medium transition-colors whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'border-green-600 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-gray-400 hover:text-gray-300'
                 }`}
               >
-                <tab.icon className="w-4 h-4" />
+                <tab.icon className="w-4 h-4 flex-shrink-0" />
                 {tab.label}
               </button>
             ))}
@@ -1014,8 +1102,8 @@ const UserDetailPage = () => {
             </div>
 
             {/* 조기축구 선수 능력치 - FotMob 레이더 차트 스타일 */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-semibold mb-4">⚽ 선수 신뢰도 지표</h3>
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-lg font-semibold mb-4 text-white">⚽ 선수 신뢰도 지표</h3>
               <div className="space-y-4">
                 <StatBar
                   label="승률"
@@ -1050,39 +1138,39 @@ const UserDetailPage = () => {
 
             {/* 조기축구 선수 프로필 카드 - FotMob Bio 스타일 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg border p-6">
-                <h3 className="text-lg font-semibold mb-4">⚽ 선수 정보</h3>
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                <h3 className="text-lg font-semibold mb-4 text-white">⚽ 선수 정보</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">선호 포지션</span>
-                    <span className="font-semibold text-green-600">{user.preferredPosition || '-'}</span>
+                    <span className="text-gray-300">선호 포지션</span>
+                    <span className="font-semibold text-green-400">{user.preferredPosition || '-'}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">실력 수준</span>
-                    <span className="font-semibold">{user.skillLevel || '-'}</span>
+                    <span className="text-gray-300">실력 수준</span>
+                    <span className="font-semibold text-blue-400">{user.skillLevel || '-'}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">활동 지역</span>
-                    <span className="font-semibold">{user.region} {user.subRegion}</span>
+                    <span className="text-gray-300">활동 지역</span>
+                    <span className="font-semibold text-white">{user.region} {user.subRegion}</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-gray-600">경기 참여</span>
-                    <span className="font-semibold text-blue-600">{user.stats.matchesPlayed}경기</span>
+                    <span className="text-gray-300">경기 참여</span>
+                    <span className="font-semibold text-blue-400">{user.stats.matchesPlayed}경기</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg border p-6">
-                <h3 className="text-lg font-semibold mb-4">📊 응답 속도</h3>
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+                <h3 className="text-lg font-semibold mb-4 text-white">📊 응답 속도</h3>
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-4xl font-bold text-blue-600">{user.stats.avgResponseTime}</span>
-                  <span className="text-gray-600 text-lg">분</span>
+                  <span className="text-gray-300 text-lg">분</span>
                 </div>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   평균 응답 시간이 빠를수록 신뢰도가 높습니다
                 </p>
                 <div className="mt-4 pt-4 border-t">
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-gray-300">
                     응답률: <span className="font-semibold text-green-600">{user.stats.responseRate}%</span>
                   </div>
                 </div>
@@ -1095,43 +1183,43 @@ const UserDetailPage = () => {
           <div className="space-y-6">
             {/* 조기축구 특화 지표 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-4xl mb-2">🌡️</div>
-                <div className="text-3xl font-bold text-green-600">{user.morningStats.mannerTemperature}°</div>
-                <div className="text-sm text-gray-600 mt-1">매너 온도</div>
-                <div className="text-xs text-gray-500 mt-1">높을수록 매너가 좋음</div>
+                <div className="text-3xl font-bold text-green-400">{user.morningStats.mannerTemperature}°</div>
+                <div className="text-sm text-gray-200 mt-1">매너 온도</div>
+                <div className="text-xs text-gray-400 mt-1">높을수록 매너가 좋음</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-4xl mb-2">🔥</div>
-                <div className="text-3xl font-bold text-orange-600">{user.morningStats.consecutiveAttendance}일</div>
-                <div className="text-sm text-gray-600 mt-1">연속 출석</div>
-                <div className="text-xs text-gray-500 mt-1">현재 연속 출석 일수</div>
+                <div className="text-3xl font-bold text-orange-400">{user.morningStats.consecutiveAttendance}일</div>
+                <div className="text-sm text-gray-200 mt-1">연속 출석</div>
+                <div className="text-xs text-gray-400 mt-1">현재 연속 출석 일수</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-4xl mb-2">⏰</div>
-                <div className="text-3xl font-bold text-blue-600">{user.morningStats.morningParticipationRate}%</div>
-                <div className="text-sm text-gray-600 mt-1">아침 참여율</div>
-                <div className="text-xs text-gray-500 mt-1">새벽 경기 참여 비율</div>
+                <div className="text-3xl font-bold text-blue-400">{user.morningStats.morningParticipationRate}%</div>
+                <div className="text-sm text-gray-200 mt-1">아침 참여율</div>
+                <div className="text-xs text-gray-400 mt-1">새벽 경기 참여 비율</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-4xl mb-2">{user.morningStats.noShowCount === 0 ? '✅' : '⚠️'}</div>
-                <div className={`text-3xl font-bold ${user.morningStats.noShowCount === 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-3xl font-bold ${user.morningStats.noShowCount === 0 ? 'text-green-400' : 'text-red-400'}`}>
                   {user.morningStats.noShowCount}회
                 </div>
-                <div className="text-sm text-gray-600 mt-1">노쇼 기록</div>
-                <div className="text-xs text-gray-500 mt-1">약속 불이행 횟수</div>
+                <div className="text-sm text-gray-200 mt-1">노쇼 기록</div>
+                <div className="text-xs text-gray-400 mt-1">약속 불이행 횟수</div>
               </div>
             </div>
 
             {/* 선호 시간대 */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-blue-600" />
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-white">
+                <Clock className="w-5 h-5 text-blue-400" />
                 선호 경기 시간대
               </h3>
               <div className="flex gap-2 flex-wrap">
                 {user.morningStats.preferredTimeSlots.map((slot, index) => (
-                  <span key={index} className="px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium">
+                  <span key={index} className="px-4 py-2 bg-blue-900 text-blue-200 rounded-lg font-medium border border-blue-700">
                     🌅 {slot}
                   </span>
                 ))}
@@ -1139,15 +1227,15 @@ const UserDetailPage = () => {
             </div>
 
             {/* 동료 평가 (설문 기반) */}
-            <div className="bg-white rounded-lg border p-6">
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <Target className="w-5 h-5 text-green-600" />
                   동료 평가 (경기 후 설문)
                 </h3>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-300">
                   총 <span className="font-bold text-green-600">{user.surveyStats.totalSurveys}명</span> 평가
-                  <span className="ml-2 text-xs text-gray-500">
+                  <span className="ml-2 text-xs text-gray-400">
                     (참여율 {user.surveyStats.surveyParticipation}%)
                   </span>
                 </div>
@@ -1156,26 +1244,26 @@ const UserDetailPage = () => {
             </div>
 
             {/* 경기별 평점 - FotMob 스타일 */}
-            <div className="bg-white rounded-lg border p-6">
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <Zap className="w-5 h-5 text-blue-600" />
                 최근 경기 평점
               </h3>
               <div className="space-y-3">
                 {user.matchRatings.map((match, index) => (
-                  <div key={index} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                    <div className="flex-shrink-0 w-20 text-sm text-gray-600">
+                  <div key={index} className="flex items-center gap-4 p-4 bg-gray-700 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div className="flex-shrink-0 w-20 text-sm text-gray-300">
                       {new Date(match.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })}
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">vs {match.opponent}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="font-medium text-white">vs {match.opponent}</div>
+                      <div className="text-sm text-gray-400">
                         {match.goals > 0 && <span className="mr-3">⚽ {match.goals}골</span>}
                         {match.assists > 0 && <span>🎯 {match.assists}도움</span>}
                       </div>
                     </div>
                     <div className={`flex-shrink-0 w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold ${
-                      match.rating >= 8.0 ? 'bg-green-500 text-white' :
+                      match.rating >= 8.0 ? 'bg-green-9000 text-white' :
                       match.rating >= 7.0 ? 'bg-blue-500 text-white' :
                       match.rating >= 6.0 ? 'bg-yellow-500 text-white' :
                       'bg-red-500 text-white'
@@ -1189,30 +1277,30 @@ const UserDetailPage = () => {
 
             {/* 평균 평점 요약 */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-green-600">
                   {(user.matchRatings.reduce((sum, m) => sum + m.rating, 0) / user.matchRatings.length).toFixed(2)}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">평균 평점</div>
+                <div className="text-sm text-gray-300 mt-1">평균 평점</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-blue-600">
                   {user.matchRatings.reduce((sum, m) => sum + m.goals, 0)}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">총 골</div>
+                <div className="text-sm text-gray-300 mt-1">총 골</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-purple-600">
                   {user.matchRatings.reduce((sum, m) => sum + m.assists, 0)}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">총 어시스트</div>
+                <div className="text-sm text-gray-300 mt-1">총 어시스트</div>
               </div>
             </div>
           </div>
         )}
 
         {activeTab === 'activity' && (
-            <div className="bg-white rounded-lg border">
+            <div className="bg-gray-800 rounded-lg border border-gray-700">
               <div className="p-6 border-b"><h3 className="text-lg font-semibold">🕒 조기축구 활동 타임라인</h3></div>
               <div className="p-6 space-y-4">
                 {user.activityTimeline.map(act => {
@@ -1227,18 +1315,18 @@ const UserDetailPage = () => {
                   };
 
                   const getActivityColor = (type: string) => {
-                    if (['POST_CREATE', 'APPLICATION_APPROVE', 'TEAM_JOIN', 'MATCH_ATTEND'].includes(type)) return 'bg-green-100 text-green-700';
-                    if (['POST_EDIT', 'APPLICATION_SUBMIT'].includes(type)) return 'bg-blue-100 text-blue-700';
+                    if (['POST_CREATE', 'APPLICATION_APPROVE', 'TEAM_JOIN', 'MATCH_ATTEND'].includes(type)) return 'bg-green-100 text-green-300';
+                    if (['POST_EDIT', 'APPLICATION_SUBMIT'].includes(type)) return 'bg-blue-100 text-blue-300';
                     if (['APPLICATION_REJECT', 'TEAM_LEAVE'].includes(type)) return 'bg-red-100 text-red-700';
                     return 'bg-gray-100 text-gray-700';
                   };
 
-                  const isClickable = ['POST_CREATE', 'POST_EDIT'].includes(act.type);
+                  const isClickable = true; // 모든 활동 클릭 가능
 
                   const handleClick = () => {
-                    if (isClickable) {
+                    // 글 작성/수정
+                    if (['POST_CREATE', 'POST_EDIT'].includes(act.type)) {
                       setActiveTab('written-posts');
-                      // 해당 글로 스크롤
                       setTimeout(() => {
                         const postElement = document.getElementById('post-1');
                         if (postElement) {
@@ -1247,6 +1335,25 @@ const UserDetailPage = () => {
                           setTimeout(() => setSelectedPostId(null), 3000);
                         }
                       }, 100);
+                    }
+                    // 신청 관련
+                    else if (['APPLICATION_SUBMIT', 'APPLICATION_APPROVE', 'APPLICATION_REJECT'].includes(act.type)) {
+                      setSelectedActivity(act);
+                      setShowActivityModal(true);
+                    }
+                    // 팀 가입/탈퇴
+                    else if (['TEAM_JOIN', 'TEAM_LEAVE'].includes(act.type)) {
+                      setActiveTab('teams');
+                    }
+                    // 경기 참여
+                    else if (act.type === 'MATCH_ATTEND') {
+                      setSelectedActivity(act);
+                      setShowActivityModal(true);
+                    }
+                    // 기타 활동
+                    else {
+                      setSelectedActivity(act);
+                      setShowActivityModal(true);
                     }
                   };
 
@@ -1265,9 +1372,9 @@ const UserDetailPage = () => {
                               {act.title}
                               {isClickable && <span className="text-xs text-blue-600">→ 글 보기</span>}
                             </h4>
-                            <span className="text-sm text-gray-500">{act.date} {act.time}</span>
+                            <span className="text-sm text-gray-400">{act.date} {act.time}</span>
                           </div>
-                          <p className="text-sm text-gray-600">{act.description}</p>
+                          <p className="text-sm text-gray-300">{act.description}</p>
                         </div>
                       </div>
                   );
@@ -1279,36 +1386,36 @@ const UserDetailPage = () => {
         {activeTab === 'teams' && (
             <div className="space-y-4">
               {user.teamHistory.map(team => (
-                  <div key={team.id} className="bg-white rounded-lg border p-6">
+                  <div key={team.id} className="bg-gray-800 rounded-lg border border-gray-700 p-6">
                     <div className="flex justify-between mb-4">
                       <div>
                         <div className="flex items-center gap-3 mb-2">
                           <h3
-                            className="text-xl font-bold text-blue-600 hover:text-blue-700 cursor-pointer underline"
+                            className="text-xl font-bold text-blue-600 hover:text-blue-300 cursor-pointer underline"
                             onClick={() => navigate(`/admin/teams/${team.id}`)}
                           >
                             {team.teamName}
                           </h3>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${team.role === 'CAPTAIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${team.role === 'CAPTAIN' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-300'}`}>
                         {team.role === 'CAPTAIN' ? '팀장' : '멤버'}
                       </span>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${team.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${team.status === 'ACTIVE' ? 'bg-green-100 text-green-300' : 'bg-gray-100 text-gray-700'}`}>
                         {team.status === 'ACTIVE' ? '활동중' : '탈퇴'}
                       </span>
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-300">
                           가입: {team.joinDate}
                           {team.leaveDate && <span className="ml-4">탈퇴: {team.leaveDate}</span>}
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold text-blue-600">{team.matchesPlayed}</div>
-                        <div className="text-xs text-gray-600">경기 참여</div>
+                        <div className="text-xs text-gray-300">경기 참여</div>
                       </div>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="bg-gray-700 p-4 rounded-lg">
                       <div className="text-sm font-medium text-gray-700 mb-1">기여도</div>
-                      <div className="text-sm text-gray-600">{team.contributions}</div>
+                      <div className="text-sm text-gray-300">{team.contributions}</div>
                     </div>
                   </div>
               ))}
@@ -1318,7 +1425,7 @@ const UserDetailPage = () => {
         {activeTab === 'written-posts' && (
           <div className="space-y-6">
             {/* 작성글 섹션 */}
-            <div className="bg-white rounded-lg border">
+            <div className="bg-gray-800 rounded-lg border border-gray-700">
               <div className="p-6 border-b">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <FileText className="w-5 h-5 text-purple-600" />
@@ -1329,8 +1436,8 @@ const UserDetailPage = () => {
                 {user.posts.written.map((post) => {
                   const getTypeLabel = (type: string) => {
                     const labels: any = {
-                      TEAM: { text: '팀원모집', color: 'bg-blue-100 text-blue-700' },
-                      MERCENARY: { text: '용병모집', color: 'bg-green-100 text-green-700' },
+                      TEAM: { text: '팀원모집', color: 'bg-blue-100 text-blue-300' },
+                      MERCENARY: { text: '용병모집', color: 'bg-green-100 text-green-300' },
                       MATCH: { text: '경기공지', color: 'bg-purple-100 text-purple-700' }
                     };
                     return labels[type] || labels.TEAM;
@@ -1338,7 +1445,7 @@ const UserDetailPage = () => {
 
                   const getStatusLabel = (status: string) => {
                     const labels: any = {
-                      ACTIVE: { text: '모집중', color: 'bg-green-100 text-green-700' },
+                      ACTIVE: { text: '모집중', color: 'bg-green-100 text-green-300' },
                       CLOSED: { text: '마감', color: 'bg-gray-100 text-gray-700' },
                       DELETED: { text: '삭제됨', color: 'bg-red-100 text-red-700' }
                     };
@@ -1370,12 +1477,12 @@ const UserDetailPage = () => {
                               {statusLabel.text}
                             </span>
                           </div>
-                          <h4 className="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                          <h4 className="text-lg font-semibold text-white mb-2 flex items-center gap-2">
                             {post.title}
                             <span className="text-xs text-blue-600">→ 상세보기</span>
                           </h4>
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{post.content}</p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <p className="text-sm text-gray-300 mb-3 line-clamp-2">{post.content}</p>
+                          <div className="flex items-center gap-4 text-xs text-gray-400">
                             <span>📅 {new Date(post.createdDate).toLocaleString()}</span>
                             <span>👁 조회 {post.views}</span>
                             <span>✉️ 신청 {post.applicants}명</span>
@@ -1393,7 +1500,7 @@ const UserDetailPage = () => {
         {activeTab === 'comments' && (
           <div className="space-y-6">
             {/* 댓글 섹션 */}
-            <div className="bg-white rounded-lg border">
+            <div className="bg-gray-800 rounded-lg border border-gray-700">
               <div className="p-6 border-b">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-blue-600" />
@@ -1418,11 +1525,11 @@ const UserDetailPage = () => {
                         게시글: <span className="text-blue-600">{comment.postTitle}</span>
                       </span>
                     </div>
-                    <p className="text-gray-900 mb-3 flex items-center gap-2">
+                    <p className="text-white mb-3 flex items-center gap-2">
                       {comment.content}
                       <span className="text-xs text-blue-600">→ 상세보기</span>
                     </p>
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
+                    <div className="flex items-center gap-4 text-xs text-gray-400">
                       <span>📅 {new Date(comment.createdDate).toLocaleString()}</span>
                       <span>❤️ {comment.likes} 좋아요</span>
                     </div>
@@ -1435,14 +1542,14 @@ const UserDetailPage = () => {
 
         {activeTab === 'applications' && (
             <div className="space-y-6">
-              <div className="bg-white rounded-lg border">
+              <div className="bg-gray-800 rounded-lg border border-gray-700">
                 <div className="p-6 border-b"><h3 className="text-lg font-semibold">📤 보낸 용병/팀원 신청 ({user.applications.sent.length})</h3></div>
                 <div className="divide-y">
                   {user.applications.sent.map(app => {
                     const getStatusBadge = (status: string) => {
                       const config: any = {
                         PENDING: { color: 'bg-yellow-100 text-yellow-700', text: '대기중' },
-                        APPROVED: { color: 'bg-green-100 text-green-700', text: '승인됨' },
+                        APPROVED: { color: 'bg-green-100 text-green-300', text: '승인됨' },
                         REJECTED: { color: 'bg-red-100 text-red-700', text: '거절됨' }
                       };
                       const { color, text } = config[status];
@@ -1450,33 +1557,40 @@ const UserDetailPage = () => {
                     };
 
                     return (
-                        <div key={app.id} className="p-6">
+                        <div
+                          key={app.id}
+                          onClick={() => {
+                            setSelectedApplication(app);
+                            setShowApplicationModal(true);
+                          }}
+                          className="p-6 hover:bg-gray-700 cursor-pointer transition-colors"
+                        >
                           <div className="flex justify-between mb-3">
                             <div>
                               <div className="flex items-center gap-2 mb-2">
                                 <h4 className="font-medium">{app.postTitle}</h4>
                                 {getStatusBadge(app.status)}
                               </div>
-                              <div className="text-sm text-gray-600">
+                              <div className="text-sm text-gray-300">
                                 대상: {app.targetTeam} | 신청일: {new Date(app.submitDate).toLocaleString()}
                               </div>
                             </div>
                           </div>
-                          <div className="bg-gray-50 p-3 rounded text-sm text-gray-700">{app.message}</div>
+                          <div className="bg-gray-700 p-3 rounded text-sm text-gray-700">{app.message}</div>
                         </div>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg border">
+              <div className="bg-gray-800 rounded-lg border border-gray-700">
                 <div className="p-6 border-b"><h3 className="text-lg font-semibold">📥 받은 용병/팀원 신청 ({user.applications.received.length})</h3></div>
                 <div className="divide-y">
                   {user.applications.received.map(app => {
                     const getStatusBadge = (status: string) => {
                       const config: any = {
                         PENDING: { color: 'bg-yellow-100 text-yellow-700', text: '대기중' },
-                        APPROVED: { color: 'bg-green-100 text-green-700', text: '승인됨' },
+                        APPROVED: { color: 'bg-green-100 text-green-300', text: '승인됨' },
                         REJECTED: { color: 'bg-red-100 text-red-700', text: '거절됨' }
                       };
                       const { color, text } = config[status];
@@ -1492,20 +1606,28 @@ const UserDetailPage = () => {
                     };
 
                     return (
-                        <div key={app.id} className="p-6">
+                        <div
+                          key={app.id}
+                          onClick={() => {
+                            setSelectedApplication(app);
+                            setShowApplicationModal(true);
+                          }}
+                          className="p-6 hover:bg-gray-700 cursor-pointer transition-colors"
+                        >
                           <div className="flex justify-between mb-3">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <h4 className="font-medium">{app.postTitle}</h4>
                                 {getStatusBadge(app.status)}
+                                <span className="text-xs text-blue-600">→ 상세보기</span>
                               </div>
-                              <div className="text-sm text-gray-600">
+                              <div className="text-sm text-gray-300">
                                 신청자: {app.applicantName} | 신청일: {new Date(app.submitDate).toLocaleString()}
                                 {app.responseDate && <span> | 처리일: {new Date(app.responseDate).toLocaleString()}</span>}
                               </div>
                             </div>
                             {app.status === 'PENDING' && (
-                                <div className="flex gap-2">
+                                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                                   <button onClick={() => handleApprove(app.id)} className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm">
                                     승인
                                   </button>
@@ -1515,7 +1637,7 @@ const UserDetailPage = () => {
                                 </div>
                             )}
                           </div>
-                          <div className="bg-gray-50 p-3 rounded text-sm text-gray-700">{app.message}</div>
+                          <div className="bg-gray-700 p-3 rounded text-sm text-gray-700">{app.message}</div>
                         </div>
                     );
                   })}
@@ -1528,28 +1650,28 @@ const UserDetailPage = () => {
           <div className="space-y-6">
             {/* 결제 내역 요약 */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-blue-600">
                   {user.payments.filter(p => p.status === 'COMPLETED').length}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">완료된 결제</div>
+                <div className="text-sm text-gray-300 mt-1">완료된 결제</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-green-600">
                   ₩{user.payments.filter(p => p.status === 'COMPLETED').reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">총 결제 금액</div>
+                <div className="text-sm text-gray-300 mt-1">총 결제 금액</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-red-600">
                   {user.payments.filter(p => p.status === 'REFUNDED').length}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">환불 건수</div>
+                <div className="text-sm text-gray-300 mt-1">환불 건수</div>
               </div>
             </div>
 
             {/* 결제 내역 테이블 */}
-            <div className="bg-white rounded-lg border">
+            <div className="bg-gray-800 rounded-lg border border-gray-700">
               <div className="p-6 border-b">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-blue-600" />
@@ -1558,36 +1680,36 @@ const UserDetailPage = () => {
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-gray-700">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         주문번호
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         날짜
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         유형
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         설명
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         금액
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         결제수단
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                         상태
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-gray-800 divide-y divide-gray-700">
                     {user.payments.map(payment => {
                       const getStatusBadge = (status: string) => {
                         const config: any = {
-                          COMPLETED: { color: 'bg-green-100 text-green-700', text: '완료' },
+                          COMPLETED: { color: 'bg-green-100 text-green-300', text: '완료' },
                           PENDING: { color: 'bg-yellow-100 text-yellow-700', text: '대기중' },
                           REFUNDED: { color: 'bg-red-100 text-red-700', text: '환불됨' },
                           FAILED: { color: 'bg-gray-100 text-gray-700', text: '실패' }
@@ -1597,23 +1719,30 @@ const UserDetailPage = () => {
                       };
 
                       return (
-                        <tr key={payment.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">
+                        <tr
+                          key={payment.id}
+                          onClick={() => {
+                            setSelectedPayment(payment);
+                            setShowPaymentModal(true);
+                          }}
+                          className="hover:bg-gray-700 cursor-pointer"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-400">
                             {payment.orderId}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                             {payment.date}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                             {payment.type}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-gray-300">
                             {payment.description}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-white">
                             ₩{payment.amount.toLocaleString()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                             {payment.method}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -1633,34 +1762,34 @@ const UserDetailPage = () => {
           <div className="space-y-6">
             {/* 이벤트 참여 요약 */}
             <div className="grid grid-cols-4 gap-4">
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-purple-600">
                   {user.eventHistory.length}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">총 참여 이벤트</div>
+                <div className="text-sm text-gray-300 mt-1">총 참여 이벤트</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-green-600">
                   {user.eventHistory.filter(e => e.status === 'COMPLETED').length}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">완료</div>
+                <div className="text-sm text-gray-300 mt-1">완료</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-blue-600">
                   {user.eventHistory.filter(e => e.status === 'REWARD_RECEIVED').length}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">보상 수령</div>
+                <div className="text-sm text-gray-300 mt-1">보상 수령</div>
               </div>
-              <div className="bg-white rounded-lg border p-6 text-center">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
                 <div className="text-3xl font-bold text-orange-600">
                   {user.eventHistory.filter(e => e.eventType === '토너먼트').length}
                 </div>
-                <div className="text-sm text-gray-600 mt-1">토너먼트 참가</div>
+                <div className="text-sm text-gray-300 mt-1">토너먼트 참가</div>
               </div>
             </div>
 
             {/* 이벤트 참여 내역 */}
-            <div className="bg-white rounded-lg border">
+            <div className="bg-gray-800 rounded-lg border border-gray-700">
               <div className="p-6 border-b">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <PartyPopper className="w-5 h-5 text-purple-600" />
@@ -1679,8 +1808,8 @@ const UserDetailPage = () => {
 
                   const getStatusBadge = (status: string) => {
                     const config: any = {
-                      COMPLETED: { color: 'bg-green-100 text-green-700', text: '완료' },
-                      REWARD_RECEIVED: { color: 'bg-blue-100 text-blue-700', text: '보상 수령' },
+                      COMPLETED: { color: 'bg-green-100 text-green-300', text: '완료' },
+                      REWARD_RECEIVED: { color: 'bg-blue-100 text-blue-300', text: '보상 수령' },
                       IN_PROGRESS: { color: 'bg-yellow-100 text-yellow-700', text: '진행중' },
                       EXPIRED: { color: 'bg-gray-100 text-gray-700', text: '만료됨' }
                     };
@@ -1689,31 +1818,39 @@ const UserDetailPage = () => {
                   };
 
                   return (
-                    <div key={event.id} className="p-6 hover:bg-gray-50">
+                    <div
+                      key={event.id}
+                      onClick={() => {
+                        setSelectedEvent(event);
+                        setShowEventModal(true);
+                      }}
+                      className="p-6 hover:bg-gray-100 cursor-pointer transition-colors"
+                    >
                       <div className="flex items-start gap-4">
                         <div className="text-4xl">{getEventIcon(event.eventType)}</div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h4 className="text-lg font-semibold text-gray-900">{event.eventName}</h4>
+                            <h4 className="text-lg font-semibold text-white">{event.eventName}</h4>
                             {getStatusBadge(event.status)}
+                            <span className="text-xs text-blue-600">→ 상세보기</span>
                           </div>
                           <div className="grid grid-cols-3 gap-4 text-sm mb-3">
                             <div>
-                              <span className="text-gray-500">유형:</span>{' '}
-                              <span className="font-medium text-gray-900">{event.eventType}</span>
+                              <span className="text-gray-400">유형:</span>{' '}
+                              <span className="font-medium text-white">{event.eventType}</span>
                             </div>
                             <div>
-                              <span className="text-gray-500">참여일:</span>{' '}
-                              <span className="font-medium text-gray-900">{event.participationDate}</span>
+                              <span className="text-gray-400">참여일:</span>{' '}
+                              <span className="font-medium text-white">{event.participationDate}</span>
                             </div>
                             {event.reward && (
                               <div>
-                                <span className="text-gray-500">보상:</span>{' '}
+                                <span className="text-gray-400">보상:</span>{' '}
                                 <span className="font-medium text-blue-600">{event.reward}</span>
                               </div>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                          <p className="text-sm text-gray-300 bg-gray-700 p-3 rounded-lg">
                             {event.description}
                           </p>
                         </div>
@@ -1729,39 +1866,39 @@ const UserDetailPage = () => {
         {activeTab === 'security' && (
           <div className="space-y-6">
             {/* 보안 정보 */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-semibold mb-4">접속 정보</h3>
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-lg font-semibold mb-4 text-white">접속 정보</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">IP 주소</span>
+                  <span className="text-gray-300">IP 주소</span>
                   <span className="font-medium">{user.admin.ipAddress}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">디바이스</span>
+                  <span className="text-gray-300">디바이스</span>
                   <span className="font-medium">{user.admin.device}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">마지막 접속 위치</span>
+                  <span className="text-gray-300">마지막 접속 위치</span>
                   <span className="font-medium">{user.admin.lastLoginLocation}</span>
                 </div>
               </div>
             </div>
 
             {/* 제재 정보 */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-semibold mb-4">제재 정보</h3>
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-lg font-semibold mb-4 text-white">제재 정보</h3>
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center p-4 bg-yellow-50 rounded-lg">
                   <div className="text-2xl font-bold text-yellow-600">{user.admin.reportCount}</div>
-                  <div className="text-sm text-gray-600">신고 접수</div>
+                  <div className="text-sm text-gray-300">신고 접수</div>
                 </div>
                 <div className="text-center p-4 bg-orange-50 rounded-lg">
                   <div className="text-2xl font-bold text-orange-600">{user.admin.warningCount}</div>
-                  <div className="text-sm text-gray-600">경고 횟수</div>
+                  <div className="text-sm text-gray-300">경고 횟수</div>
                 </div>
                 <div className="text-center p-4 bg-red-50 rounded-lg">
                   <div className="text-2xl font-bold text-red-600">{user.admin.banHistory.length}</div>
-                  <div className="text-sm text-gray-600">정지 이력</div>
+                  <div className="text-sm text-gray-300">정지 이력</div>
                 </div>
               </div>
 
@@ -1773,10 +1910,10 @@ const UserDetailPage = () => {
                       <div key={index} className="border rounded-lg p-4">
                         <div className="flex justify-between mb-2">
                           <span className="font-medium text-red-600">정지 기간: {ban.duration}</span>
-                          <span className="text-sm text-gray-600">{ban.date}</span>
+                          <span className="text-sm text-gray-300">{ban.date}</span>
                         </div>
                         <div className="text-sm text-gray-700 mb-1">사유: {ban.reason}</div>
-                        <div className="text-sm text-gray-600">처리자: {ban.adminName}</div>
+                        <div className="text-sm text-gray-300">처리자: {ban.adminName}</div>
                         {ban.liftedDate && (
                           <div className="text-sm text-green-600 mt-2">해제일: {ban.liftedDate}</div>
                         )}
@@ -1788,24 +1925,285 @@ const UserDetailPage = () => {
             </div>
 
             {/* 관리자 메모 */}
-            <div className="bg-white rounded-lg border p-6">
-              <h3 className="text-lg font-semibold mb-4">관리자 메모</h3>
-              <div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-700">
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-lg font-semibold mb-4 text-white">관리자 메모</h3>
+              <div className="bg-gray-700 p-4 rounded-lg text-sm text-gray-700">
                 {user.admin.notes || '메모 없음'}
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'admin-logs' && (
+          <div className="space-y-6">
+            {/* 관리 기록 */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-semibold text-white">📋 관리 기록</h3>
+                <button
+                  onClick={() => setShowAdminLogModal(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  기록 추가
+                </button>
+              </div>
+
+              {/* 필터 섹션 */}
+              <div className="bg-gray-700 rounded-lg p-5 mb-6 border border-gray-600">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-5 h-5 text-blue-400" />
+                    <h4 className="font-semibold text-white">필터</h4>
+                  </div>
+                  <button
+                    onClick={() => setAdminLogFilter({ actionType: 'all', dateFrom: '', dateTo: '', adminName: '', severity: 'all', sortBy: 'newest' })}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors text-sm"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    초기화
+                  </button>
+                </div>
+
+                {/* 빠른 날짜 필터 */}
+                <div className="mb-5">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">빠른 날짜 선택</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: '오늘', days: 0 },
+                      { label: '어제', days: 1 },
+                      { label: '최근 7일', days: 7 },
+                      { label: '최근 30일', days: 30 },
+                      { label: '최근 90일', days: 90 }
+                    ].map(period => (
+                      <button
+                        key={period.label}
+                        onClick={() => {
+                          const today = new Date();
+                          const from = new Date(today);
+                          from.setDate(today.getDate() - period.days);
+                          setAdminLogFilter({
+                            ...adminLogFilter,
+                            dateFrom: from.toISOString().split('T')[0],
+                            dateTo: today.toISOString().split('T')[0]
+                          });
+                        }}
+                        className="px-3 py-1.5 bg-gray-800 border border-gray-600 text-gray-300 rounded-lg hover:bg-blue-900 hover:border-blue-500 hover:text-blue-300 transition-colors text-sm"
+                      >
+                        {period.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 빠른 액션 타입 필터 */}
+                <div className="mb-5">
+                  <label className="block text-sm font-medium text-gray-300 mb-2">빠른 액션 선택</label>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { label: '전체', value: 'all', color: 'gray' },
+                      { label: '✏️ 수정', value: 'edit', color: 'blue' },
+                      { label: '🚫 정지', value: 'suspend', color: 'red' },
+                      { label: '⚠️ 경고', value: 'warn', color: 'yellow' },
+                      { label: '🗑️ 삭제', value: 'delete', color: 'red' },
+                      { label: '✅ 인증', value: 'verify', color: 'green' }
+                    ].map(action => (
+                      <button
+                        key={action.value}
+                        onClick={() => setAdminLogFilter({ ...adminLogFilter, actionType: action.value })}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          adminLogFilter.actionType === action.value
+                            ? action.color === 'red' ? 'bg-red-900 border-red-500 text-red-200 border-2'
+                            : action.color === 'blue' ? 'bg-blue-900 border-blue-500 text-blue-200 border-2'
+                            : action.color === 'yellow' ? 'bg-yellow-900 border-yellow-500 text-yellow-200 border-2'
+                            : action.color === 'green' ? 'bg-green-900 border-green-500 text-green-200 border-2'
+                            : 'bg-gray-600 border-gray-400 text-white border-2'
+                            : 'bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700'
+                        }`}
+                      >
+                        {action.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 상세 필터 옵션 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-5">
+                  {/* 액션 타입 드롭다운 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      액션 타입 (상세)
+                    </label>
+                    <select
+                      value={adminLogFilter.actionType}
+                      onChange={(e) => setAdminLogFilter({ ...adminLogFilter, actionType: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    >
+                      <option value="all">전체</option>
+                      <option value="edit">수정</option>
+                      <option value="suspend">계정정지</option>
+                      <option value="warn">경고</option>
+                      <option value="delete">삭제</option>
+                      <option value="restore">복구</option>
+                      <option value="verify">인증</option>
+                      <option value="role_change">권한변경</option>
+                      <option value="other">기타</option>
+                    </select>
+                  </div>
+
+                  {/* 심각도 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      심각도
+                    </label>
+                    <select
+                      value={adminLogFilter.severity}
+                      onChange={(e) => setAdminLogFilter({ ...adminLogFilter, severity: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    >
+                      <option value="all">전체</option>
+                      <option value="low">낮음</option>
+                      <option value="medium">보통</option>
+                      <option value="high">높음</option>
+                      <option value="critical">긴급</option>
+                    </select>
+                  </div>
+
+                  {/* 시작 날짜 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      시작 날짜
+                    </label>
+                    <input
+                      type="date"
+                      value={adminLogFilter.dateFrom}
+                      onChange={(e) => setAdminLogFilter({ ...adminLogFilter, dateFrom: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    />
+                  </div>
+
+                  {/* 종료 날짜 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      종료 날짜
+                    </label>
+                    <input
+                      type="date"
+                      value={adminLogFilter.dateTo}
+                      onChange={(e) => setAdminLogFilter({ ...adminLogFilter, dateTo: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    />
+                  </div>
+
+                  {/* 정렬 */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      정렬
+                    </label>
+                    <select
+                      value={adminLogFilter.sortBy}
+                      onChange={(e) => setAdminLogFilter({ ...adminLogFilter, sortBy: e.target.value })}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    >
+                      <option value="newest">최신순</option>
+                      <option value="oldest">오래된순</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 관리자 검색 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    관리자 이름 검색
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="text"
+                      value={adminLogFilter.adminName}
+                      onChange={(e) => setAdminLogFilter({ ...adminLogFilter, adminName: e.target.value })}
+                      placeholder="관리자 이름으로 검색..."
+                      className="w-full pl-10 pr-3 py-2 bg-gray-800 border border-gray-600 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <AdminLogTimeline
+                logs={user.adminLogs
+                  .filter(log => {
+                    // 액션 타입 필터
+                    if (adminLogFilter.actionType !== 'all' && log.action !== adminLogFilter.actionType) {
+                      return false;
+                    }
+
+                    // 심각도 필터
+                    if (adminLogFilter.severity !== 'all' && log.severity !== adminLogFilter.severity) {
+                      return false;
+                    }
+
+                    // 날짜 필터
+                    if (adminLogFilter.dateFrom && new Date(log.timestamp) < new Date(adminLogFilter.dateFrom)) {
+                      return false;
+                    }
+                    if (adminLogFilter.dateTo && new Date(log.timestamp) > new Date(adminLogFilter.dateTo + 'T23:59:59')) {
+                      return false;
+                    }
+
+                    // 관리자 이름 필터
+                    if (adminLogFilter.adminName && !log.adminName.toLowerCase().includes(adminLogFilter.adminName.toLowerCase())) {
+                      return false;
+                    }
+
+                    return true;
+                  })
+                  .sort((a, b) => {
+                    // 정렬
+                    const dateA = new Date(a.timestamp).getTime();
+                    const dateB = new Date(b.timestamp).getTime();
+                    return adminLogFilter.sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+                  })
+                }
+                onLogClick={(log) => {
+                  setSelectedAdminLog(log);
+                  setShowAdminLogDetailModal(true);
+                }}
+              />
             </div>
           </div>
         )}
       </div>
 
       {/* 사용자 편집 모달 */}
-      {showEditModal && user && (
-        <EditUserModal
-          user={user}
-          onClose={() => setShowEditModal(false)}
-          onSave={handleEditSave}
-        />
-      )}
+      <EditUserModal
+        user={user ? {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          region: user.region,
+          subRegion: user.subRegion,
+          role: user.role,
+          status: user.status,
+          verified: user.verified,
+          preferredPosition: user.preferredPosition,
+          skillLevel: user.skillLevel,
+          height: user.height,
+          weight: user.weight,
+          birthDate: user.birthDate
+        } : {
+          id: 0,
+          name: '',
+          email: '',
+          region: '',
+          role: 'USER',
+          status: 'ACTIVE',
+          verified: false
+        }}
+        isOpen={showEditModal && !!user}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleEditSave}
+      />
 
       {/* 사용자 정지 모달 */}
       {showBanModal && user && (
@@ -1817,17 +2215,43 @@ const UserDetailPage = () => {
       )}
 
       {/* 사용자 메시지 모달 */}
-      {showMessageModal && user && (
-        <MessageUserModal
-          user={user}
-          onClose={() => setShowMessageModal(false)}
-          onSend={(message: string) => {
-            console.log('사용자 메시지 전송:', message);
-            alert('사용자에게 메시지를 보냈습니다. (목업)');
-            setShowMessageModal(false);
-          }}
+      <MessageUserModal
+        user={user ? {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone
+        } : { id: 0, name: '', email: '' }}
+        isOpen={showMessageModal && !!user}
+        onClose={() => setShowMessageModal(false)}
+        onSend={(data) => {
+          console.log('사용자 메시지 전송:', data);
+          alert(`사용자에게 메시지를 보냈습니다.\n제목: ${data.subject}\n중요도: ${data.priority}\n이메일: ${data.sendEmail ? '전송' : '미전송'}`);
+          setShowMessageModal(false);
+        }}
+      />
+
+      {/* 관리 기록 추가 모달 */}
+      {showAdminLogModal && user && (
+        <AdminLogModal
+          targetType="USER"
+          targetId={user.id}
+          targetName={user.name}
+          onClose={() => setShowAdminLogModal(false)}
+          onSave={handleAdminLogSave}
         />
       )}
+
+      {/* 관리 기록 상세보기 모달 */}
+      <AdminLogDetailModal
+        log={selectedAdminLog}
+        isOpen={showAdminLogDetailModal}
+        onClose={() => {
+          setShowAdminLogDetailModal(false);
+          setSelectedAdminLog(null);
+        }}
+        onAddNote={handleAddNote}
+      />
 
       {/* 작성글 상세 모달 */}
       {showPostModal && selectedPost && (
@@ -1852,223 +2276,6 @@ const UserDetailPage = () => {
       )}
     </div>
     </AdminLayout>
-  );
-};
-
-// 사용자 편집 모달 컴포넌트
-const EditUserModal = ({ user, onClose, onSave }: any) => {
-  const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    phone: user.phone || '',
-    region: user.region,
-    subRegion: user.subRegion || '',
-    role: user.role,
-    status: user.status,
-    verified: user.verified,
-    preferredPosition: user.preferredPosition || '',
-    skillLevel: user.skillLevel || '',
-    height: user.height || '',
-    weight: user.weight || '',
-    birthDate: user.birthDate || ''
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave(formData);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold">사용자 정보 편집</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* 기본 정보 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">이메일</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">전화번호</label>
-              <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">권한</label>
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as any })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              >
-                <option value="USER">일반</option>
-                <option value="CAPTAIN">팀장</option>
-                <option value="ADMIN">관리자</option>
-              </select>
-            </div>
-          </div>
-
-          {/* 지역 정보 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">지역</label>
-              <input
-                type="text"
-                value={formData.region}
-                onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">세부 지역</label>
-              <input
-                type="text"
-                value={formData.subRegion}
-                onChange={(e) => setFormData({ ...formData, subRegion: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-          </div>
-
-          {/* 조기축구 정보 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">선호 포지션</label>
-              <select
-                value={formData.preferredPosition}
-                onChange={(e) => setFormData({ ...formData, preferredPosition: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">선택 안함</option>
-                <option value="GK">골키퍼</option>
-                <option value="DF">수비수</option>
-                <option value="MF">미드필더</option>
-                <option value="FW">공격수</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">실력 수준</label>
-              <select
-                value={formData.skillLevel}
-                onChange={(e) => setFormData({ ...formData, skillLevel: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              >
-                <option value="">선택 안함</option>
-                <option value="BEGINNER">입문</option>
-                <option value="INTERMEDIATE">중급</option>
-                <option value="ADVANCED">고급</option>
-              </select>
-            </div>
-          </div>
-
-          {/* 신체 정보 */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">신장</label>
-              <input
-                type="text"
-                value={formData.height}
-                onChange={(e) => setFormData({ ...formData, height: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                placeholder="178cm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">체중</label>
-              <input
-                type="text"
-                value={formData.weight}
-                onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-                placeholder="72kg"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">생년월일</label>
-              <input
-                type="date"
-                value={formData.birthDate}
-                onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-          </div>
-
-          {/* 계정 상태 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">계정 상태</label>
-              <select
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              >
-                <option value="ACTIVE">활성</option>
-                <option value="INACTIVE">비활성</option>
-                <option value="BANNED">정지</option>
-              </select>
-            </div>
-            <div className="flex items-center pt-7">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.verified}
-                  onChange={(e) => setFormData({ ...formData, verified: e.target.checked })}
-                  className="w-4 h-4 text-green-600 rounded"
-                />
-                <span className="text-sm font-medium text-gray-700">본인인증 완료</span>
-              </label>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-            >
-              저장
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
   );
 };
 
@@ -2200,112 +2407,6 @@ const BanUserModal = ({ user, onClose, onSubmit }: any) => {
   );
 };
 
-// 사용자 메시지 모달
-const MessageUserModal = ({ user, onClose, onSend }: any) => {
-  const [formData, setFormData] = useState({
-    subject: '',
-    message: '',
-    priority: 'normal' // 'low', 'normal', 'high', 'urgent'
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSend(formData);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 bg-white border-b px-6 py-4 flex justify-between items-center">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <MessageCircle className="w-6 h-6 text-green-600" />
-            사용자 메시지 보내기
-          </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-sm text-green-800">
-              <strong>{user.name}</strong> ({user.email})님에게 메시지를 보냅니다.
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              중요도 <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={formData.priority}
-              onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              required
-            >
-              <option value="low">낮음</option>
-              <option value="normal">보통</option>
-              <option value="high">높음</option>
-              <option value="urgent">긴급</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              제목 <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.subject}
-              onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              placeholder="메시지 제목을 입력하세요"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              메시지 내용 <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={formData.message}
-              onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
-              rows={8}
-              placeholder="사용자에게 전달할 메시지를 입력하세요...&#10;&#10;예시:&#10;- 정책 위반 경고&#10;- 계정 관련 안내&#10;- 이벤트 알림 등"
-              required
-            />
-          </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-xs text-blue-700">
-              💡 메시지는 사용자의 이메일과 앱 알림으로 전송됩니다.
-            </p>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
-            >
-              <Send className="w-4 h-4" />
-              메시지 전송
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
 // 동료 평가 (설문 기반) 컴포넌트
 const PlayerSurveyRatings = ({ surveyStats }: any) => {
   const stats = [
@@ -2356,26 +2457,26 @@ const PlayerSurveyRatings = ({ surveyStats }: any) => {
       {/* 평균 평점 요약 */}
       <div className="p-6 bg-gradient-to-br from-green-50 to-blue-50 rounded-lg">
         <div className="text-center mb-4">
-          <div className="text-sm text-gray-600 mb-2">종합 평점</div>
+          <div className="text-sm text-gray-300 mb-2">종합 평점</div>
           <div className="text-5xl font-bold text-green-600">
             {((surveyStats.teamwork + surveyStats.communication + surveyStats.skillLevel +
                surveyStats.sportsmanship + surveyStats.punctuality + surveyStats.attitude) / 6).toFixed(1)}
           </div>
-          <div className="text-sm text-gray-500 mt-1">/ 5.0</div>
+          <div className="text-sm text-gray-400 mt-1">/ 5.0</div>
         </div>
         <div className="grid grid-cols-3 gap-4 text-center pt-4 border-t border-gray-300">
           {stats.slice(0, 3).map((stat, index) => (
             <div key={index}>
               <div className="text-2xl mb-1">{stat.icon}</div>
               <div className={`text-lg font-bold ${stat.color}`}>{stat.value.toFixed(1)}</div>
-              <div className="text-xs text-gray-600">{stat.label}</div>
+              <div className="text-xs text-gray-300">{stat.label}</div>
             </div>
           ))}
         </div>
       </div>
 
       {/* 정성적 피드백 태그 */}
-      <div className="p-6 bg-gray-50 rounded-lg">
+      <div className="p-6 bg-gray-700 rounded-lg">
         <h4 className="text-sm font-semibold text-gray-700 mb-3">
           👍 가장 많이 받은 긍정 피드백
         </h4>
@@ -2383,13 +2484,13 @@ const PlayerSurveyRatings = ({ surveyStats }: any) => {
           {surveyStats.topTags.map((tag: string, index: number) => (
             <span
               key={index}
-              className="px-3 py-2 bg-white border border-green-200 text-green-700 rounded-full text-sm font-medium hover:bg-green-50 transition-colors"
+              className="px-3 py-2 bg-white border border-green-700 text-green-300 rounded-full text-sm font-medium hover:bg-green-900 transition-colors"
             >
               ✨ {tag}
             </span>
           ))}
         </div>
-        <div className="mt-4 text-xs text-gray-500">
+        <div className="mt-4 text-xs text-gray-400">
           ℹ️ 이 평가는 경기 후 동료들의 선택적 설문 참여로 수집되었습니다.
         </div>
       </div>
@@ -2401,7 +2502,7 @@ const PlayerSurveyRatings = ({ surveyStats }: any) => {
 const StatCard = ({ icon: Icon, label, value, color, onClick }: any) => {
   const colorClasses: any = {
     blue: 'bg-blue-50 text-blue-600 border-blue-200',
-    green: 'bg-green-50 text-green-600 border-green-200',
+    green: 'bg-green-900 text-green-600 border-green-700',
     purple: 'bg-purple-50 text-purple-600 border-purple-200',
     orange: 'bg-orange-50 text-orange-600 border-orange-200'
   };
@@ -2416,14 +2517,14 @@ const StatCard = ({ icon: Icon, label, value, color, onClick }: any) => {
   return (
     <div
       onClick={handleClick}
-      className="bg-white rounded-lg border-2 border-gray-100 p-6 hover:shadow-md transition-all cursor-pointer hover:border-green-200 hover:scale-105"
+      className="bg-gray-800 rounded-lg border border-gray-700-2 border-gray-100 p-6 hover:shadow-md transition-all cursor-pointer hover:border-green-700 hover:scale-105"
       style={{ minHeight: '150px' }}
     >
       <div className={`w-12 h-12 rounded-lg border-2 ${colorClasses[color]} flex items-center justify-center mb-3`}>
         <Icon className="w-6 h-6" />
       </div>
-      <div className="text-2xl font-bold mb-1 text-gray-900">{value}</div>
-      <div className="text-sm text-gray-600 font-medium">{label}</div>
+      <div className="text-2xl font-bold mb-1 text-white">{value}</div>
+      <div className="text-sm text-gray-300 font-medium">{label}</div>
     </div>
   );
 };
@@ -2432,7 +2533,7 @@ const StatCard = ({ icon: Icon, label, value, color, onClick }: any) => {
 const StatBar = ({ label, value, max, unit = '', color }: any) => {
   const percentage = (value / max) * 100;
   const colorClasses: any = {
-    green: 'bg-green-500',
+    green: 'bg-green-9000',
     blue: 'bg-blue-500',
     purple: 'bg-purple-500',
     orange: 'bg-orange-500'
@@ -2442,7 +2543,7 @@ const StatBar = ({ label, value, max, unit = '', color }: any) => {
     <div>
       <div className="flex justify-between mb-2">
         <span className="text-sm font-medium text-gray-700">{label}</span>
-        <span className="text-sm font-bold text-gray-900">{value}{unit}</span>
+        <span className="text-sm font-bold text-white">{value}{unit}</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div
@@ -2458,8 +2559,8 @@ const StatBar = ({ label, value, max, unit = '', color }: any) => {
 const PostDetailModal = ({ post, onClose }: any) => {
   const getTypeLabel = (type: string) => {
     const labels: any = {
-      TEAM: { text: '팀원모집', color: 'bg-blue-100 text-blue-700' },
-      MERCENARY: { text: '용병모집', color: 'bg-green-100 text-green-700' },
+      TEAM: { text: '팀원모집', color: 'bg-blue-100 text-blue-300' },
+      MERCENARY: { text: '용병모집', color: 'bg-green-100 text-green-300' },
       MATCH: { text: '경기공지', color: 'bg-purple-100 text-purple-700' }
     };
     return labels[type] || labels.TEAM;
@@ -2467,7 +2568,7 @@ const PostDetailModal = ({ post, onClose }: any) => {
 
   const getStatusLabel = (status: string) => {
     const labels: any = {
-      ACTIVE: { text: '모집중', color: 'bg-green-100 text-green-700' },
+      ACTIVE: { text: '모집중', color: 'bg-green-100 text-green-300' },
       CLOSED: { text: '마감', color: 'bg-gray-100 text-gray-700' },
       DELETED: { text: '삭제됨', color: 'bg-red-100 text-red-700' }
     };
@@ -2485,7 +2586,7 @@ const PostDetailModal = ({ post, onClose }: any) => {
             <FileText className="w-6 h-6 text-purple-600" />
             작성글 상세
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -2503,21 +2604,21 @@ const PostDetailModal = ({ post, onClose }: any) => {
 
           {/* 제목 */}
           <div>
-            <h3 className="text-2xl font-bold text-gray-900">{post.title}</h3>
+            <h3 className="text-2xl font-bold text-white">{post.title}</h3>
           </div>
 
           {/* 통계 */}
-          <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-3 gap-4 p-4 bg-gray-700 rounded-lg">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{post.views}</div>
-              <div className="text-xs text-gray-600">조회수</div>
+              <div className="text-xs text-gray-300">조회수</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">{post.applicants}</div>
-              <div className="text-xs text-gray-600">신청자</div>
+              <div className="text-xs text-gray-300">신청자</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-600">작성일</div>
+              <div className="text-sm text-gray-300">작성일</div>
               <div className="text-xs text-gray-700">{new Date(post.createdDate).toLocaleDateString()}</div>
             </div>
           </div>
@@ -2525,11 +2626,11 @@ const PostDetailModal = ({ post, onClose }: any) => {
           {/* 내용 */}
           <div className="border-t pt-4">
             <h4 className="font-semibold text-gray-700 mb-2">글 내용</h4>
-            <p className="text-gray-900 whitespace-pre-wrap leading-relaxed">{post.content}</p>
+            <p className="text-white whitespace-pre-wrap leading-relaxed">{post.content}</p>
           </div>
 
           {/* 작성 시간 */}
-          <div className="text-sm text-gray-500 border-t pt-4">
+          <div className="text-sm text-gray-400 border-t pt-4">
             📅 작성일시: {new Date(post.createdDate).toLocaleString()}
           </div>
         </div>
@@ -2557,7 +2658,7 @@ const CommentDetailModal = ({ comment, onClose }: any) => {
             <MessageCircle className="w-6 h-6 text-blue-600" />
             댓글 상세
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -2565,7 +2666,7 @@ const CommentDetailModal = ({ comment, onClose }: any) => {
         <div className="p-6 space-y-4">
           {/* 원본 게시글 정보 */}
           <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="text-sm text-blue-700 font-medium mb-1">원본 게시글</div>
+            <div className="text-sm text-blue-300 font-medium mb-1">원본 게시글</div>
             <div className="text-lg font-semibold text-blue-900">{comment.postTitle}</div>
             <div className="text-xs text-blue-600 mt-1">게시글 ID: #{comment.postId}</div>
           </div>
@@ -2573,8 +2674,8 @@ const CommentDetailModal = ({ comment, onClose }: any) => {
           {/* 댓글 내용 */}
           <div className="border-t pt-4">
             <h4 className="font-semibold text-gray-700 mb-3">댓글 내용</h4>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-900 leading-relaxed">{comment.content}</p>
+            <div className="p-4 bg-gray-700 rounded-lg">
+              <p className="text-white leading-relaxed">{comment.content}</p>
             </div>
           </div>
 
@@ -2582,16 +2683,16 @@ const CommentDetailModal = ({ comment, onClose }: any) => {
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-pink-50 rounded-lg text-center">
               <div className="text-2xl font-bold text-pink-600">❤️ {comment.likes}</div>
-              <div className="text-xs text-gray-600">좋아요</div>
+              <div className="text-xs text-gray-300">좋아요</div>
             </div>
             <div className="p-4 bg-purple-50 rounded-lg text-center">
-              <div className="text-sm text-gray-600">작성일</div>
+              <div className="text-sm text-gray-300">작성일</div>
               <div className="text-xs text-gray-700">{new Date(comment.createdDate).toLocaleDateString()}</div>
             </div>
           </div>
 
           {/* 작성 시간 */}
-          <div className="text-sm text-gray-500 border-t pt-4">
+          <div className="text-sm text-gray-400 border-t pt-4">
             📅 작성일시: {new Date(comment.createdDate).toLocaleString()}
           </div>
         </div>
