@@ -71,7 +71,7 @@ export const adminNavEntries: AdminNavEntry[] = [
     label: "콘텐츠",
     description: "게시물 관리",
     icon: FileText,
-    path: "/admin/contents",
+    path: "/admin/content",
     badge: { label: "3", tone: "warning" },
     title: "콘텐츠 관리",
     subtitle: "공지사항과 게시물을 관리합니다",

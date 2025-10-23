@@ -1,5 +1,5 @@
 ﻿import { useLocation, useNavigate } from "react-router-dom";
-import { X, Search, Filter, Eye, Edit2, Trash2, CheckCircle, Clock, FileText } from "lucide-react";
+import { X, Search, Filter, Eye, Edit2, Trash2, CheckCircle, Clock, FileText, MessageSquare, AlertTriangle, Ban, Shield } from "lucide-react";
 import { useState } from "react";
 import AdminLayout from "../components/AdminLayout";
 
@@ -123,6 +123,130 @@ const templateShortcuts = [
   },
 ];
 
+// 유저 간 메시지 목록
+const userMessages = [
+  {
+    id: "MSG-101",
+    from: "김철수",
+    fromId: 12345,
+    to: "박영희",
+    toId: 12346,
+    subject: "경기 시간 변경 요청",
+    preview: "안녕하세요, 다음 주 경기 시간을 오후 2시에서 4시로 변경 가능할까요?",
+    content: "안녕하세요, 다음 주 경기 시간을 오후 2시에서 4시로 변경 가능할까요? 팀원 중 한 명이 오후 2시에 다른 일정이 생겨서 참석이 어렵다고 합니다. 가능하시다면 회신 부탁드립니다.",
+    sentAt: "10분 전",
+    status: "정상",
+    isRead: false,
+    hasAttachment: false,
+    reportCount: 0,
+  },
+  {
+    id: "MSG-102",
+    from: "이민수",
+    fromId: 12347,
+    to: "최지훈",
+    toId: 12348,
+    subject: "용병 문의",
+    preview: "이번 주말 경기에 용병으로 참여 가능하신가요?",
+    content: "안녕하세요! 이번 주 토요일 오전 10시 경기에 용병 한 분이 필요한데 참여 가능하신가요? 위치는 공격수입니다.",
+    sentAt: "1시간 전",
+    status: "정상",
+    isRead: true,
+    hasAttachment: false,
+    reportCount: 0,
+  },
+  {
+    id: "MSG-103",
+    from: "정욱진",
+    fromId: 12349,
+    to: "강민호",
+    toId: 12350,
+    subject: "경기 후 회식 장소",
+    preview: "다음 경기 후에 회식하는데 어디가 좋을까요?",
+    content: "형님, 다음 경기 끝나고 회식하기로 했잖아요. 어디서 할까요? 저는 삼겹살이나 치킨이 좋은데 의견 주세요!",
+    sentAt: "3시간 전",
+    status: "정상",
+    isRead: true,
+    hasAttachment: false,
+    reportCount: 0,
+  },
+  {
+    id: "MSG-104",
+    from: "박상철",
+    fromId: 12351,
+    to: "윤태영",
+    toId: 12352,
+    subject: "팀 합류 문의",
+    preview: "귀 팀에 합류하고 싶습니다. 어떻게 신청하나요?",
+    content: "안녕하세요, 귀 팀 경기를 몇 번 봤는데 정말 멋있더라고요. 저도 합류하고 싶은데 어떻게 신청하면 될까요? 포지션은 미드필더이고 경력은 5년 정도입니다.",
+    sentAt: "어제 22:30",
+    status: "정상",
+    isRead: true,
+    hasAttachment: false,
+    reportCount: 0,
+  },
+  {
+    id: "MSG-105",
+    from: "김도현",
+    fromId: 12353,
+    to: "이승훈",
+    toId: 12354,
+    subject: "Re: 경기 결과 이의 제기",
+    preview: "심판 판정에 문제가 있었던 것 같습니다. 영상 확인 부탁드립니다.",
+    content: "안녕하세요. 지난 경기에서 오프사이드 판정에 이의가 있어 연락드립니다. 당시 영상을 보면 명백히 온사이드였는데 오프사이드로 판정되었습니다. 확인 부탁드립니다.",
+    sentAt: "어제 20:15",
+    status: "검토 필요",
+    isRead: false,
+    hasAttachment: true,
+    reportCount: 1,
+  },
+  {
+    id: "MSG-106",
+    from: "최현우",
+    fromId: 12355,
+    to: "정재원",
+    toId: 12356,
+    subject: "경기 장소 확인",
+    preview: "다음 경기 장소가 어디인지 확인해주실 수 있나요?",
+    content: "안녕하세요, 다음 주 일요일 경기 장소를 확인하고 싶습니다. 공지에는 나와있지 않아서 문의드립니다.",
+    sentAt: "2일 전",
+    status: "정상",
+    isRead: true,
+    hasAttachment: false,
+    reportCount: 0,
+  },
+  {
+    id: "MSG-107",
+    from: "배성민",
+    fromId: 12357,
+    to: "송준혁",
+    toId: 12358,
+    subject: "!!!긴급!!! 돈 좀 빌려주세요",
+    preview: "급하게 돈이 필요합니다. 50만원만 빌려주실 수 있나요?",
+    content: "안녕하세요. 갑자기 급한 일이 생겨서 연락드립니다. 50만원만 급하게 빌려주실 수 있을까요? 다음 주에 꼭 갚겠습니다. 계좌번호 알려주시면 감사하겠습니다.",
+    sentAt: "3일 전",
+    status: "의심",
+    isRead: true,
+    hasAttachment: false,
+    reportCount: 3,
+  },
+  {
+    id: "MSG-108",
+    from: "한승우",
+    fromId: 12359,
+    to: "조민재",
+    toId: 12360,
+    subject: "욕설 및 협박",
+    preview: "너 다음에 경기에서 만나면 가만 안 둔다",
+    content: "[내용 숨김 - 부적절한 내용 포함]",
+    sentAt: "4일 전",
+    status: "차단됨",
+    isRead: false,
+    hasAttachment: false,
+    reportCount: 5,
+  },
+];
+
 // 전체 콘텐츠 목록
 const allContents = [
   ...todayPosts.map(p => ({ ...p, createdAt: p.createdAt, updatedAt: p.createdAt })),
@@ -216,6 +340,11 @@ const ContentPage = () => {
   const [selectedContent, setSelectedContent] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // 메시지 관련 상태
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [messageFilter, setMessageFilter] = useState('all'); // all, 정상, 검토 필요, 의심, 차단됨
+
   // 필터 상태
   const [contentFilters, setContentFilters] = useState({
     type: 'all', // all, 공지, 게시물, 배너, 팀 게시물, 용병 모집, 팀 모집, 후기
@@ -239,6 +368,30 @@ const ContentPage = () => {
     setIsModalOpen(false);
     setSelectedContent(null);
   };
+
+  // 메시지 관련 핸들러
+  const handleMessageClick = (message: any) => {
+    setSelectedMessage(message);
+    setIsMessageModalOpen(true);
+  };
+
+  const handleMessageModalClose = () => {
+    setIsMessageModalOpen(false);
+    setSelectedMessage(null);
+  };
+
+  const handleMessageAction = (action: string, messageId: string) => {
+    console.log(`${action} action on message ${messageId}`);
+    // TODO: 실제 API 호출
+    alert(`${action} 처리되었습니다.`);
+    handleMessageModalClose();
+  };
+
+  // 메시지 필터링
+  const filteredMessages = userMessages.filter(msg => {
+    if (messageFilter === 'all') return true;
+    return msg.status === messageFilter;
+  });
 
   // 필터링된 콘텐츠 목록
   const filteredContents = allContents.filter(content => {
@@ -704,6 +857,150 @@ const ContentPage = () => {
           </table>
         </div>
       </section>
+
+      {/* 유저 간 메시지 관리 섹션 */}
+      <section className="admin-section">
+        <div className="section-header">
+          <div>
+            <h2 className="section-title flex items-center gap-2">
+              <MessageSquare className="w-6 h-6" />
+              유저 간 메시지 모니터링
+            </h2>
+            <p className="section-meta">
+              총 {userMessages.length}개 메시지 ·
+              <span className="text-yellow-600 font-semibold"> 검토 필요 {userMessages.filter(m => m.status === '검토 필요').length}건</span> ·
+              <span className="text-red-600 font-semibold"> 의심 {userMessages.filter(m => m.status === '의심').length}건</span> ·
+              <span className="text-gray-600"> 차단됨 {userMessages.filter(m => m.status === '차단됨').length}건</span>
+            </p>
+          </div>
+        </div>
+
+        {/* 필터 */}
+        <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-sm font-semibold text-gray-700">필터:</span>
+            {['all', '정상', '검토 필요', '의심', '차단됨'].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setMessageFilter(filter)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  messageFilter === filter
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {filter === 'all' ? '전체' : filter}
+                {filter !== 'all' && (
+                  <span className="ml-2 px-2 py-0.5 bg-white/30 rounded-full text-xs">
+                    {userMessages.filter(m => m.status === filter).length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 메시지 목록 */}
+        <div className="card table-card">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>발신자</th>
+                <th>수신자</th>
+                <th>제목</th>
+                <th>발신 시간</th>
+                <th>상태</th>
+                <th>신고 횟수</th>
+                <th>액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredMessages.length > 0 ? (
+                filteredMessages.map((message) => (
+                  <tr
+                    key={message.id}
+                    className={`hover:bg-gray-50 ${
+                      message.status === '차단됨' ? 'bg-red-50' :
+                      message.status === '의심' ? 'bg-yellow-50' :
+                      message.status === '검토 필요' ? 'bg-orange-50' :
+                      ''
+                    }`}
+                  >
+                    <td>
+                      <span style={{ fontFamily: 'monospace', fontWeight: '600', color: 'var(--admin-primary)' }}>
+                        {message.id}
+                      </span>
+                    </td>
+                    <td>
+                      <div>
+                        <div className="font-medium">{message.from}</div>
+                        <div className="text-xs text-gray-500">ID: {message.fromId}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <div className="font-medium">{message.to}</div>
+                        <div className="text-xs text-gray-500">ID: {message.toId}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <div>
+                        <div className="font-medium">{message.subject}</div>
+                        <div className="text-xs text-gray-500 truncate max-w-xs">{message.preview}</div>
+                      </div>
+                    </td>
+                    <td>{message.sentAt}</td>
+                    <td>
+                      <span className={`status-pill ${
+                        message.status === '정상' ? 'positive' :
+                        message.status === '검토 필요' ? 'warning' :
+                        message.status === '의심' ? 'alert' :
+                        'negative'
+                      }`}>
+                        {message.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="flex items-center gap-1">
+                        {message.reportCount > 0 ? (
+                          <>
+                            <AlertTriangle className={`w-4 h-4 ${
+                              message.reportCount >= 3 ? 'text-red-600' : 'text-yellow-600'
+                            }`} />
+                            <span className={`font-semibold ${
+                              message.reportCount >= 3 ? 'text-red-600' : 'text-yellow-600'
+                            }`}>
+                              {message.reportCount}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => handleMessageClick(message)}
+                        className="p-1.5 bg-purple-50 text-purple-600 rounded hover:bg-purple-100 transition-colors"
+                        title="상세보기"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: 'var(--admin-text-secondary)' }}>
+                    필터 조건에 맞는 메시지가 없습니다.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
         </>
       )}
 
@@ -814,6 +1111,217 @@ const ContentPage = () => {
             <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end gap-3 rounded-b-xl">
               <button
                 onClick={handleModalClose}
+                className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 메시지 상세 모달 */}
+      {isMessageModalOpen && selectedMessage && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            {/* 헤더 */}
+            <div className={`sticky top-0 px-6 py-5 flex justify-between items-start rounded-t-xl ${
+              selectedMessage.status === '차단됨' ? 'bg-gradient-to-r from-red-600 to-red-700' :
+              selectedMessage.status === '의심' ? 'bg-gradient-to-r from-yellow-600 to-yellow-700' :
+              selectedMessage.status === '검토 필요' ? 'bg-gradient-to-r from-orange-600 to-orange-700' :
+              'bg-gradient-to-r from-purple-600 to-purple-700'
+            } text-white`}>
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  <MessageSquare className="w-6 h-6" />
+                  <h2 className="text-2xl font-bold">메시지 상세</h2>
+                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                    selectedMessage.status === '정상' ? 'bg-green-100 text-green-700' :
+                    selectedMessage.status === '검토 필요' ? 'bg-orange-100 text-orange-700' :
+                    selectedMessage.status === '의심' ? 'bg-red-100 text-red-700' :
+                    'bg-gray-100 text-gray-700'
+                  }`}>
+                    {selectedMessage.status}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-white/90">
+                  <span>ID: {selectedMessage.id}</span>
+                  <span>발신: {selectedMessage.sentAt}</span>
+                  {selectedMessage.reportCount > 0 && (
+                    <span className="flex items-center gap-1 bg-red-500/30 px-2 py-1 rounded">
+                      <AlertTriangle className="w-4 h-4" />
+                      신고 {selectedMessage.reportCount}건
+                    </span>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={handleMessageModalClose}
+                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* 본문 */}
+            <div className="p-6 space-y-6">
+              {/* 발신자/수신자 정보 */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    발신자
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">이름</span>
+                      <span className="font-medium text-gray-900">{selectedMessage.from}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">사용자 ID</span>
+                      <button
+                        onClick={() => navigate(`/admin/users/${selectedMessage.fromId}`)}
+                        className="font-medium text-blue-600 hover:underline"
+                      >
+                        {selectedMessage.fromId}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                  <h4 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    수신자
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">이름</span>
+                      <span className="font-medium text-gray-900">{selectedMessage.to}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">사용자 ID</span>
+                      <button
+                        onClick={() => navigate(`/admin/users/${selectedMessage.toId}`)}
+                        className="font-medium text-green-600 hover:underline"
+                      >
+                        {selectedMessage.toId}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 제목 */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-2">제목</h4>
+                <p className="text-gray-800 font-medium">{selectedMessage.subject}</p>
+              </div>
+
+              {/* 메시지 내용 */}
+              <div className="bg-white rounded-lg p-4 border-2 border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-3">메시지 내용</h4>
+                <div className="bg-gray-50 rounded p-4">
+                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                    {selectedMessage.content}
+                  </p>
+                </div>
+              </div>
+
+              {/* 관리 액션 */}
+              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-gray-900 mb-4">관리 액션</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  {selectedMessage.status !== '정상' && (
+                    <button
+                      onClick={() => handleMessageAction('정상으로 변경', selectedMessage.id)}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      정상으로 변경
+                    </button>
+                  )}
+                  {selectedMessage.status !== '검토 필요' && (
+                    <button
+                      onClick={() => handleMessageAction('검토 필요로 표시', selectedMessage.id)}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium text-sm"
+                    >
+                      <Clock className="w-4 h-4" />
+                      검토 필요로 표시
+                    </button>
+                  )}
+                  {selectedMessage.status !== '의심' && (
+                    <button
+                      onClick={() => handleMessageAction('의심으로 표시', selectedMessage.id)}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium text-sm"
+                    >
+                      <AlertTriangle className="w-4 h-4" />
+                      의심으로 표시
+                    </button>
+                  )}
+                  {selectedMessage.status !== '차단됨' && (
+                    <button
+                      onClick={() => handleMessageAction('메시지 차단', selectedMessage.id)}
+                      className="flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                    >
+                      <Ban className="w-4 h-4" />
+                      메시지 차단
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleMessageAction('발신자에게 경고', selectedMessage.id)}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors font-medium text-sm"
+                  >
+                    <AlertTriangle className="w-4 h-4" />
+                    발신자에게 경고
+                  </button>
+                  <button
+                    onClick={() => handleMessageAction('발신자 정지', selectedMessage.id)}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium text-sm"
+                  >
+                    <Ban className="w-4 h-4" />
+                    발신자 정지
+                  </button>
+                  <button
+                    onClick={() => handleMessageAction('메시지 삭제', selectedMessage.id)}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    메시지 삭제
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(`${selectedMessage.subject}\n\n${selectedMessage.content}`);
+                      alert('메시지가 클립보드에 복사되었습니다.');
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
+                  >
+                    <FileText className="w-4 h-4" />
+                    내용 복사
+                  </button>
+                </div>
+              </div>
+
+              {/* 경고 메시지 */}
+              {selectedMessage.status === '차단됨' && (
+                <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <Ban className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h5 className="font-semibold text-red-900 mb-1">차단된 메시지</h5>
+                      <p className="text-sm text-red-700">
+                        이 메시지는 부적절한 내용으로 인해 차단되었습니다. 발신자와 수신자 모두 이 메시지를 볼 수 없습니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 푸터 */}
+            <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end gap-3 rounded-b-xl">
+              <button
+                onClick={handleMessageModalClose}
                 className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
               >
                 닫기
