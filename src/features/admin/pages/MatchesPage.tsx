@@ -19,6 +19,11 @@ const todaySchedule = [
       { text: "경기장 확정", timestamp: "2025.10.23 14:20", author: "관리자" },
       { text: "인원 확인 완료", timestamp: "2025.10.23 16:45", author: "관리자" }
     ],
+    managementHistory: [
+      { id: "MH-001", action: "경기 등록", description: "FC 서울 vs 부산 SC 경기가 등록되었습니다", timestamp: "2025.10.22 10:30", admin: "관리자 김민수", type: "create" as const },
+      { id: "MH-002", action: "경기장 확정", description: "경기장이 탄천 종합운동장으로 확정되었습니다", timestamp: "2025.10.23 14:20", admin: "관리자 이영희", type: "update" as const },
+      { id: "MH-003", action: "인원 확인", description: "양 팀 인원 확인이 완료되었습니다", timestamp: "2025.10.23 16:45", admin: "관리자 박철수", type: "memo" as const }
+    ],
     referee: "김철수",
     homePlayers: [
       { id: 101, name: "김민수", position: "FW", number: 10 },
@@ -48,6 +53,11 @@ const todaySchedule = [
     notes: [
       { text: "주차 공간 협의 필요", timestamp: "2025.10.23 10:15", author: "관리자" },
       { text: "우천 시 실내구장 대체", timestamp: "2025.10.23 11:30", author: "관리자" }
+    ],
+    managementHistory: [
+      { id: "MH-004", action: "경기 생성", description: "인천 유나이티드 vs 대구 레인저스 경기가 생성되었습니다", timestamp: "2025.10.22 09:00", admin: "관리자 최수진", type: "create" as const },
+      { id: "MH-005", action: "메모 추가", description: "주차 공간 협의 필요 메모가 추가되었습니다", timestamp: "2025.10.23 10:15", admin: "관리자 김민수", type: "memo" as const },
+      { id: "MH-006", action: "메모 추가", description: "우천 시 실내구장 대체 계획이 수립되었습니다", timestamp: "2025.10.23 11:30", admin: "관리자 이영희", type: "memo" as const }
     ],
     referee: "박영희",
   },
@@ -134,6 +144,13 @@ const completedMatches = [
     away: { id: 12, name: "서초 유나이티드", score: 2 },
     status: "completed" as const,
     result: "강남 FC 승리",
+    managementHistory: [
+      { id: "MH-101", action: "경기 등록", description: "강남 FC vs 서초 유나이티드 경기가 등록되었습니다", timestamp: "2025.10.20 15:00", admin: "관리자 김민수", type: "create" as const },
+      { id: "MH-102", action: "상태 변경", description: "경기 상태가 '진행중'으로 변경되었습니다", timestamp: "2025.10.24 06:00", admin: "시스템", type: "status" as const },
+      { id: "MH-103", action: "경기 결과 입력", description: "최종 스코어 3:2로 경기가 종료되었습니다", timestamp: "2025.10.24 07:45", admin: "관리자 박철수", type: "score" as const },
+      { id: "MH-104", action: "노쇼 처리", description: "서초 유나이티드 팀 유재석(#11) 선수가 노쇼 처리되었습니다", timestamp: "2025.10.24 07:50", admin: "관리자 이영희", type: "noshow" as const },
+      { id: "MH-105", action: "상태 변경", description: "경기 상태가 '완료'로 변경되었습니다", timestamp: "2025.10.24 07:55", admin: "관리자 박철수", type: "status" as const }
+    ],
     referee: "홍길동",
     homePlayers: [
       { id: 301, name: "홍길동", position: "FW", number: 10, goals: 2, assists: 1 },
@@ -161,6 +178,11 @@ const completedMatches = [
     away: { id: 14, name: "강동 FC", score: 1 },
     status: "completed" as const,
     result: "무승부",
+    managementHistory: [
+      { id: "MH-106", action: "경기 등록", description: "송파 드래곤즈 vs 강동 FC 경기가 등록되었습니다", timestamp: "2025.10.21 09:00", admin: "관리자 최수진", type: "create" as const },
+      { id: "MH-107", action: "경기 결과 입력", description: "최종 스코어 1:1 무승부로 경기가 종료되었습니다", timestamp: "2025.10.24 09:15", admin: "관리자 김민수", type: "score" as const },
+      { id: "MH-108", action: "상태 변경", description: "경기 상태가 '완료'로 변경되었습니다", timestamp: "2025.10.24 09:20", admin: "관리자 김민수", type: "status" as const }
+    ],
     referee: "김영수",
   },
   {
@@ -174,6 +196,11 @@ const completedMatches = [
     away: { id: 16, name: "성동 유나이티드", score: 2 },
     status: "completed" as const,
     result: "성동 유나이티드 승리",
+    managementHistory: [
+      { id: "MH-109", action: "경기 생성", description: "광진 FC vs 성동 유나이티드 경기가 생성되었습니다", timestamp: "2025.10.21 10:30", admin: "관리자 박철수", type: "create" as const },
+      { id: "MH-110", action: "경기 결과 입력", description: "최종 스코어 0:2로 성동 유나이티드가 승리했습니다", timestamp: "2025.10.24 09:50", admin: "관리자 이영희", type: "score" as const },
+      { id: "MH-111", action: "상태 변경", description: "경기 상태가 '완료'로 변경되었습니다", timestamp: "2025.10.24 09:55", admin: "관리자 이영희", type: "status" as const }
+    ],
     referee: "이상민",
   },
 ];
@@ -605,6 +632,53 @@ const MatchesPage = () => {
                     {match.result}
                   </span>
                 </div>
+                {/* 최근 관리 이력 */}
+                {match.managementHistory && match.managementHistory.length > 0 && (
+                  <div style={{
+                    marginTop: '12px',
+                    paddingTop: '12px',
+                    borderTop: '1px solid var(--admin-border)',
+                  }}>
+                    <div style={{
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      color: 'var(--admin-text-secondary)',
+                      marginBottom: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      📋 최근 관리 이력 ({match.managementHistory.length})
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {match.managementHistory.slice(-3).reverse().map((history) => (
+                        <div key={history.id} style={{
+                          fontSize: '11px',
+                          color: 'var(--admin-text-secondary)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <span style={{
+                            padding: '2px 6px',
+                            background: 'var(--admin-bg-tertiary)',
+                            borderRadius: '4px',
+                            fontWeight: '600',
+                            fontSize: '10px'
+                          }}>
+                            {history.action}
+                          </span>
+                          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {history.description}
+                          </span>
+                          <span style={{ fontSize: '10px', color: 'var(--admin-text-tertiary)' }}>
+                            {history.timestamp.split(' ')[1]}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -672,6 +746,53 @@ const MatchesPage = () => {
                   <li key={index}>{note.text}</li>
                 ))}
               </ul>
+              {/* 최근 관리 이력 */}
+              {match.managementHistory && match.managementHistory.length > 0 && (
+                <div style={{
+                  marginTop: '12px',
+                  paddingTop: '12px',
+                  borderTop: '1px solid var(--admin-border)',
+                }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: 'var(--admin-text-secondary)',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    📋 최근 관리 이력 ({match.managementHistory.length})
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {match.managementHistory.slice(-2).reverse().map((history) => (
+                      <div key={history.id} style={{
+                        fontSize: '11px',
+                        color: 'var(--admin-text-secondary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span style={{
+                          padding: '2px 6px',
+                          background: 'var(--admin-bg-tertiary)',
+                          borderRadius: '4px',
+                          fontWeight: '600',
+                          fontSize: '10px'
+                        }}>
+                          {history.action}
+                        </span>
+                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {history.description}
+                        </span>
+                        <span style={{ fontSize: '10px', color: 'var(--admin-text-tertiary)' }}>
+                          {history.timestamp.split(' ')[1]}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -755,6 +876,53 @@ const MatchesPage = () => {
                   {match.result}
                 </span>
               </div>
+              {/* 최근 관리 이력 */}
+              {match.managementHistory && match.managementHistory.length > 0 && (
+                <div style={{
+                  marginTop: '12px',
+                  paddingTop: '12px',
+                  borderTop: '1px solid var(--admin-border)',
+                }}>
+                  <div style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: 'var(--admin-text-secondary)',
+                    marginBottom: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    📋 최근 관리 이력 ({match.managementHistory.length})
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {match.managementHistory.slice(-3).reverse().map((history) => (
+                      <div key={history.id} style={{
+                        fontSize: '11px',
+                        color: 'var(--admin-text-secondary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        <span style={{
+                          padding: '2px 6px',
+                          background: 'var(--admin-bg-tertiary)',
+                          borderRadius: '4px',
+                          fontWeight: '600',
+                          fontSize: '10px'
+                        }}>
+                          {history.action}
+                        </span>
+                        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {history.description}
+                        </span>
+                        <span style={{ fontSize: '10px', color: 'var(--admin-text-tertiary)' }}>
+                          {history.timestamp.split(' ')[1]}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -927,6 +1095,7 @@ const MatchesPage = () => {
                 <th>경기장</th>
                 <th>심판</th>
                 <th>상태</th>
+                <th>최근 관리 활동</th>
               </tr>
             </thead>
             <tbody>
@@ -971,11 +1140,39 @@ const MatchesPage = () => {
                          '🟢 진행중'}
                       </span>
                     </td>
+                    <td>
+                      {match.managementHistory && match.managementHistory.length > 0 ? (
+                        <div style={{ fontSize: '11px', color: 'var(--admin-text-secondary)' }}>
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            padding: '2px 6px',
+                            background: 'var(--admin-bg-tertiary)',
+                            borderRadius: '4px'
+                          }}>
+                            <span style={{ fontWeight: '600' }}>
+                              {match.managementHistory[match.managementHistory.length - 1].action}
+                            </span>
+                            <span style={{ fontSize: '10px', color: 'var(--admin-text-tertiary)' }}>
+                              {match.managementHistory[match.managementHistory.length - 1].timestamp.split(' ')[1]}
+                            </span>
+                          </div>
+                          {match.managementHistory.length > 1 && (
+                            <div style={{ marginTop: '2px', fontSize: '10px' }}>
+                              +{match.managementHistory.length - 1}개 더보기
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--admin-text-secondary)', fontSize: '12px' }}>-</span>
+                      )}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} style={{ textAlign: 'center', padding: '40px', color: 'var(--admin-text-secondary)' }}>
+                  <td colSpan={10} style={{ textAlign: 'center', padding: '40px', color: 'var(--admin-text-secondary)' }}>
                     필터 조건에 맞는 경기가 없습니다.
                   </td>
                 </tr>
