@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   X, FileText, User, Eye, MessageSquare, History, Edit2, Trash2,
   CheckCircle, Clock, AlertTriangle, ThumbsUp, Share2, Flag,
-  TrendingUp, Calendar, ExternalLink
+  TrendingUp, Calendar, ExternalLink, Shield
 } from 'lucide-react';
 
 interface EditHistory {

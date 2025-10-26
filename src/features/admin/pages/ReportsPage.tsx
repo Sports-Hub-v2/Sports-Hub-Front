@@ -70,6 +70,7 @@ interface SanctionHistory {
   endDate?: string;
   duration?: string;
   processor: string;
+  reportId?: string;
 }
 
 interface ReportItem {
@@ -116,6 +117,7 @@ const reportQueueData: ReportItem[] = [
         reason: "경기 중 부적절한 언행으로 인한 1차 경고",
         startDate: "2024-09-10",
         processor: "관리자 김민수",
+        reportId: "R-9750",
       },
       {
         id: "S-002",
@@ -125,6 +127,7 @@ const reportQueueData: ReportItem[] = [
         endDate: "2024-08-12",
         duration: "7일",
         processor: "관리자 이영희",
+        reportId: "R-9680",
       },
     ],
   },
@@ -156,6 +159,7 @@ const reportQueueData: ReportItem[] = [
         reason: "매칭 시스템 악용 의심으로 인한 경고",
         startDate: "2024-07-22",
         processor: "관리자 박준호",
+        reportId: "R-9600",
       },
     ],
   },
@@ -234,6 +238,7 @@ const reportQueueData: ReportItem[] = [
         endDate: "2024-09-15",
         duration: "14일",
         processor: "관리자 김민수",
+        reportId: "R-9780",
       },
       {
         id: "S-005",
@@ -241,6 +246,7 @@ const reportQueueData: ReportItem[] = [
         reason: "경기 중 부적절한 발언",
         startDate: "2024-06-12",
         processor: "관리자 이영희",
+        reportId: "R-9550",
       },
       {
         id: "S-006",
@@ -250,6 +256,7 @@ const reportQueueData: ReportItem[] = [
         endDate: "2024-04-10",
         duration: "7일",
         processor: "관리자 박준호",
+        reportId: "R-9420",
       },
       {
         id: "S-007",
@@ -257,6 +264,7 @@ const reportQueueData: ReportItem[] = [
         reason: "팀원간 갈등 유발",
         startDate: "2024-01-20",
         processor: "관리자 김민수",
+        reportId: "R-9200",
       },
     ],
   },
@@ -289,6 +297,7 @@ const reportQueueData: ReportItem[] = [
         endDate: "2024-09-03",
         duration: "14일",
         processor: "관리자 이영희",
+        reportId: "R-9720",
       },
       {
         id: "S-009",
@@ -296,6 +305,7 @@ const reportQueueData: ReportItem[] = [
         reason: "부정 행위 의심",
         startDate: "2024-06-05",
         processor: "관리자 박준호",
+        reportId: "R-9530",
       },
       {
         id: "S-010",
@@ -303,6 +313,7 @@ const reportQueueData: ReportItem[] = [
         reason: "반복적인 노쇼",
         startDate: "2024-04-18",
         processor: "관리자 김민수",
+        reportId: "R-9380",
       },
     ],
   },

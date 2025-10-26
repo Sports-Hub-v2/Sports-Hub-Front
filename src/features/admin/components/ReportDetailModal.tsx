@@ -38,6 +38,7 @@ interface SanctionHistory {
   endDate?: string;
   duration?: string;
   processor: string;
+  reportId?: string; // 연결된 신고 ID
 }
 
 interface ReportDetailModalProps {
@@ -605,6 +606,44 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ isOpen, onClose, 
                   </div>
                 </button>
               </div>
+
+              {/* 사용자 상세 보기 버튼 */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUserClick(report.reportedUser!.id);
+                }}
+                style={{
+                  width: "100%",
+                  padding: "16px",
+                  background: "linear-gradient(135deg, var(--admin-primary) 0%, #5b7ce8 100%)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "12px",
+                  fontSize: "15px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  transition: "all 0.2s",
+                  boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 6px 16px rgba(59, 130, 246, 0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "0 4px 12px rgba(59, 130, 246, 0.3)";
+                }}
+              >
+                <User size={18} />
+                사용자 상세 정보 보기
+                <ExternalLink size={16} />
+              </button>
             </div>
           )}
 
@@ -614,9 +653,21 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ isOpen, onClose, 
               {report.sanctionHistory && report.sanctionHistory.length > 0 ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {report.sanctionHistory.map((sanction, index) => (
-                    <div
+                    <button
+                      type="button"
                       key={sanction.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (sanction.reportId) {
+                          // 해당 제재와 연결된 신고로 이동
+                          alert(`신고 ${sanction.reportId}로 이동 (백엔드 연결 후 구현)`);
+                        } else {
+                          // 제재 상세 정보 표시
+                          alert("제재 상세 정보 확인 (백엔드 연결 후 구현)");
+                        }
+                      }}
                       style={{
+                        width: "100%",
                         padding: "16px",
                         background: "var(--admin-bg-tertiary)",
                         borderRadius: "12px",
@@ -625,6 +676,17 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ isOpen, onClose, 
                           sanction.type === "정지" ? "var(--admin-warning)" :
                           "var(--admin-text-secondary)"
                         }`,
+                        cursor: "pointer",
+                        textAlign: "left",
+                        transition: "all 0.2s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateX(4px)";
+                        e.currentTarget.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateX(0)";
+                        e.currentTarget.style.boxShadow = "none";
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "12px" }}>
@@ -678,7 +740,23 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({ isOpen, onClose, 
                           <div style={{ color: "var(--admin-text)", fontWeight: "500" }}>{sanction.processor}</div>
                         </div>
                       </div>
-                    </div>
+                      {sanction.reportId && (
+                        <div style={{
+                          marginTop: "12px",
+                          paddingTop: "12px",
+                          borderTop: "1px solid var(--admin-border)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          fontSize: "12px",
+                          color: "var(--admin-primary)",
+                          fontWeight: "500"
+                        }}>
+                          <ExternalLink size={14} />
+                          연결된 신고: {sanction.reportId}
+                        </div>
+                      )}
+                    </button>
                   ))}
                 </div>
               ) : (
