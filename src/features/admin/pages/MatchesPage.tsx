@@ -8,26 +8,48 @@ const todaySchedule = [
   {
     id: "M-20412",
     venue: "탄천 종합운동장",
+    venueId: "1",
+    venueUrl: "https://map.naver.com/p/search/%ED%83%84%EC%B2%9C%20%EC%A2%85%ED%95%A9%EC%9A%B4%EB%8F%99%EC%9E%A5",
     time: "14:00",
     date: "2025-10-24",
     home: { id: 1, name: "FC 서울" },
     away: { id: 2, name: "부산 SC" },
     status: "scheduled" as const,
-    notes: ["경기장 확정", "인원 확인 완료"],
+    notes: [
+      { text: "경기장 확정", timestamp: "2025.10.23 14:20", author: "관리자" },
+      { text: "인원 확인 완료", timestamp: "2025.10.23 16:45", author: "관리자" }
+    ],
     referee: "김철수",
-    weather: "맑음 ☀️",
+    homePlayers: [
+      { id: 101, name: "김민수", position: "FW", number: 10 },
+      { id: 102, name: "이준호", position: "MF", number: 7 },
+      { id: 103, name: "박성민", position: "DF", number: 5 },
+      { id: 104, name: "최대호", position: "GK", number: 1 },
+      { id: 105, name: "정우진", position: "FW", number: 9 },
+    ],
+    awayPlayers: [
+      { id: 201, name: "강태양", position: "FW", number: 11 },
+      { id: 202, name: "윤서준", position: "MF", number: 8 },
+      { id: 203, name: "한지훈", position: "DF", number: 4 },
+      { id: 204, name: "임동현", position: "GK", number: 1 },
+      { id: 205, name: "송민호", position: "MF", number: 6 },
+    ],
   },
   {
     id: "M-20408",
     venue: "잠실 보조경기장",
+    venueId: "4",
+    venueUrl: "https://map.naver.com/p/search/%EC%9E%A0%EC%8B%A4%20%EB%B3%B4%EC%A1%B0%EA%B2%BD%EA%B8%B0%EC%9E%A5",
     time: "16:30",
     date: "2025-10-24",
     home: { id: 3, name: "인천 유나이티드" },
     away: { id: 4, name: "대구 레인저스" },
     status: "scheduled" as const,
-    notes: ["주차 공간 협의 필요", "우천 시 실내구장 대체"],
+    notes: [
+      { text: "주차 공간 협의 필요", timestamp: "2025.10.23 10:15", author: "관리자" },
+      { text: "우천 시 실내구장 대체", timestamp: "2025.10.23 11:30", author: "관리자" }
+    ],
     referee: "박영희",
-    weather: "흐림 ☁️",
   },
 ];
 
@@ -35,34 +57,49 @@ const upcomingMatches = [
   {
     id: "M-20420",
     venue: "반포 한강공원",
+    venueId: "3",
+    venueUrl: "https://map.naver.com/p/search/%EB%B0%98%ED%8F%AC%20%ED%95%9C%EA%B0%95%EA%B3%B5%EC%9B%90",
     time: "19:00",
     date: "2025-10-24",
     home: { id: 5, name: "울산 시티" },
     away: { id: 6, name: "광주 플렉스" },
     status: "scheduled" as const,
-    notes: ["경기장 예약 확정", "팀원 참석 확인 완료"],
+    notes: [
+      { text: "경기장 예약 확정", timestamp: "2025.10.22 09:30", author: "관리자" },
+      { text: "팀원 참석 확인 완료", timestamp: "2025.10.23 18:00", author: "관리자" }
+    ],
     referee: "이민수",
   },
   {
     id: "M-20422",
     venue: "서울숲 축구장",
+    venueId: "2",
+    venueUrl: "https://map.naver.com/p/search/%EC%84%9C%EC%9A%B8%EC%88%B2%20%EC%B6%95%EA%B5%AC%EC%9E%A5",
     time: "21:00",
     date: "2025-10-24",
     home: { id: 7, name: "판교 밸류" },
     away: { id: 8, name: "위워크 유나이티드" },
     status: "scheduled" as const,
-    notes: ["경기 공 확인", "조명 시설 점검"],
+    notes: [
+      { text: "경기 공 확인", timestamp: "2025.10.23 13:15", author: "관리자" },
+      { text: "조명 시설 점검", timestamp: "2025.10.23 14:30", author: "관리자" }
+    ],
     referee: "정수진",
   },
   {
     id: "M-20425",
     venue: "양재천 체육공원",
+    venueId: "1",
+    venueUrl: "https://map.naver.com/p/search/%EC%96%91%EC%9E%AC%EC%B2%9C%20%EC%B2%B4%EC%9C%A1%EA%B3%B5%EC%9B%90",
     time: "14:00",
     date: "2025-10-25",
     home: { id: 9, name: "성남 드래곤즈" },
     away: { id: 10, name: "은평 FC" },
     status: "scheduled" as const,
-    notes: ["날씨 확인 필요", "대체 경기장 예비"],
+    notes: [
+      { text: "날씨 확인 필요", timestamp: "2025.10.23 08:00", author: "관리자" },
+      { text: "대체 경기장 예비", timestamp: "2025.10.23 08:45", author: "관리자" }
+    ],
     referee: "최영호",
   },
 ];
@@ -89,6 +126,8 @@ const completedMatches = [
   {
     id: "M-20401",
     venue: "탄천 종합운동장",
+    venueId: "1",
+    venueUrl: "https://map.naver.com/p/search/%ED%83%84%EC%B2%9C%20%EC%A2%85%ED%95%A9%EC%9A%B4%EB%8F%99%EC%9E%A5",
     time: "06:00",
     date: "2025-10-24",
     home: { id: 11, name: "강남 FC", score: 3 },
@@ -96,12 +135,26 @@ const completedMatches = [
     status: "completed" as const,
     result: "강남 FC 승리",
     referee: "홍길동",
-    attendance: 150,
-    weather: "맑음 ☀️",
+    homePlayers: [
+      { id: 301, name: "홍길동", position: "FW", number: 10, goals: 2, assists: 1 },
+      { id: 302, name: "김영희", position: "MF", number: 7, goals: 1, assists: 0 },
+      { id: 303, name: "이철수", position: "DF", number: 5 },
+      { id: 304, name: "박민수", position: "GK", number: 1 },
+      { id: 305, name: "최영수", position: "MF", number: 8, assists: 2 },
+    ],
+    awayPlayers: [
+      { id: 401, name: "안성준", position: "FW", number: 9, goals: 1 },
+      { id: 402, name: "조민호", position: "MF", number: 6, goals: 1, assists: 1 },
+      { id: 403, name: "신동욱", position: "DF", number: 3 },
+      { id: 404, name: "배준서", position: "GK", number: 1 },
+      { id: 405, name: "유재석", position: "FW", number: 11 },
+    ],
   },
   {
     id: "M-20402",
     venue: "올림픽공원 축구장",
+    venueId: "4",
+    venueUrl: "https://map.naver.com/p/search/%EC%98%AC%EB%A6%BC%ED%94%BD%EA%B3%B5%EC%9B%90%20%EC%B6%95%EA%B5%AC%EC%9E%A5",
     time: "07:30",
     date: "2025-10-24",
     home: { id: 13, name: "송파 드래곤즈", score: 1 },
@@ -109,12 +162,12 @@ const completedMatches = [
     status: "completed" as const,
     result: "무승부",
     referee: "김영수",
-    attendance: 120,
-    weather: "맑음 ☀️",
   },
   {
     id: "M-20403",
     venue: "잠실 보조경기장",
+    venueId: "4",
+    venueUrl: "https://map.naver.com/p/search/%EC%9E%A0%EC%8B%A4%20%EB%B3%B4%EC%A1%B0%EA%B2%BD%EA%B8%B0%EC%9E%A5",
     time: "08:00",
     date: "2025-10-24",
     home: { id: 15, name: "광진 FC", score: 0 },
@@ -122,8 +175,6 @@ const completedMatches = [
     status: "completed" as const,
     result: "성동 유나이티드 승리",
     referee: "이상민",
-    attendance: 80,
-    weather: "흐림 ☁️",
   },
 ];
 
@@ -133,50 +184,50 @@ const allMatches = [
   {
     id: "M-20301",
     venue: "한강공원 축구장",
+    venueId: "3",
+    venueUrl: "https://map.naver.com/p/search/%ED%95%9C%EA%B0%95%EA%B3%B5%EC%9B%90%20%EC%B6%95%EA%B5%AC%EC%9E%A5",
     time: "06:00",
     date: "2025-10-23",
     home: { id: 17, name: "마포 FC", score: 2 },
     away: { id: 18, name: "용산 유나이티드", score: 1 },
     status: "completed" as const,
     referee: "박민수",
-    attendance: 100,
-    weather: "맑음 ☀️",
   },
   {
     id: "M-20302",
     venue: "여의도 공원",
+    venueId: "2",
+    venueUrl: "https://map.naver.com/p/search/%EC%97%AC%EC%9D%98%EB%8F%84%20%EA%B3%B5%EC%9B%90",
     time: "07:00",
     date: "2025-10-23",
     home: { id: 19, name: "영등포 FC", score: 3 },
     away: { id: 20, name: "구로 FC", score: 3 },
     status: "completed" as const,
     referee: "이철수",
-    attendance: 85,
-    weather: "흐림 ☁️",
   },
   {
     id: "M-20303",
     venue: "월드컵공원",
+    venueId: "3",
+    venueUrl: "https://map.naver.com/p/search/%EC%9B%94%EB%93%9C%EC%BB%B5%EA%B3%B5%EC%9B%90",
     time: "14:00",
     date: "2025-10-23",
     home: { id: 10, name: "은평 FC", score: 1 },
     away: { id: 21, name: "서대문 FC", score: 0 },
     status: "completed" as const,
     referee: "김영희",
-    attendance: 120,
-    weather: "맑음 ☀️",
   },
   {
     id: "M-20304",
     venue: "서울숲 축구장",
+    venueId: "2",
+    venueUrl: "https://map.naver.com/p/search/%EC%84%9C%EC%9A%B8%EC%88%B2%20%EC%B6%95%EA%B5%AC%EC%9E%A5",
     time: "16:00",
     date: "2025-10-23",
     home: { id: 22, name: "성동 FC", score: 2 },
     away: { id: 23, name: "동대문 FC", score: 2 },
     status: "completed" as const,
     referee: "정수진",
-    attendance: 95,
-    weather: "맑음 ☀️",
   },
 
   // 오늘 완료된 경기
@@ -192,116 +243,144 @@ const allMatches = [
   {
     id: "M-20501",
     venue: "강서 스포츠파크",
+    venueId: "1",
+    venueUrl: "https://map.naver.com/p/search/%EA%B0%95%EC%84%9C%20%EC%8A%A4%ED%8F%AC%EC%B8%A0%ED%8C%8C%ED%81%AC",
     time: "06:30",
     date: "2025-10-25",
     home: { id: 24, name: "강서 FC" },
     away: { id: 25, name: "양천 FC" },
     status: "scheduled" as const,
-    notes: ["경기장 확정", "주차 공간 확보"],
+    notes: [
+      { text: "경기장 확정", timestamp: "2025.10.22 15:30", author: "관리자" },
+      { text: "주차 공간 확보", timestamp: "2025.10.23 09:00", author: "관리자" }
+    ],
     referee: "한지수",
-    weather: "맑음 예상",
   },
   {
     id: "M-20502",
     venue: "목동 종합운동장",
+    venueId: "2",
+    venueUrl: "https://map.naver.com/p/search/%EB%AA%A9%EB%8F%99%20%EC%A2%85%ED%95%A9%EC%9A%B4%EB%8F%99%EC%9E%A5",
     time: "08:00",
     date: "2025-10-25",
     home: { id: 26, name: "목동 유나이티드" },
     away: { id: 27, name: "신촌 FC" },
     status: "scheduled" as const,
-    notes: ["경기장 예약 완료"],
+    notes: [
+      { text: "경기장 예약 완료", timestamp: "2025.10.22 11:00", author: "관리자" }
+    ],
     referee: "오민석",
-    weather: "맑음 예상",
   },
   {
     id: "M-20503",
     venue: "관악 체육공원",
+    venueId: "3",
+    venueUrl: "https://map.naver.com/p/search/%EA%B4%80%EC%95%85%20%EC%B2%B4%EC%9C%A1%EA%B3%B5%EC%9B%90",
     time: "10:00",
     date: "2025-10-25",
     home: { id: 28, name: "관악 FC" },
     away: { id: 29, name: "동작 FC" },
     status: "scheduled" as const,
-    notes: ["용품 준비 완료"],
+    notes: [
+      { text: "용품 준비 완료", timestamp: "2025.10.23 17:00", author: "관리자" }
+    ],
     referee: "임성호",
-    weather: "흐림 예상",
   },
 
   // 모레 예정된 경기들
   {
     id: "M-20601",
     venue: "노원 종합운동장",
+    venueId: "4",
+    venueUrl: "https://map.naver.com/p/search/%EB%85%B8%EC%9B%90%20%EC%A2%85%ED%95%A9%EC%9A%B4%EB%8F%99%EC%9E%A5",
     time: "07:00",
     date: "2025-10-26",
     home: { id: 30, name: "노원 FC" },
     away: { id: 31, name: "도봉 FC" },
     status: "scheduled" as const,
-    notes: ["경기장 확정 대기"],
+    notes: [
+      { text: "경기장 확정 대기", timestamp: "2025.10.23 16:00", author: "관리자" }
+    ],
     referee: "미정",
-    weather: "맑음 예상",
   },
   {
     id: "M-20602",
     venue: "중랑천 체육공원",
+    venueId: "1",
+    venueUrl: "https://map.naver.com/p/search/%EC%A4%91%EB%9E%91%EC%B2%9C%20%EC%B2%B4%EC%9C%A1%EA%B3%B5%EC%9B%90",
     time: "09:00",
     date: "2025-10-26",
     home: { id: 32, name: "중랑 FC" },
     away: { id: 33, name: "광진 유나이티드" },
     status: "scheduled" as const,
-    notes: ["대체 경기장 준비"],
+    notes: [
+      { text: "대체 경기장 준비", timestamp: "2025.10.23 12:30", author: "관리자" }
+    ],
     referee: "미정",
-    weather: "흐림 예상",
   },
   {
     id: "M-20603",
     venue: "강북 축구장",
+    venueId: "2",
+    venueUrl: "https://map.naver.com/p/search/%EA%B0%95%EB%B6%81%20%EC%B6%95%EA%B5%AC%EC%9E%A5",
     time: "14:00",
     date: "2025-10-26",
     home: { id: 34, name: "강북 FC" },
     away: { id: 35, name: "성북 FC" },
     status: "scheduled" as const,
-    notes: ["심판 배정 대기"],
+    notes: [
+      { text: "심판 배정 대기", timestamp: "2025.10.23 10:00", author: "관리자" }
+    ],
     referee: "미정",
-    weather: "맑음 예상",
   },
 
   // 다음주 경기들
   {
     id: "M-20701",
     venue: "잠실 종합운동장",
+    venueId: "4",
+    venueUrl: "https://map.naver.com/p/search/%EC%9E%A0%EC%8B%A4%20%EC%A2%85%ED%95%A9%EC%9A%B4%EB%8F%99%EC%9E%A5",
     time: "10:00",
     date: "2025-10-27",
     home: { id: 13, name: "송파 FC" },
     away: { id: 36, name: "강남 유나이티드" },
     status: "scheduled" as const,
-    notes: ["특별 경기"],
+    notes: [
+      { text: "특별 경기", timestamp: "2025.10.20 14:00", author: "관리자" }
+    ],
     referee: "미정",
-    weather: "확인 필요",
   },
   {
     id: "M-20702",
     venue: "반포 한강공원",
+    venueId: "3",
+    venueUrl: "https://map.naver.com/p/search/%EB%B0%98%ED%8F%AC%20%ED%95%9C%EA%B0%95%EA%B3%B5%EC%9B%90",
     time: "15:00",
     date: "2025-10-28",
     home: { id: 12, name: "서초 FC" },
     away: { id: 37, name: "강남 드래곤즈" },
     status: "scheduled" as const,
-    notes: ["우천 시 취소"],
+    notes: [
+      { text: "우천 시 취소", timestamp: "2025.10.21 09:00", author: "관리자" }
+    ],
     referee: "미정",
-    weather: "확인 필요",
   },
 
   // 취소된 경기
   {
     id: "M-20199",
     venue: "양재천 축구장",
+    venueId: "1",
+    venueUrl: "https://map.naver.com/p/search/%EC%96%91%EC%9E%AC%EC%B2%9C%20%EC%B6%95%EA%B5%AC%EC%9E%A5",
     time: "14:00",
     date: "2025-10-22",
     home: { id: 12, name: "서초 FC" },
     away: { id: 11, name: "강남 FC" },
     status: "cancelled" as const,
-    notes: ["우천으로 인한 취소"],
+    notes: [
+      { text: "우천으로 인한 취소", timestamp: "2025.10.22 12:00", author: "관리자" }
+    ],
     referee: "김철수",
-    weather: "비 🌧️",
   },
 ];
 
@@ -589,8 +668,8 @@ const MatchesPage = () => {
                 </div>
               </div>
               <ul className="card-list">
-                {match.notes.map((note) => (
-                  <li key={note}>{note}</li>
+                {match.notes?.map((note, index) => (
+                  <li key={index}>{note.text}</li>
                 ))}
               </ul>
             </div>
@@ -617,8 +696,8 @@ const MatchesPage = () => {
                 📍 {match.venue}
               </p>
               <ul className="card-list">
-                {match.notes?.map((item) => (
-                  <li key={item}>{item}</li>
+                {match.notes?.map((note, index) => (
+                  <li key={index}>{note.text}</li>
                 ))}
               </ul>
             </div>

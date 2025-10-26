@@ -51,6 +51,27 @@ const reportMetrics: ReportMetric[] = [
   },
 ];
 
+interface ReportedUser {
+  id: string;
+  name: string;
+  profileImage?: string;
+  joinDate: string;
+  matchCount: number;
+  mannerScore: number;
+  noShowCount: number;
+  warningCount: number;
+}
+
+interface SanctionHistory {
+  id: string;
+  type: "경고" | "정지" | "영구정지";
+  reason: string;
+  startDate: string;
+  endDate?: string;
+  duration?: string;
+  processor: string;
+}
+
 interface ReportItem {
   id: string;
   type: string;
@@ -59,9 +80,12 @@ interface ReportItem {
   status: string;
   receivedAt: string;
   reporter?: string;
+  reporterUserId?: string;
   description?: string;
   evidence?: string[];
   assignee?: string;
+  reportedUser?: ReportedUser;
+  sanctionHistory?: SanctionHistory[];
 }
 
 const reportQueueData: ReportItem[] = [
@@ -73,8 +97,36 @@ const reportQueueData: ReportItem[] = [
     status: "배정 대기",
     receivedAt: "11:42",
     reporter: "김철수",
+    reporterUserId: "U-3001",
     description: "경기 중 상대 팀원에게 욕설 및 폭언을 사용했습니다. 여러 플레이어가 목격했습니다.",
     evidence: ["스크린샷 1.png", "채팅 로그.txt"],
+    reportedUser: {
+      id: "U-1523",
+      name: "박지훈",
+      joinDate: "2024-03-15",
+      matchCount: 47,
+      mannerScore: 28,
+      noShowCount: 3,
+      warningCount: 2,
+    },
+    sanctionHistory: [
+      {
+        id: "S-001",
+        type: "경고",
+        reason: "경기 중 부적절한 언행으로 인한 1차 경고",
+        startDate: "2024-09-10",
+        processor: "관리자 김민수",
+      },
+      {
+        id: "S-002",
+        type: "정지",
+        reason: "노쇼 3회 누적으로 인한 활동 정지",
+        startDate: "2024-08-05",
+        endDate: "2024-08-12",
+        duration: "7일",
+        processor: "관리자 이영희",
+      },
+    ],
   },
   {
     id: "R-9819",
@@ -84,9 +136,28 @@ const reportQueueData: ReportItem[] = [
     status: "검토 중",
     receivedAt: "10:58",
     reporter: "이영희",
+    reporterUserId: "U-3002",
     description: "해당 팀이 고의로 실력이 낮은 선수를 등록하여 등급을 조작하려는 시도가 있었습니다.",
     evidence: ["증거 영상.mp4", "프로필 비교.pdf"],
     assignee: "김지원",
+    reportedUser: {
+      id: "U-2341",
+      name: "정민수",
+      joinDate: "2023-11-20",
+      matchCount: 124,
+      mannerScore: 35,
+      noShowCount: 1,
+      warningCount: 1,
+    },
+    sanctionHistory: [
+      {
+        id: "S-003",
+        type: "경고",
+        reason: "매칭 시스템 악용 의심으로 인한 경고",
+        startDate: "2024-07-22",
+        processor: "관리자 박준호",
+      },
+    ],
   },
   {
     id: "R-9815",
@@ -96,9 +167,20 @@ const reportQueueData: ReportItem[] = [
     status: "대기",
     receivedAt: "09:31",
     reporter: "박민준",
+    reporterUserId: "U-3003",
     description: "게시판에 광고성 게시물을 반복적으로 작성하고 있습니다.",
     evidence: ["게시물 스크린샷.png"],
     assignee: "박민서",
+    reportedUser: {
+      id: "U-5672",
+      name: "최준영",
+      joinDate: "2025-09-05",
+      matchCount: 8,
+      mannerScore: 36,
+      noShowCount: 0,
+      warningCount: 0,
+    },
+    sanctionHistory: [],
   },
   {
     id: "R-9809",
@@ -108,9 +190,20 @@ const reportQueueData: ReportItem[] = [
     status: "완료",
     receivedAt: "08:47",
     reporter: "최지훈",
+    reporterUserId: "U-3004",
     description: "약속된 매치에 사전 고지 없이 불참했습니다.",
     evidence: [],
     assignee: "손예린",
+    reportedUser: {
+      id: "U-1231",
+      name: "윤서준",
+      joinDate: "2024-05-10",
+      matchCount: 62,
+      mannerScore: 42,
+      noShowCount: 1,
+      warningCount: 0,
+    },
+    sanctionHistory: [],
   },
   {
     id: "R-9807",
@@ -120,8 +213,52 @@ const reportQueueData: ReportItem[] = [
     status: "대기",
     receivedAt: "08:22",
     reporter: "정수진",
+    reporterUserId: "U-3005",
     description: "경기 후 상대방에게 심한 욕설을 했습니다.",
     evidence: ["음성 녹음.mp3"],
+    reportedUser: {
+      id: "U-893",
+      name: "강태양",
+      joinDate: "2023-08-14",
+      matchCount: 156,
+      mannerScore: 22,
+      noShowCount: 7,
+      warningCount: 4,
+    },
+    sanctionHistory: [
+      {
+        id: "S-004",
+        type: "정지",
+        reason: "폭언 및 비매너 행위로 인한 3차 제재",
+        startDate: "2024-09-01",
+        endDate: "2024-09-15",
+        duration: "14일",
+        processor: "관리자 김민수",
+      },
+      {
+        id: "S-005",
+        type: "경고",
+        reason: "경기 중 부적절한 발언",
+        startDate: "2024-06-12",
+        processor: "관리자 이영희",
+      },
+      {
+        id: "S-006",
+        type: "정지",
+        reason: "노쇼 5회 누적",
+        startDate: "2024-04-03",
+        endDate: "2024-04-10",
+        duration: "7일",
+        processor: "관리자 박준호",
+      },
+      {
+        id: "S-007",
+        type: "경고",
+        reason: "팀원간 갈등 유발",
+        startDate: "2024-01-20",
+        processor: "관리자 김민수",
+      },
+    ],
   },
   {
     id: "R-9801",
@@ -131,8 +268,43 @@ const reportQueueData: ReportItem[] = [
     status: "배정 대기",
     receivedAt: "07:15",
     reporter: "강민호",
+    reporterUserId: "U-3006",
     description: "고의적으로 경기 결과를 조작하려는 시도가 발견되었습니다.",
     evidence: ["영상 증거.mp4", "채팅 기록.txt"],
+    reportedUser: {
+      id: "U-7789",
+      name: "이동현",
+      joinDate: "2024-02-28",
+      matchCount: 89,
+      mannerScore: 18,
+      noShowCount: 5,
+      warningCount: 3,
+    },
+    sanctionHistory: [
+      {
+        id: "S-008",
+        type: "정지",
+        reason: "경기 결과 조작 시도",
+        startDate: "2024-08-20",
+        endDate: "2024-09-03",
+        duration: "14일",
+        processor: "관리자 이영희",
+      },
+      {
+        id: "S-009",
+        type: "경고",
+        reason: "부정 행위 의심",
+        startDate: "2024-06-05",
+        processor: "관리자 박준호",
+      },
+      {
+        id: "S-010",
+        type: "경고",
+        reason: "반복적인 노쇼",
+        startDate: "2024-04-18",
+        processor: "관리자 김민수",
+      },
+    ],
   },
 ];
 
