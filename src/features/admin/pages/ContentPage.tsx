@@ -114,8 +114,26 @@ const todayPosts = [
     reportCount: 0,
     tags: ["훈련", "일정", "공지"],
     editHistory: [
-      { id: "EH-001", editor: "강남FC_관리자", editorId: "U-1001", action: "게시물 작성", changes: "초기 게시물 작성", timestamp: "오늘 08:30", type: "create" as const },
-      { id: "EH-002", editor: "강남FC_관리자", editorId: "U-1001", action: "내용 수정", changes: "금요일 훈련 시간을 오후 6시에서 7시로 변경", timestamp: "오늘 09:15", type: "edit" as const }
+      {
+        id: "EH-001",
+        editor: "강남FC_관리자",
+        editorId: "U-1001",
+        action: "게시물 작성",
+        changes: "초기 게시물 작성",
+        timestamp: "오늘 08:30",
+        type: "create" as const,
+        contentSnapshot: "이번 주 훈련 일정을 안내드립니다.\n\n월요일: 오후 7시 - 기초 체력 훈련\n화요일: 오후 7시 - 전술 훈련\n수요일: 휴식\n목요일: 오후 7시 - 미니 게임\n금요일: 오후 6시 - 슈팅 및 패스 연습\n\n모든 훈련은 탄천 종합운동장에서 진행됩니다. 많은 참여 부탁드립니다!"
+      },
+      {
+        id: "EH-002",
+        editor: "강남FC_관리자",
+        editorId: "U-1001",
+        action: "내용 수정",
+        changes: "금요일 훈련 시간을 오후 6시에서 7시로 변경",
+        timestamp: "오늘 09:15",
+        type: "edit" as const,
+        contentSnapshot: "이번 주 훈련 일정을 안내드립니다.\n\n월요일: 오후 7시 - 기초 체력 훈련\n화요일: 오후 7시 - 전술 훈련\n수요일: 휴식\n목요일: 오후 7시 - 미니 게임\n금요일: 오후 7시 - 슈팅 및 패스 연습\n\n모든 훈련은 탄천 종합운동장에서 진행됩니다. 많은 참여 부탁드립니다!"
+      }
     ],
     managementHistory: [
       { id: "MH-001", action: "자동 검수", description: "AI 자동 검수 시스템을 통과했습니다", timestamp: "오늘 08:31", admin: "시스템", type: "review" as const },
@@ -141,7 +159,16 @@ const todayPosts = [
     shares: 3,
     tags: ["용병", "모집", "미드필더"],
     editHistory: [
-      { id: "EH-003", editor: "축구왕김씨", editorId: "U-2001", action: "게시물 작성", changes: "용병 모집 게시물 작성", timestamp: "오늘 09:15", type: "create" as const }
+      {
+        id: "EH-003",
+        editor: "축구왕김씨",
+        editorId: "U-2001",
+        action: "게시물 작성",
+        changes: "용병 모집 게시물 작성",
+        timestamp: "오늘 09:15",
+        type: "create" as const,
+        contentSnapshot: "안녕하세요! 내일(금요일) 아침 6시 탄천 종합운동장에서 경기가 있는데 용병 1명을 구합니다.\n\n포지션: 미드필더 또는 공격수\n레벨: 중급 이상\n비용: 2만원\n\n관심 있으신 분은 댓글이나 쪽지 부탁드립니다!"
+      }
     ],
     managementHistory: [
       { id: "MH-003", action: "자동 검수", description: "스팸 필터 통과", timestamp: "오늘 09:16", admin: "시스템", type: "review" as const },
@@ -166,7 +193,16 @@ const todayPosts = [
     shares: 12,
     tags: ["공지", "점검", "시스템"],
     editHistory: [
-      { id: "EH-004", editor: "관리자 김민수", editorId: "ADMIN-001", action: "공지사항 작성", changes: "정기 점검 공지사항 작성", timestamp: "오늘 10:00", type: "create" as const }
+      {
+        id: "EH-004",
+        editor: "관리자 김민수",
+        editorId: "ADMIN-001",
+        action: "공지사항 작성",
+        changes: "정기 점검 공지사항 작성",
+        timestamp: "오늘 10:00",
+        type: "create" as const,
+        contentSnapshot: "안녕하세요, Sports Hub 운영팀입니다.\n\n4월 정기 시스템 점검을 아래와 같이 실시합니다.\n\n일시: 2025년 4월 10일 (목) 02:00 ~ 06:00\n내용:\n- 서버 안정화 작업\n- 데이터베이스 최적화\n- 보안 패치 적용\n\n점검 시간 동안 서비스 이용이 일시적으로 중단될 수 있습니다.\n양해 부탁드립니다.\n\n감사합니다."
+      }
     ],
     managementHistory: [
       { id: "MH-005", action: "공지 등록", description: "시스템 점검 공지사항이 등록되었습니다", timestamp: "오늘 10:00", admin: "관리자 김민수", adminId: "ADMIN-001", type: "approve" as const },
@@ -192,7 +228,16 @@ const todayPosts = [
     reportCount: 1,
     tags: ["팀모집", "상대팀", "주말경기"],
     editHistory: [
-      { id: "EH-005", editor: "성동FC", editorId: "T-001", action: "게시물 작성", changes: "상대팀 모집 게시물 작성", timestamp: "오늘 11:20", type: "create" as const }
+      {
+        id: "EH-005",
+        editor: "성동FC",
+        editorId: "T-001",
+        action: "게시물 작성",
+        changes: "상대팀 모집 게시물 작성",
+        timestamp: "오늘 11:20",
+        type: "create" as const,
+        contentSnapshot: "안녕하세요, 성동FC입니다.\n\n이번 주 토요일 오후 3시에 경기 가능한 상대팀을 찾습니다.\n\n우리 팀 레벨: 중상급\n선호 경기장: 서울 동부 지역\n인원: 11 vs 11 풀 매치\n\n관심 있으신 팀은 댓글 남겨주세요!"
+      }
     ],
     managementHistory: [
       { id: "MH-007", action: "자동 검수", description: "AI 시스템 검수 완료", timestamp: "오늘 11:21", admin: "시스템", type: "review" as const },
@@ -219,8 +264,26 @@ const todayPosts = [
     shares: 8,
     tags: ["후기", "경기", "강남FC", "서초유나이티드"],
     editHistory: [
-      { id: "EH-006", editor: "축구매니아", editorId: "U-5001", action: "후기 작성", changes: "경기 후기 게시물 작성", timestamp: "오늘 12:45", type: "create" as const },
-      { id: "EH-007", editor: "축구매니아", editorId: "U-5001", action: "오타 수정", changes: "홍길동 → 홍길동으로 오타 수정", timestamp: "오늘 12:50", type: "edit" as const }
+      {
+        id: "EH-006",
+        editor: "축구매니아",
+        editorId: "U-5001",
+        action: "후기 작성",
+        changes: "경기 후기 게시물 작성",
+        timestamp: "오늘 12:45",
+        type: "create" as const,
+        contentSnapshot: "지난 주말 경기 정말 재미있었습니다!\n\n최종 스코어는 3:2로 강남 FC의 승리였는데요, 경기 내용이 정말 박진감 넘쳤습니다.\n\n전반전에는 서초가 2:0으로 앞서갔지만, 후반전에 강남이 3골을 연속으로 터뜨리며 역전승을 거뒀습니다.\n\n특히 홍걸동 선수의 2골이 인상적이었어요. 양 팀 모두 수고하셨습니다!\n\n다음 경기도 기대됩니다 ^^"
+      },
+      {
+        id: "EH-007",
+        editor: "축구매니아",
+        editorId: "U-5001",
+        action: "오타 수정",
+        changes: "홍걸동 → 홍길동으로 오타 수정",
+        timestamp: "오늘 12:50",
+        type: "edit" as const,
+        contentSnapshot: "지난 주말 경기 정말 재미있었습니다!\n\n최종 스코어는 3:2로 강남 FC의 승리였는데요, 경기 내용이 정말 박진감 넘쳤습니다.\n\n전반전에는 서초가 2:0으로 앞서갔지만, 후반전에 강남이 3골을 연속으로 터뜨리며 역전승을 거뒀습니다.\n\n특히 홍길동 선수의 2골이 인상적이었어요. 양 팀 모두 수고하셨습니다!\n\n다음 경기도 기대됩니다 ^^"
+      }
     ],
     managementHistory: [
       { id: "MH-011", action: "자동 검수", description: "콘텐츠 품질 검사 통과", timestamp: "오늘 12:46", admin: "시스템", type: "review" as const },

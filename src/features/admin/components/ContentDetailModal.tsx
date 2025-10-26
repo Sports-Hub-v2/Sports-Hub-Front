@@ -14,6 +14,7 @@ interface EditHistory {
   changes: string;
   timestamp: string;
   type?: 'create' | 'edit' | 'status' | 'delete';
+  contentSnapshot?: string; // 해당 시점의 게시물 내용
 }
 
 interface ManagementHistory {
@@ -69,6 +70,7 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'detail' | 'history' | 'management' | 'comments' | 'stats'>('detail');
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
 
   if (!isOpen || !content) return null;
 
@@ -319,34 +321,64 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({
                       }
                     };
 
+                    const isExpanded = expandedHistoryId === history.id;
+
                     return (
-                      <div key={history.id} className="bg-white rounded-lg p-4 border-2 border-gray-200 hover:border-purple-300 transition-colors">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 mt-0.5">
-                            <span className="text-xl">{getActionIcon(history.type)}</span>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getActionBadgeColor(history.type)}`}>
-                                {history.action}
-                              </span>
-                              <span className="text-xs text-gray-500">{history.timestamp}</span>
+                      <div key={history.id} className="bg-white rounded-lg border-2 border-gray-200 hover:border-purple-300 transition-colors overflow-hidden">
+                        <div
+                          className="p-4 cursor-pointer"
+                          onClick={() => setExpandedHistoryId(isExpanded ? null : history.id)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0 mt-0.5">
+                              <span className="text-xl">{getActionIcon(history.type)}</span>
                             </div>
-                            <p className="text-sm text-gray-700 mb-2">{history.changes}</p>
-                            <div className="flex items-center gap-2">
-                              <User className="w-3 h-3 text-gray-400" />
-                              <button
-                                onClick={() => handleUserClick(history.editorId)}
-                                className="text-xs text-blue-600 font-medium hover:text-blue-700 flex items-center gap-1 group"
-                              >
-                                {history.editor}
-                                {history.editorId && (
-                                  <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${getActionBadgeColor(history.type)}`}>
+                                  {history.action}
+                                </span>
+                                <span className="text-xs text-gray-500">{history.timestamp}</span>
+                                {history.contentSnapshot && (
+                                  <span className="text-xs text-blue-600 font-medium">
+                                    {isExpanded ? '▼' : '▶'} 이 시점 내용 보기
+                                  </span>
                                 )}
-                              </button>
+                              </div>
+                              <p className="text-sm text-gray-700 mb-2">{history.changes}</p>
+                              <div className="flex items-center gap-2">
+                                <User className="w-3 h-3 text-gray-400" />
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleUserClick(history.editorId);
+                                  }}
+                                  className="text-xs text-blue-600 font-medium hover:text-blue-700 flex items-center gap-1 group"
+                                >
+                                  {history.editor}
+                                  {history.editorId && (
+                                    <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                  )}
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
+
+                        {/* 확장된 내용 영역 */}
+                        {isExpanded && history.contentSnapshot && (
+                          <div className="border-t-2 border-purple-200 bg-purple-50 p-4">
+                            <div className="flex items-center gap-2 mb-3">
+                              <FileText className="w-4 h-4 text-purple-600" />
+                              <h5 className="font-semibold text-purple-900">이 시점의 게시물 내용</h5>
+                            </div>
+                            <div className="bg-white rounded-lg p-4 border border-purple-200">
+                              <p className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
+                                {history.contentSnapshot}
+                              </p>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
