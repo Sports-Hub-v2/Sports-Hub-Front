@@ -2,6 +2,7 @@
 import { X, Search, Filter, Eye, Edit2, Trash2, CheckCircle, Clock, FileText, MessageSquare, AlertTriangle, Ban, Shield } from "lucide-react";
 import { useState } from "react";
 import AdminLayout from "../components/AdminLayout";
+import ContentDetailModal from "../components/ContentDetailModal";
 
 const contentMetrics = [
   {
@@ -59,46 +60,113 @@ const todayPosts = [
     id: "POST-401",
     type: "팀 게시물",
     title: "강남 FC 주간 훈련 일정 안내",
+    content: "이번 주 훈련 일정을 안내드립니다.\n\n월요일: 오후 7시 - 기초 체력 훈련\n화요일: 오후 7시 - 전술 훈련\n수요일: 휴식\n목요일: 오후 7시 - 미니 게임\n금요일: 오후 7시 - 슈팅 및 패스 연습\n\n모든 훈련은 탄천 종합운동장에서 진행됩니다. 많은 참여 부탁드립니다!",
     author: "강남FC_관리자",
+    authorId: "U-1001",
     status: "게시됨",
     createdAt: "오늘 08:30",
+    updatedAt: "오늘 09:15",
     views: 124,
+    likes: 23,
+    shares: 5,
+    reportCount: 0,
+    tags: ["훈련", "일정", "공지"],
+    editHistory: [
+      { id: "EH-001", editor: "강남FC_관리자", editorId: "U-1001", action: "게시물 작성", changes: "초기 게시물 작성", timestamp: "오늘 08:30", type: "create" as const },
+      { id: "EH-002", editor: "강남FC_관리자", editorId: "U-1001", action: "내용 수정", changes: "금요일 훈련 시간을 오후 6시에서 7시로 변경", timestamp: "오늘 09:15", type: "edit" as const }
+    ],
+    comments: [
+      { id: "C-001", author: "김철수", authorId: "U-1002", content: "이번 주도 열심히 참여하겠습니다!", timestamp: "오늘 08:45", likes: 5, isReported: false },
+      { id: "C-002", author: "이영희", authorId: "U-1003", content: "목요일은 참석 어려울 것 같아요 ㅠㅠ", timestamp: "오늘 09:00", likes: 2, isReported: false },
+      { id: "C-003", author: "박민수", authorId: "U-1004", content: "금요일 시간 변경 감사합니다!", timestamp: "오늘 09:20", likes: 3, isReported: false }
+    ]
   },
   {
     id: "POST-402",
     type: "용병 모집",
     title: "내일 아침 6시 경기 용병 1명 구합니다",
+    content: "안녕하세요! 내일(금요일) 아침 6시 탄천 종합운동장에서 경기가 있는데 용병 1명을 구합니다.\n\n포지션: 미드필더 또는 공격수\n레벨: 중급 이상\n비용: 2만원\n\n관심 있으신 분은 댓글이나 쪽지 부탁드립니다!",
     author: "축구왕김씨",
+    authorId: "U-2001",
     status: "게시됨",
     createdAt: "오늘 09:15",
     views: 89,
+    likes: 12,
+    shares: 3,
+    tags: ["용병", "모집", "미드필더"],
+    editHistory: [
+      { id: "EH-003", editor: "축구왕김씨", editorId: "U-2001", action: "게시물 작성", changes: "용병 모집 게시물 작성", timestamp: "오늘 09:15", type: "create" as const }
+    ],
+    comments: [
+      { id: "C-004", author: "이준호", authorId: "U-2002", content: "저 참여 가능합니다! 쪽지 보냈어요", timestamp: "오늘 09:30", likes: 1, isReported: false },
+      { id: "C-005", author: "최민수", authorId: "U-2003", content: "시간이 너무 이르네요 ㅠㅠ", timestamp: "오늘 09:45", likes: 0, isReported: false }
+    ]
   },
   {
     id: "POST-403",
     type: "공지사항",
     title: "4월 정기 점검 안내",
+    content: "안녕하세요, Sports Hub 운영팀입니다.\n\n4월 정기 시스템 점검을 아래와 같이 실시합니다.\n\n일시: 2025년 4월 10일 (목) 02:00 ~ 06:00\n내용:\n- 서버 안정화 작업\n- 데이터베이스 최적화\n- 보안 패치 적용\n\n점검 시간 동안 서비스 이용이 일시적으로 중단될 수 있습니다.\n양해 부탁드립니다.\n\n감사합니다.",
     author: "운영팀",
+    authorId: "ADMIN-001",
     status: "게시됨",
     createdAt: "오늘 10:00",
     views: 342,
+    likes: 45,
+    shares: 12,
+    tags: ["공지", "점검", "시스템"],
+    editHistory: [
+      { id: "EH-004", editor: "관리자 김민수", editorId: "ADMIN-001", action: "공지사항 작성", changes: "정기 점검 공지사항 작성", timestamp: "오늘 10:00", type: "create" as const }
+    ],
+    comments: [
+      { id: "C-006", author: "박성민", authorId: "U-3001", content: "점검 시간을 좀 더 짧게 할 수 없나요?", timestamp: "오늘 10:15", likes: 3, isReported: false },
+      { id: "C-007", author: "정우진", authorId: "U-3002", content: "새벽 시간이라 괜찮을 것 같아요", timestamp: "오늘 10:30", likes: 7, isReported: false }
+    ]
   },
   {
     id: "POST-404",
     type: "팀 모집",
     title: "주말 경기 상대팀 찾습니다",
+    content: "안녕하세요, 성동FC입니다.\n\n이번 주 토요일 오후 3시에 경기 가능한 상대팀을 찾습니다.\n\n우리 팀 레벨: 중상급\n선호 경기장: 서울 동부 지역\n인원: 11 vs 11 풀 매치\n\n관심 있으신 팀은 댓글 남겨주세요!",
     author: "성동FC",
+    authorId: "T-001",
     status: "검수 중",
     createdAt: "오늘 11:20",
     views: 56,
+    likes: 8,
+    shares: 2,
+    reportCount: 1,
+    tags: ["팀모집", "상대팀", "주말경기"],
+    editHistory: [
+      { id: "EH-005", editor: "성동FC", editorId: "T-001", action: "게시물 작성", changes: "상대팀 모집 게시물 작성", timestamp: "오늘 11:20", type: "create" as const }
+    ],
+    comments: [
+      { id: "C-008", author: "광진FC", authorId: "T-002", content: "저희 팀 가능합니다!", timestamp: "오늘 11:35", likes: 2, isReported: false },
+      { id: "C-009", author: "신고자", authorId: "U-9999", content: "이 게시물은 스팸입니다 [신고됨]", timestamp: "오늘 11:50", likes: 0, isReported: true }
+    ]
   },
   {
     id: "POST-405",
     type: "후기",
     title: "지난 주말 경기 후기 - 강남 FC vs 서초 유나이티드",
+    content: "지난 주말 경기 정말 재미있었습니다!\n\n최종 스코어는 3:2로 강남 FC의 승리였는데요, 경기 내용이 정말 박진감 넘쳤습니다.\n\n전반전에는 서초가 2:0으로 앞서갔지만, 후반전에 강남이 3골을 연속으로 터뜨리며 역전승을 거뒀습니다.\n\n특히 홍길동 선수의 2골이 인상적이었어요. 양 팀 모두 수고하셨습니다!\n\n다음 경기도 기대됩니다 ^^",
     author: "축구매니아",
+    authorId: "U-5001",
     status: "게시됨",
     createdAt: "오늘 12:45",
     views: 178,
+    likes: 34,
+    shares: 8,
+    tags: ["후기", "경기", "강남FC", "서초유나이티드"],
+    editHistory: [
+      { id: "EH-006", editor: "축구매니아", editorId: "U-5001", action: "후기 작성", changes: "경기 후기 게시물 작성", timestamp: "오늘 12:45", type: "create" as const },
+      { id: "EH-007", editor: "축구매니아", editorId: "U-5001", action: "오타 수정", changes: "홍길동 → 홍길동으로 오타 수정", timestamp: "오늘 12:50", type: "edit" as const }
+    ],
+    comments: [
+      { id: "C-010", author: "강남FC_관리자", authorId: "U-1001", content: "응원 감사합니다! 다음 경기도 열심히 하겠습니다!", timestamp: "오늘 13:00", likes: 12, isReported: false },
+      { id: "C-011", author: "서초유나이티드", authorId: "T-003", content: "아쉬운 패배였지만 좋은 경기였어요", timestamp: "오늘 13:15", likes: 9, isReported: false },
+      { id: "C-012", author: "홍길동", authorId: "U-301", content: "감사합니다! 운이 좋았어요 ㅎㅎ", timestamp: "오늘 13:30", likes: 15, isReported: false }
+    ]
   },
 ];
 
@@ -1005,120 +1073,11 @@ const ContentPage = () => {
       )}
 
       {/* 콘텐츠 상세 모달 */}
-      {isModalOpen && selectedContent && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            {/* 헤더 */}
-            <div className="sticky top-0 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-5 flex justify-between items-start rounded-t-xl">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  <FileText className="w-6 h-6" />
-                  <h2 className="text-2xl font-bold">콘텐츠 상세</h2>
-                  <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    selectedContent.status === '게시됨' ? 'bg-green-100 text-green-700' :
-                    selectedContent.status === '검수 중' ? 'bg-yellow-100 text-yellow-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {selectedContent.status}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 text-sm text-purple-100">
-                  <span className="px-2 py-1 bg-white/20 rounded">{selectedContent.type}</span>
-                  <span>ID: {selectedContent.id}</span>
-                </div>
-              </div>
-              <button
-                onClick={handleModalClose}
-                className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* 본문 */}
-            <div className="p-6 space-y-6">
-              {/* 제목 */}
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">{selectedContent.title}</h3>
-              </div>
-
-              {/* 정보 */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <h4 className="font-semibold text-gray-900 mb-3">작성 정보</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">작성자</span>
-                      <span className="font-medium text-gray-900">{selectedContent.author}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">작성일</span>
-                      <span className="font-medium text-gray-900">{selectedContent.createdAt}</span>
-                    </div>
-                    {selectedContent.updatedAt && (
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">수정일</span>
-                        <span className="font-medium text-gray-900">{selectedContent.updatedAt}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <h4 className="font-semibold text-gray-900 mb-3">통계</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">조회수</span>
-                      <span className="font-bold text-blue-600 text-lg">{selectedContent.views || 0}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">타입</span>
-                      <span className="font-medium text-gray-900">{selectedContent.type}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">상태</span>
-                      <span className="font-medium text-gray-900">{selectedContent.status}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 액션 버튼들 */}
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-3">관리 액션</h4>
-                <div className="flex flex-wrap gap-3">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
-                    <CheckCircle className="w-4 h-4" />
-                    승인 및 게시
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
-                    <Edit2 className="w-4 h-4" />
-                    수정
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium text-sm">
-                    <Clock className="w-4 h-4" />
-                    검수 대기
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm">
-                    <Trash2 className="w-4 h-4" />
-                    삭제
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* 푸터 */}
-            <div className="sticky bottom-0 bg-gray-50 border-t px-6 py-4 flex justify-end gap-3 rounded-b-xl">
-              <button
-                onClick={handleModalClose}
-                className="px-5 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ContentDetailModal
+        content={selectedContent}
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+      />
 
       {/* 메시지 상세 모달 */}
       {isMessageModalOpen && selectedMessage && (
