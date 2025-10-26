@@ -370,71 +370,155 @@ const allContents = [
     id: "POST-399",
     type: "용병 모집",
     title: "주말 저녁 7시 경기 용병 2명 구합니다",
+    content: "주말 저녁 7시 탄천에서 경기 있는데 용병 2명 급구합니다! 포지션 상관없어요.",
     author: "광진FC",
+    authorId: "T-004",
     status: "게시됨",
     createdAt: "어제 18:15",
     updatedAt: "어제 18:15",
     views: 178,
+    likes: 15,
+    shares: 4,
+    tags: ["용병", "주말"],
+    editHistory: [
+      { id: "EH-009", editor: "광진FC", editorId: "T-004", action: "게시물 작성", changes: "용병 모집 게시물 작성", timestamp: "어제 18:15", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-015", action: "승인", description: "용병 모집 게시물 승인", timestamp: "어제 18:16", admin: "관리자 박철수", adminId: "ADMIN-003", type: "approve" as const }
+    ],
+    comments: []
   },
   {
     id: "POST-398",
     type: "후기",
     title: "첫 조기축구 경험 후기",
+    content: "오늘 처음으로 조기축구를 해봤는데 너무 재미있었어요! 다음에 또 참여하고 싶습니다.",
     author: "축구초보",
+    authorId: "U-6001",
     status: "검수 중",
     createdAt: "어제 16:45",
     updatedAt: "어제 16:45",
     views: 89,
+    likes: 8,
+    shares: 1,
+    tags: ["후기", "첫경험"],
+    editHistory: [
+      { id: "EH-010", editor: "축구초보", editorId: "U-6001", action: "게시물 작성", changes: "첫 경험 후기 작성", timestamp: "어제 16:45", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-016", action: "검수 대기", description: "자동 검수 시스템에서 검토 중", timestamp: "어제 16:46", admin: "시스템", type: "review" as const }
+    ],
+    comments: []
   },
   {
     id: "CNT-319",
     type: "공지",
     title: "봄맞이 친선 대회 안내",
+    content: "4월 15일 봄맞이 친선 대회를 개최합니다. 많은 참여 부탁드립니다!",
     author: "운영팀",
+    authorId: "ADMIN-001",
     status: "게시됨",
     createdAt: "2일 전",
     updatedAt: "2일 전",
     views: 445,
+    likes: 67,
+    shares: 23,
+    tags: ["공지", "대회", "이벤트"],
+    editHistory: [
+      { id: "EH-011", editor: "관리자 김민수", editorId: "ADMIN-001", action: "공지 작성", changes: "친선 대회 공지 작성", timestamp: "2일 전", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-017", action: "공지 등록", description: "친선 대회 공지가 등록되었습니다", timestamp: "2일 전", admin: "관리자 김민수", adminId: "ADMIN-001", type: "approve" as const }
+    ],
+    comments: []
   },
   {
     id: "POST-397",
     type: "팀 모집",
     title: "평일 저녁 정기 경기 상대팀 모집",
+    content: "매주 화요일, 목요일 저녁 8시 정기 경기 상대팀을 찾습니다.",
     author: "성북FC",
+    authorId: "T-005",
     status: "게시됨",
     createdAt: "2일 전",
     updatedAt: "2일 전",
     views: 167,
+    likes: 12,
+    shares: 5,
+    tags: ["팀모집", "정기경기"],
+    editHistory: [
+      { id: "EH-012", editor: "성북FC", editorId: "T-005", action: "게시물 작성", changes: "상대팀 모집 게시물 작성", timestamp: "2일 전", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-018", action: "승인", description: "팀 모집 게시물 승인", timestamp: "2일 전", admin: "관리자 이영희", adminId: "ADMIN-002", type: "approve" as const }
+    ],
+    comments: []
   },
   {
     id: "POST-396",
     type: "팀 게시물",
     title: "강동 FC 신입 멤버 환영합니다",
+    content: "새로 합류한 신입 멤버 여러분을 환영합니다! 앞으로 좋은 경기 함께 만들어가요!",
     author: "강동FC_관리자",
+    authorId: "T-006",
     status: "게시됨",
     createdAt: "3일 전",
     updatedAt: "3일 전",
     views: 203,
+    likes: 28,
+    shares: 6,
+    tags: ["환영", "신입"],
+    editHistory: [
+      { id: "EH-013", editor: "강동FC_관리자", editorId: "T-006", action: "게시물 작성", changes: "신입 환영 게시물 작성", timestamp: "3일 전", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-019", action: "승인", description: "팀 게시물 승인", timestamp: "3일 전", admin: "관리자 최수진", adminId: "ADMIN-004", type: "approve" as const }
+    ],
+    comments: []
   },
   {
     id: "CNT-317",
     type: "배너",
     title: "신규 스폰서 배너 - ABC 스포츠",
+    content: "ABC 스포츠가 새로운 스폰서로 함께합니다!",
     author: "marketing",
+    authorId: "ADMIN-005",
     status: "게시됨",
     createdAt: "3일 전",
     updatedAt: "3일 전",
     views: 1234,
+    likes: 89,
+    shares: 34,
+    tags: ["배너", "스폰서"],
+    editHistory: [
+      { id: "EH-014", editor: "마케팅팀", editorId: "ADMIN-005", action: "배너 등록", changes: "신규 스폰서 배너 등록", timestamp: "3일 전", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-020", action: "승인", description: "스폰서 배너가 승인되었습니다", timestamp: "3일 전", admin: "관리자 김민수", adminId: "ADMIN-001", type: "approve" as const }
+    ],
+    comments: []
   },
   {
     id: "POST-395",
     type: "후기",
     title: "올해 첫 경기 승리 후기!",
+    content: "올해 첫 경기에서 승리했습니다! 모두 수고하셨어요!",
     author: "축구왕김씨",
+    authorId: "U-2001",
     status: "게시됨",
     createdAt: "4일 전",
     updatedAt: "4일 전",
     views: 312,
+    likes: 45,
+    shares: 12,
+    tags: ["후기", "승리"],
+    editHistory: [
+      { id: "EH-015", editor: "축구왕김씨", editorId: "U-2001", action: "게시물 작성", changes: "승리 후기 작성", timestamp: "4일 전", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-021", action: "승인", description: "후기 게시물 승인", timestamp: "4일 전", admin: "관리자 박철수", adminId: "ADMIN-003", type: "approve" as const }
+    ],
+    comments: []
   },
 ];
 
