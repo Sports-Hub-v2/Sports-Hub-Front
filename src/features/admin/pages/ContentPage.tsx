@@ -75,6 +75,10 @@ const todayPosts = [
       { id: "EH-001", editor: "강남FC_관리자", editorId: "U-1001", action: "게시물 작성", changes: "초기 게시물 작성", timestamp: "오늘 08:30", type: "create" as const },
       { id: "EH-002", editor: "강남FC_관리자", editorId: "U-1001", action: "내용 수정", changes: "금요일 훈련 시간을 오후 6시에서 7시로 변경", timestamp: "오늘 09:15", type: "edit" as const }
     ],
+    managementHistory: [
+      { id: "MH-001", action: "자동 검수", description: "AI 자동 검수 시스템을 통과했습니다", timestamp: "오늘 08:31", admin: "시스템", type: "review" as const },
+      { id: "MH-002", action: "승인 및 게시", description: "관리자가 게시물을 검토하고 승인했습니다", timestamp: "오늘 08:32", admin: "관리자 김민수", adminId: "ADMIN-001", type: "approve" as const }
+    ],
     comments: [
       { id: "C-001", author: "김철수", authorId: "U-1002", content: "이번 주도 열심히 참여하겠습니다!", timestamp: "오늘 08:45", likes: 5, isReported: false },
       { id: "C-002", author: "이영희", authorId: "U-1003", content: "목요일은 참석 어려울 것 같아요 ㅠㅠ", timestamp: "오늘 09:00", likes: 2, isReported: false },
@@ -97,6 +101,10 @@ const todayPosts = [
     editHistory: [
       { id: "EH-003", editor: "축구왕김씨", editorId: "U-2001", action: "게시물 작성", changes: "용병 모집 게시물 작성", timestamp: "오늘 09:15", type: "create" as const }
     ],
+    managementHistory: [
+      { id: "MH-003", action: "자동 검수", description: "스팸 필터 통과", timestamp: "오늘 09:16", admin: "시스템", type: "review" as const },
+      { id: "MH-004", action: "승인", description: "용병 모집 게시물이 승인되었습니다", timestamp: "오늘 09:17", admin: "관리자 이영희", adminId: "ADMIN-002", type: "approve" as const }
+    ],
     comments: [
       { id: "C-004", author: "이준호", authorId: "U-2002", content: "저 참여 가능합니다! 쪽지 보냈어요", timestamp: "오늘 09:30", likes: 1, isReported: false },
       { id: "C-005", author: "최민수", authorId: "U-2003", content: "시간이 너무 이르네요 ㅠㅠ", timestamp: "오늘 09:45", likes: 0, isReported: false }
@@ -117,6 +125,10 @@ const todayPosts = [
     tags: ["공지", "점검", "시스템"],
     editHistory: [
       { id: "EH-004", editor: "관리자 김민수", editorId: "ADMIN-001", action: "공지사항 작성", changes: "정기 점검 공지사항 작성", timestamp: "오늘 10:00", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-005", action: "공지 등록", description: "시스템 점검 공지사항이 등록되었습니다", timestamp: "오늘 10:00", admin: "관리자 김민수", adminId: "ADMIN-001", type: "approve" as const },
+      { id: "MH-006", action: "우선순위 설정", description: "긴급 공지로 설정되어 상단에 고정되었습니다", timestamp: "오늘 10:01", admin: "관리자 김민수", adminId: "ADMIN-001", type: "review" as const }
     ],
     comments: [
       { id: "C-006", author: "박성민", authorId: "U-3001", content: "점검 시간을 좀 더 짧게 할 수 없나요?", timestamp: "오늘 10:15", likes: 3, isReported: false },
@@ -140,6 +152,12 @@ const todayPosts = [
     editHistory: [
       { id: "EH-005", editor: "성동FC", editorId: "T-001", action: "게시물 작성", changes: "상대팀 모집 게시물 작성", timestamp: "오늘 11:20", type: "create" as const }
     ],
+    managementHistory: [
+      { id: "MH-007", action: "자동 검수", description: "AI 시스템 검수 완료", timestamp: "오늘 11:21", admin: "시스템", type: "review" as const },
+      { id: "MH-008", action: "승인", description: "팀 모집 게시물이 승인되었습니다", timestamp: "오늘 11:22", admin: "관리자 박철수", adminId: "ADMIN-003", type: "approve" as const },
+      { id: "MH-009", action: "신고 접수", description: "사용자로부터 스팸 의심 신고가 접수되었습니다", timestamp: "오늘 11:51", admin: "시스템", type: "report" as const },
+      { id: "MH-010", action: "검토 대기", description: "신고 내용 검토를 위해 검수 대기 상태로 변경되었습니다", timestamp: "오늘 11:52", admin: "관리자 이영희", adminId: "ADMIN-002", type: "review" as const }
+    ],
     comments: [
       { id: "C-008", author: "광진FC", authorId: "T-002", content: "저희 팀 가능합니다!", timestamp: "오늘 11:35", likes: 2, isReported: false },
       { id: "C-009", author: "신고자", authorId: "U-9999", content: "이 게시물은 스팸입니다 [신고됨]", timestamp: "오늘 11:50", likes: 0, isReported: true }
@@ -161,6 +179,11 @@ const todayPosts = [
     editHistory: [
       { id: "EH-006", editor: "축구매니아", editorId: "U-5001", action: "후기 작성", changes: "경기 후기 게시물 작성", timestamp: "오늘 12:45", type: "create" as const },
       { id: "EH-007", editor: "축구매니아", editorId: "U-5001", action: "오타 수정", changes: "홍길동 → 홍길동으로 오타 수정", timestamp: "오늘 12:50", type: "edit" as const }
+    ],
+    managementHistory: [
+      { id: "MH-011", action: "자동 검수", description: "콘텐츠 품질 검사 통과", timestamp: "오늘 12:46", admin: "시스템", type: "review" as const },
+      { id: "MH-012", action: "승인 및 게시", description: "양질의 콘텐츠로 판단되어 즉시 승인되었습니다", timestamp: "오늘 12:47", admin: "관리자 최수진", adminId: "ADMIN-004", type: "approve" as const },
+      { id: "MH-013", action: "추천 등록", description: "추천 게시물로 선정되어 메인 피드에 노출됩니다", timestamp: "오늘 13:00", admin: "관리자 최수진", adminId: "ADMIN-004", type: "review" as const }
     ],
     comments: [
       { id: "C-010", author: "강남FC_관리자", authorId: "U-1001", content: "응원 감사합니다! 다음 경기도 열심히 하겠습니다!", timestamp: "오늘 13:00", likes: 12, isReported: false },
@@ -317,16 +340,31 @@ const userMessages = [
 
 // 전체 콘텐츠 목록
 const allContents = [
-  ...todayPosts.map(p => ({ ...p, createdAt: p.createdAt, updatedAt: p.createdAt })),
+  ...todayPosts,
   {
     id: "POST-400",
     type: "팀 게시물",
     title: "서초 유나이티드 월간 MVP 투표",
+    content: "3월 MVP 투표를 시작합니다!\n\n후보:\n1. 김철수 - 5골 2도움\n2. 이영희 - 4골 3도움\n3. 박민수 - 8경기 무실점\n\n댓글로 투표해주세요!",
     author: "서초유나이티드",
+    authorId: "T-003",
     status: "게시됨",
     createdAt: "어제 20:30",
     updatedAt: "어제 20:30",
     views: 256,
+    likes: 45,
+    shares: 8,
+    tags: ["투표", "MVP", "이벤트"],
+    editHistory: [
+      { id: "EH-008", editor: "서초유나이티드", editorId: "T-003", action: "투표 게시", changes: "월간 MVP 투표 게시물 작성", timestamp: "어제 20:30", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-014", action: "승인", description: "팀 내부 이벤트 게시물이 승인되었습니다", timestamp: "어제 20:31", admin: "관리자 김민수", adminId: "ADMIN-001", type: "approve" as const }
+    ],
+    comments: [
+      { id: "C-013", author: "회원A", authorId: "U-4001", content: "김철수 선수 한 표!", timestamp: "어제 21:00", likes: 8, isReported: false },
+      { id: "C-014", author: "회원B", authorId: "U-4002", content: "박민수 골키퍼님 최고!", timestamp: "어제 21:15", likes: 12, isReported: false }
+    ]
   },
   {
     id: "POST-399",
