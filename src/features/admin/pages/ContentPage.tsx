@@ -33,25 +33,67 @@ const pendingReviews = [
     id: "CNT-320",
     type: "게시물",
     title: "주간 MVP 리뷰",
+    content: "이번 주 MVP는 누구일까요? 여러분의 의견을 들려주세요!",
     author: "coach_lee",
+    authorId: "U-7001",
     status: "검수 중",
+    createdAt: "어제 22:14",
     updatedAt: "어제 22:14",
+    views: 45,
+    likes: 8,
+    shares: 2,
+    tags: ["MVP", "리뷰"],
+    editHistory: [
+      { id: "EH-016", editor: "coach_lee", editorId: "U-7001", action: "게시물 작성", changes: "MVP 리뷰 게시물 작성", timestamp: "어제 22:14", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-022", action: "검수 대기", description: "관리자 검수를 기다리고 있습니다", timestamp: "어제 22:15", admin: "시스템", type: "review" as const }
+    ],
+    comments: []
   },
   {
     id: "CNT-318",
     type: "공지",
     title: "4월 경기 일정 안내",
+    content: "4월 경기 일정을 안내드립니다. 자세한 일정은 본문을 참고해주세요.",
     author: "운영팀",
+    authorId: "ADMIN-001",
     status: "게시",
+    createdAt: "오늘 09:20",
     updatedAt: "오늘 09:20",
+    views: 234,
+    likes: 45,
+    shares: 12,
+    tags: ["공지", "일정"],
+    editHistory: [
+      { id: "EH-017", editor: "관리자 김민수", editorId: "ADMIN-001", action: "공지 작성", changes: "4월 일정 공지 작성", timestamp: "오늘 09:20", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-023", action: "승인 및 게시", description: "공지사항이 즉시 게시되었습니다", timestamp: "오늘 09:21", admin: "관리자 김민수", adminId: "ADMIN-001", type: "approve" as const }
+    ],
+    comments: []
   },
   {
     id: "CNT-315",
     type: "배너",
     title: "스폰서 이벤트 안내",
+    content: "신규 스폰서 이벤트를 진행합니다!",
     author: "marketing",
+    authorId: "ADMIN-005",
     status: "초안",
+    createdAt: "어제 18:02",
     updatedAt: "어제 18:02",
+    views: 12,
+    likes: 3,
+    shares: 1,
+    tags: ["배너", "이벤트"],
+    editHistory: [
+      { id: "EH-018", editor: "마케팅팀", editorId: "ADMIN-005", action: "배너 초안", changes: "이벤트 배너 초안 작성", timestamp: "어제 18:02", type: "create" as const }
+    ],
+    managementHistory: [
+      { id: "MH-024", action: "초안 저장", description: "배너 초안이 저장되었습니다", timestamp: "어제 18:03", admin: "시스템", type: "review" as const }
+    ],
+    comments: []
   },
 ];
 
@@ -981,7 +1023,8 @@ const ContentPage = () => {
                 filteredContents.map((content) => (
                   <tr
                     key={content.id}
-                    className="hover:bg-gray-50"
+                    onClick={() => handleContentClick(content)}
+                    className="hover:bg-gray-50 cursor-pointer"
                   >
                     <td>
                       <span style={{ fontFamily: 'monospace', fontWeight: '600', color: 'var(--admin-primary)' }}>
@@ -1012,7 +1055,7 @@ const ContentPage = () => {
                       </div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: '4px' }}>
+                      <div style={{ display: 'flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
                         <button
                           onClick={() => handleContentClick(content)}
                           className="p-1.5 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors"
