@@ -278,89 +278,84 @@ const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
         <div className="p-6">
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              {/* 경기 기본 정보 */}
-              <div className="grid grid-cols-3 gap-6">
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-blue-600" />
-                    경기장 정보
+              {/* 경기 운영 정보 */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="bg-blue-50 rounded-lg p-5 border border-blue-200">
+                  <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                    운영진 정보
                   </h4>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-3 text-sm">
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-600">경기장</span>
-                      {match.venueUrl ? (
-                        <button
-                          onClick={handleVenueClick}
-                          className="font-medium text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1 group"
-                        >
-                          {match.venue}
-                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </button>
-                      ) : (
-                        <span className="font-medium text-gray-900">{match.venue}</span>
-                      )}
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">심판</span>
+                      <span className="text-gray-600">주심</span>
                       <span className="font-medium text-gray-900">{match.referee || '미정'}</span>
                     </div>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-blue-600" />
-                    참가 정보
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">{match.home.name}</span>
-                      <span className="font-medium text-gray-900">{match.homePlayers?.length || 0}명</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">{match.away.name}</span>
-                      <span className="font-medium text-gray-900">{match.awayPlayers?.length || 0}명</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">총 인원</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">총 참가 인원</span>
                       <span className="font-medium text-gray-900">{(match.homePlayers?.length || 0) + (match.awayPlayers?.length || 0)}명</span>
                     </div>
+                    {match.status === 'completed' && (
+                      <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                        <span className="text-gray-600">노쇼 인원</span>
+                        <span className="font-medium text-red-600">
+                          {noShowPlayers.length > 0 ? `${noShowPlayers.length}명` : '없음'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-purple-600" />
-                    경기 시간
+                <div className="bg-purple-50 rounded-lg p-5 border border-purple-200">
+                  <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-purple-600" />
+                    경기 현황
                   </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">날짜</span>
-                      <span className="font-medium text-gray-900">{match.date}</span>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">관리 메모</span>
+                      <span className="font-medium text-gray-900">{matchNotes.length}개</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">킥오프</span>
-                      <span className="font-medium text-gray-900">{match.time}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">상태</span>
-                      <span className="font-medium text-gray-900">
-                        {match.status === 'scheduled' ? '⏰ 예정' :
-                         match.status === 'completed' ? '✅ 완료' :
-                         match.status === 'cancelled' ? '❌ 취소' : '🟢 진행중'}
-                      </span>
-                    </div>
+                    {match.status === 'completed' && (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">최종 스코어</span>
+                          <span className="font-bold text-lg text-gray-900">
+                            {match.home.score || 0} : {match.away.score || 0}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {match.managementHistory && match.managementHistory.length > 0 && (
+                      <div className="flex justify-between items-center pt-2 border-t border-purple-200">
+                        <span className="text-gray-600">관리 이력</span>
+                        <span className="font-medium text-gray-900">{match.managementHistory.length}건</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* 경기 노트 */}
-              <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-yellow-600" />
-                  관리자 메모
-                  <span className="text-xs font-normal text-gray-500">({matchNotes.length}개)</span>
-                </h4>
+              {/* 관리자 메모 */}
+              <div className="bg-yellow-50 rounded-lg p-5 border border-yellow-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-yellow-600" />
+                    관리자 메모
+                    <span className="text-xs font-normal text-gray-500">({matchNotes.length}개)</span>
+                  </h4>
+                  <button
+                    onClick={() => {
+                      const note = prompt('메모를 입력하세요:');
+                      if (note) {
+                        setNewNote(note);
+                        handleAddNote();
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-yellow-600 text-white rounded-lg text-xs font-medium hover:bg-yellow-700 transition-colors"
+                  >
+                    + 메모 추가
+                  </button>
+                </div>
                 {matchNotes.length > 0 ? (
                   <div className="space-y-2">
                     {matchNotes.map((note, index) => (
@@ -377,7 +372,7 @@ const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500">노트가 없습니다.</p>
+                  <p className="text-sm text-gray-500">메모가 없습니다. 필요한 특이사항을 기록하세요.</p>
                 )}
               </div>
 
@@ -385,25 +380,38 @@ const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
               <div className="grid grid-cols-2 gap-6">
                 <div className="bg-white rounded-lg p-5 border-2 border-blue-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-bold text-gray-900 text-lg">{match.home.name}</h4>
+                    <h4 className="font-bold text-gray-900 text-lg flex items-center gap-2">
+                      <Flag className="w-5 h-5 text-blue-600" />
+                      {match.home.name}
+                    </h4>
                     <button
                       onClick={() => handleTeamClick(match.home.id)}
                       className="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors flex items-center gap-1"
                     >
-                      팀 상세보기
+                      상세보기
                       <ExternalLink className="w-3 h-3" />
                     </button>
                   </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center">
                       <span className="text-gray-600">참가 인원</span>
                       <span className="font-medium text-gray-900">{match.homePlayers?.length || 0}명</span>
                     </div>
                     {match.status === 'completed' && (
                       <>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                           <span className="text-gray-600">득점</span>
-                          <span className="font-bold text-blue-600 text-lg">{match.home.score || 0}</span>
+                          <span className="font-bold text-blue-600 text-2xl">{match.home.score || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">경기 결과</span>
+                          <span className={`font-bold ${
+                            (match.home.score || 0) > (match.away.score || 0) ? 'text-green-600' :
+                            (match.home.score || 0) < (match.away.score || 0) ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            {(match.home.score || 0) > (match.away.score || 0) ? '승리' :
+                             (match.home.score || 0) < (match.away.score || 0) ? '패배' : '무승부'}
+                          </span>
                         </div>
                       </>
                     )}
@@ -412,30 +420,77 @@ const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
 
                 <div className="bg-white rounded-lg p-5 border-2 border-red-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-bold text-gray-900 text-lg">{match.away.name}</h4>
+                    <h4 className="font-bold text-gray-900 text-lg flex items-center gap-2">
+                      <Flag className="w-5 h-5 text-red-600" />
+                      {match.away.name}
+                    </h4>
                     <button
                       onClick={() => handleTeamClick(match.away.id)}
                       className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-1"
                     >
-                      팀 상세보기
+                      상세보기
                       <ExternalLink className="w-3 h-3" />
                     </button>
                   </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between items-center">
                       <span className="text-gray-600">참가 인원</span>
                       <span className="font-medium text-gray-900">{match.awayPlayers?.length || 0}명</span>
                     </div>
                     {match.status === 'completed' && (
                       <>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                           <span className="text-gray-600">득점</span>
-                          <span className="font-bold text-red-600 text-lg">{match.away.score || 0}</span>
+                          <span className="font-bold text-red-600 text-2xl">{match.away.score || 0}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-600">경기 결과</span>
+                          <span className={`font-bold ${
+                            (match.away.score || 0) > (match.home.score || 0) ? 'text-green-600' :
+                            (match.away.score || 0) < (match.home.score || 0) ? 'text-red-600' : 'text-gray-600'
+                          }`}>
+                            {(match.away.score || 0) > (match.home.score || 0) ? '승리' :
+                             (match.away.score || 0) < (match.home.score || 0) ? '패배' : '무승부'}
+                          </span>
                         </div>
                       </>
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* 빠른 액션 */}
+              <div className="grid grid-cols-3 gap-4">
+                <button
+                  onClick={() => setActiveTab('lineups')}
+                  className="bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg p-4 text-left transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    <span className="font-semibold text-gray-900">라인업 확인</span>
+                  </div>
+                  <p className="text-sm text-gray-600">양팀 선수 명단과 노쇼 관리</p>
+                </button>
+                <button
+                  onClick={() => setActiveTab('stats')}
+                  className="bg-green-50 hover:bg-green-100 border border-green-200 rounded-lg p-4 text-left transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <BarChart3 className="w-5 h-5 text-green-600" />
+                    <span className="font-semibold text-gray-900">경기 통계</span>
+                  </div>
+                  <p className="text-sm text-gray-600">득점, 도움, 카드 기록</p>
+                </button>
+                <button
+                  onClick={() => setActiveTab('management')}
+                  className="bg-purple-50 hover:bg-purple-100 border border-purple-200 rounded-lg p-4 text-left transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <History className="w-5 h-5 text-purple-600" />
+                    <span className="font-semibold text-gray-900">관리 이력</span>
+                  </div>
+                  <p className="text-sm text-gray-600">전체 관리 활동 타임라인</p>
+                </button>
               </div>
             </div>
           )}

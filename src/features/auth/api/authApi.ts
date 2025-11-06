@@ -30,14 +30,14 @@ export const signupApi = async (
   // 2) Create profile
   const profileBody: any = {
     accountId: account.id,
-    name: userData.name,
-    region: userData.region ?? undefined,
-    preferredPosition: userData.preferredPosition ?? undefined,
-    isExPlayer:
-      typeof userData.isExPlayer === "boolean"
-        ? String(userData.isExPlayer)
-        : undefined,
-    phoneNumber: userData.phoneNumber ?? undefined,
+      name: userData.name,
+      region: userData.region ?? undefined,
+      subRegion: userData.subRegion ?? undefined,  // 추가
+      preferredPosition: userData.preferredPosition ?? undefined,
+      skillLevel: userData.skillLevel ?? undefined,  // 추가
+      isExPlayer: userData.isExPlayer ?? false,  // Boolean으로 직접 전송
+      phoneNumber: userData.phoneNumber ?? undefined,
+      birthDate: userData.birthDate ?? undefined,  // 추가
   };
   Object.keys(profileBody).forEach(
     (k) => profileBody[k] === undefined && delete profileBody[k]

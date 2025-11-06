@@ -201,9 +201,9 @@ const VenueDetailPage: React.FC = () => {
           {activeTab === 'info' && (
             <>
               <div className="grid grid-cols-2 gap-6">
-                {/* 상세 정보 */}
+                {/* 위치 및 시설 정보 */}
                 <div className="bg-white rounded-lg p-6 border border-gray-200">
-                  <h3 className="text-lg font-bold text-gray-900 mb-4">상세 정보</h3>
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">위치 및 시설</h3>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between py-2 border-b border-gray-100">
                       <span className="text-sm text-gray-600">경기장명</span>
@@ -218,22 +218,15 @@ const VenueDetailPage: React.FC = () => {
                       <span className="font-medium text-gray-900">{mockVenue.detailAddress}</span>
                     </div>
                     <div className="flex items-center justify-between py-2 border-b border-gray-100">
-                      <span className="text-sm text-gray-600">구장 타입</span>
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        mockVenue.type === 'indoor'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-orange-100 text-orange-700'
-                      }`}>
-                        {mockVenue.type === 'indoor' ? '실내' : '실외'}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
                       <span className="text-sm text-gray-600">바닥재</span>
                       <span className="font-medium text-gray-900">{mockVenue.surface}</span>
                     </div>
                     <div className="flex items-center justify-between py-2">
-                      <span className="text-sm text-gray-600">수용인원</span>
-                      <span className="font-medium text-gray-900">{mockVenue.capacity}명</span>
+                      <span className="text-sm text-gray-600">평점</span>
+                      <span className="font-medium text-yellow-600 flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-yellow-600" />
+                        {mockVenue.rating}
+                      </span>
                     </div>
                   </div>
                 </div>

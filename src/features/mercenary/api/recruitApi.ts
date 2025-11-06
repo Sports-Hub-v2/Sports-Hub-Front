@@ -12,7 +12,7 @@ import type {
 } from "@/types/recruitPost";
 import type { ApplicationRequestDto } from "@/types/application";
 
-const API_BASE_URL = "/api/recruit/posts";
+const API_BASE_URL = "/api/posts";
 
 export const fetchRecruitPosts = async (
   category: string,
@@ -21,7 +21,7 @@ export const fetchRecruitPosts = async (
 ): Promise<PostType[]> => {
   try {
     const response = await axiosInstance.get(`${API_BASE_URL}`, {
-      params: { category, page, size },
+      params: { postType: "RECRUIT", category, page, size },
     });
     const data: any = response.data;
     const items: any[] = Array.isArray(data)

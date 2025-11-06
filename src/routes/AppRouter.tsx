@@ -25,7 +25,6 @@ import TeamsPage from "@/features/admin/pages/TeamsPage";
 import ContentPage from "@/features/admin/pages/ContentPage";
 import ReportsPage from "@/features/admin/pages/ReportsPage";
 import SystemPage from "@/features/admin/pages/SystemPage";
-import SettingsPage from "@/features/admin/pages/SettingsPage";
 import UserDetailPage from "@/features/admin/pages/UserDetailPage";
 import AdminTeamDetailPage from "@/features/admin/pages/TeamDetailPage";
 
@@ -86,7 +85,6 @@ const AppRouter = () => {
         <Route path="/admin/content" element={<ContentPage />} />
         <Route path="/admin/reports" element={<ReportsPage />} />
         <Route path="/admin/system" element={<SystemPage />} />
-        <Route path="/admin/settings" element={<SettingsPage />} />
 
         {/* Auth pages */}
         <Route path="/login" element={<LoginPage />} />

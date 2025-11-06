@@ -5,6 +5,5 @@ export { default as TeamsPage } from "./pages/TeamsPage";
 export { default as ContentPage } from "./pages/ContentPage";
 export { default as ReportsPage } from "./pages/ReportsPage";
 export { default as SystemPage } from "./pages/SystemPage";
-export { default as SettingsPage } from "./pages/SettingsPage";
 export { default as AdminLayout } from "./components/AdminLayout";
 export type { AdminPageId } from "./types";

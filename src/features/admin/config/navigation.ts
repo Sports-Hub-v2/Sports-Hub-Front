@@ -5,7 +5,6 @@
   Shield,
   Trophy,
   FileText,
-  Settings,
   BarChart3,
 } from "lucide-react";
 
@@ -75,16 +74,6 @@ export const adminNavEntries: AdminNavEntry[] = [
     badge: { label: "3", tone: "warning" },
     title: "콘텐츠 관리",
     subtitle: "공지사항과 게시물을 관리합니다",
-  },
-  {
-    type: "link",
-    id: "settings",
-    label: "설정",
-    description: "시스템 설정",
-    icon: Settings,
-    path: "/admin/settings",
-    title: "설정",
-    subtitle: "시스템 설정과 관리자 권한을 관리합니다",
   },
 ];
 

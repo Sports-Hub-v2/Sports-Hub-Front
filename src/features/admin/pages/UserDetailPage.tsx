@@ -1047,134 +1047,171 @@ const UserDetailPage = () => {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {activeTab === 'overview' && (
           <div className="space-y-6">
-            {/* 조기축구 통계 그리드 - FotMob 스타일 */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <StatCard
-                icon={Activity}
-                label="참여 경기"
-                value={user.stats.matchesPlayed}
-                color="green"
-                onClick={() => {
-                  console.log('참여 경기 클릭 -> stats 탭으로 이동');
-                  setActiveTab('stats');
-                }}
-              />
-              <StatCard
-                icon={Users}
-                label="소속 팀"
-                value={user.stats.teamsJoined}
-                color="blue"
-                onClick={() => {
-                  console.log('소속 팀 클릭 -> teams 탭으로 이동');
-                  setActiveTab('teams');
-                }}
-              />
-              <StatCard
-                icon={FileText}
-                label="작성글"
-                value={user.stats.postsCreated}
-                color="purple"
-                onClick={() => {
-                  console.log('작성글 클릭 -> written-posts 탭으로 이동');
-                  setActiveTab('written-posts');
-                }}
-              />
-              <StatCard
-                icon={MessageCircle}
-                label="작성 댓글"
-                value={user.stats.commentsCreated}
-                color="blue"
-                onClick={() => {
-                  console.log('작성 댓글 클릭 -> comments 탭으로 이동');
-                  setActiveTab('comments');
-                }}
-              />
-              <StatCard
-                icon={Award}
-                label="용병 신청"
-                value={user.stats.applicationsSubmitted}
-                color="orange"
-                onClick={() => {
-                  console.log('용병 신청 클릭 -> applications 탭으로 이동');
-                  setActiveTab('applications');
-                }}
-              />
+            {/* 조기축구 특화 지표 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
+                <div className="text-4xl mb-2">🌡️</div>
+                <div className="text-3xl font-bold text-green-400">{user.morningStats.mannerTemperature}°</div>
+                <div className="text-sm text-gray-200 mt-1">매너 온도</div>
+                <div className="text-xs text-gray-400 mt-1">높을수록 매너가 좋음</div>
+              </div>
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
+                <div className="text-4xl mb-2">🔥</div>
+                <div className="text-3xl font-bold text-orange-400">{user.morningStats.consecutiveAttendance}일</div>
+                <div className="text-sm text-gray-200 mt-1">연속 출석</div>
+                <div className="text-xs text-gray-400 mt-1">현재 연속 출석 일수</div>
+              </div>
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
+                <div className="text-4xl mb-2">⏰</div>
+                <div className="text-3xl font-bold text-blue-400">{user.morningStats.morningParticipationRate}%</div>
+                <div className="text-sm text-gray-200 mt-1">아침 참여율</div>
+                <div className="text-xs text-gray-400 mt-1">새벽 경기 참여 비율</div>
+              </div>
+              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6 text-center">
+                <div className="text-4xl mb-2">{user.morningStats.noShowCount === 0 ? '✅' : '⚠️'}</div>
+                <div className={`text-3xl font-bold ${user.morningStats.noShowCount === 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {user.morningStats.noShowCount}회
+                </div>
+                <div className="text-sm text-gray-200 mt-1">노쇼 기록</div>
+                <div className="text-xs text-gray-400 mt-1">약속 불이행 횟수</div>
+              </div>
             </div>
 
-            {/* 조기축구 선수 능력치 - FotMob 레이더 차트 스타일 */}
+            {/* 선호 시간대 */}
             <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-              <h3 className="text-lg font-semibold mb-4 text-white">⚽ 선수 신뢰도 지표</h3>
-              <div className="space-y-4">
-                <StatBar
-                  label="승률"
-                  value={user.stats.winRate}
-                  max={100}
-                  unit="%"
-                  color="green"
-                />
-                <StatBar
-                  label="시간 준수율"
-                  value={user.stats.punctuality}
-                  max={100}
-                  unit="%"
-                  color="blue"
-                />
-                <StatBar
-                  label="신청 승인율"
-                  value={user.stats.approvalRate}
-                  max={100}
-                  unit="%"
-                  color="purple"
-                />
-                <StatBar
-                  label="응답률"
-                  value={user.stats.responseRate}
-                  max={100}
-                  unit="%"
-                  color="orange"
-                />
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-white">
+                <Clock className="w-5 h-5 text-blue-400" />
+                선호 경기 시간대
+              </h3>
+              <div className="flex gap-2 flex-wrap">
+                {user.morningStats.preferredTimeSlots.map((slot, index) => (
+                  <span key={index} className="px-4 py-2 bg-blue-900 text-blue-200 rounded-lg font-medium border border-blue-700">
+                    🌅 {slot}
+                  </span>
+                ))}
               </div>
             </div>
 
-            {/* 조기축구 선수 프로필 카드 - FotMob Bio 스타일 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-                <h3 className="text-lg font-semibold mb-4 text-white">⚽ 선수 정보</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">선호 포지션</span>
-                    <span className="font-semibold text-green-400">{user.preferredPosition || '-'}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">실력 수준</span>
-                    <span className="font-semibold text-blue-400">{user.skillLevel || '-'}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">활동 지역</span>
-                    <span className="font-semibold text-white">{user.region} {user.subRegion}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">경기 참여</span>
-                    <span className="font-semibold text-blue-400">{user.stats.matchesPlayed}경기</span>
-                  </div>
+            {/* 동료 평가 (설문 기반) */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-white">
+                  <Target className="w-5 h-5 text-green-600" />
+                  동료 평가 (경기 후 설문)
+                </h3>
+                <div className="text-sm text-gray-300">
+                  총 <span className="font-bold text-green-600">{user.surveyStats.totalSurveys}명</span> 평가
+                  <span className="ml-2 text-xs text-gray-400">
+                    (참여율 {user.surveyStats.surveyParticipation}%)
+                  </span>
                 </div>
               </div>
+              <PlayerSurveyRatings surveyStats={user.surveyStats} />
+            </div>
 
-              <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-                <h3 className="text-lg font-semibold mb-4 text-white">📊 응답 속도</h3>
-                <div className="flex items-baseline gap-2 mb-2">
-                  <span className="text-4xl font-bold text-blue-600">{user.stats.avgResponseTime}</span>
-                  <span className="text-gray-300 text-lg">분</span>
-                </div>
-                <p className="text-sm text-gray-400">
-                  평균 응답 시간이 빠를수록 신뢰도가 높습니다
-                </p>
-                <div className="mt-4 pt-4 border-t">
-                  <div className="text-sm text-gray-300">
-                    응답률: <span className="font-semibold text-green-600">{user.stats.responseRate}%</span>
-                  </div>
-                </div>
+            {/* 최근 활동 타임라인 요약 */}
+            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
+              <h3 className="text-lg font-semibold mb-4 text-white">🕒 최근 활동</h3>
+              <div className="space-y-3">
+                {user.activityTimeline.slice(0, 5).map((activity) => {
+                  const getActivityIcon = (type: string) => {
+                    const icons: any = {
+                      POST: FileText,
+                      APPLICATION: Send,
+                      MATCH: Activity,
+                      TEAM_JOIN: Users,
+                      COMMENT: MessageCircle,
+                      PAYMENT: CreditCard
+                    };
+                    const Icon = icons[type] || Activity;
+                    return <Icon className="w-5 h-5" />;
+                  };
+
+                  const getActivityColor = (type: string) => {
+                    if (['TEAM_JOIN', 'MATCH'].includes(type)) return 'bg-green-100 text-green-600';
+                    if (['POST', 'COMMENT'].includes(type)) return 'bg-blue-100 text-blue-600';
+                    if (['APPLICATION'].includes(type)) return 'bg-purple-100 text-purple-600';
+                    if (['PAYMENT'].includes(type)) return 'bg-orange-100 text-orange-600';
+                    return 'bg-gray-100 text-gray-600';
+                  };
+
+                  const getStatusBadge = (status?: string) => {
+                    if (!status) return null;
+                    const colors: any = {
+                      SUCCESS: 'bg-green-100 text-green-700',
+                      PENDING: 'bg-yellow-100 text-yellow-700',
+                      REJECTED: 'bg-red-100 text-red-700'
+                    };
+                    return (
+                      <span className={`text-xs px-2 py-1 rounded ${colors[status] || 'bg-gray-100 text-gray-700'}`}>
+                        {status}
+                      </span>
+                    );
+                  };
+
+                  return (
+                    <div key={activity.id} className="flex gap-4 items-start">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${getActivityColor(activity.type)}`}>
+                        {getActivityIcon(activity.type)}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium text-white">{activity.title}</h4>
+                            {getStatusBadge(activity.status)}
+                          </div>
+                          <span className="text-sm text-gray-400 whitespace-nowrap ml-2">{activity.date} {activity.time}</span>
+                        </div>
+                        <p className="text-sm text-gray-300">{activity.description}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+            </div>
+
+            {/* 빠른 액션 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <button
+                onClick={() => setActiveTab('stats')}
+                className="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-left transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <BarChart3 className="w-5 h-5 text-blue-400" />
+                  <span className="font-semibold text-white">통계 & 평점</span>
+                </div>
+                <p className="text-sm text-gray-400">경기별 평점과 상세 통계 보기</p>
+              </button>
+              <button
+                onClick={() => setActiveTab('teams')}
+                className="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-left transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="w-5 h-5 text-green-400" />
+                  <span className="font-semibold text-white">팀 이력</span>
+                </div>
+                <p className="text-sm text-gray-400">{user.stats.teamsJoined}개 팀 소속 이력</p>
+              </button>
+              <button
+                onClick={() => setActiveTab('written-posts')}
+                className="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-left transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-5 h-5 text-purple-400" />
+                  <span className="font-semibold text-white">작성글</span>
+                </div>
+                <p className="text-sm text-gray-400">{user.stats.postsCreated}개 작성</p>
+              </button>
+              <button
+                onClick={() => setActiveTab('applications')}
+                className="bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg p-4 text-left transition-colors"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Send className="w-5 h-5 text-orange-400" />
+                  <span className="font-semibold text-white">신청 내역</span>
+                </div>
+                <p className="text-sm text-gray-400">{user.stats.applicationsSubmitted}건 신청</p>
+              </button>
             </div>
           </div>
         )}
