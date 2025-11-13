@@ -97,19 +97,14 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
 
   // 모집 진행도 계산
   const getRecruitmentProgress = () => {
-    const current = post.participants?.current || 0;
+    const current = post.acceptedCount || 0;
     const required = post.requiredPersonnel;
 
-    // requiredPersonnel이 없어도 acceptedCount가 있으면 표시
-    if (!required && current === 0) return null;
+    // requiredPersonnel이 없으면 표시하지 않음
+    if (!required) return null;
 
-    if (required) {
-      const percentage = Math.min((current / required) * 100, 100);
-      return { current, required, percentage };
-    }
-
-    // requiredPersonnel 없이 acceptedCount만 있는 경우
-    return { current, required: null, percentage: 0 };
+    const percentage = Math.min((current / required) * 100, 100);
+    return { current, required, percentage };
   };
 
   const progress = getRecruitmentProgress();

@@ -109,7 +109,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
 
   // 모집 진행도
   const getProgress = () => {
-    const current = post.participants?.current || 0;
+    const current = post.acceptedCount || 0;
     const required = post.requiredPersonnel;
     if (!required) return null;
     const percentage = Math.min((current / required) * 100, 100);
@@ -180,7 +180,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
               {post.subRegion ? ` ${post.subRegion}` : ""}
             </p>
             <p>일시: {formattedDate}</p>
-            {post.authorName && <p>작성자: {post.authorName}</p>}
+            {post.authorName && <p>{post.authorName}</p>}
             {post.status && (
               <p>상태: {getStatusDisplayForDetail(post.status)}</p>
             )}

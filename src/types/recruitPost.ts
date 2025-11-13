@@ -39,7 +39,10 @@ export interface PostType {
     statusChange: boolean; // 상태 변경 알림 여부
   };
 
-  // 참여자 관리 (추후 구현)
+  // 신청자 관리
+  acceptedCount?: number; // 승인된 신청자 수 (백엔드에서 제공)
+
+  // 참여자 관리 (추후 구현 - 현재는 acceptedCount 사용)
   participants?: {
     current: number; // 현재 참여자 수
     confirmed: number; // 확정된 참여자 수

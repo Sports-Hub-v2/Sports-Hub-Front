@@ -65,6 +65,7 @@ export const fetchRecruitPosts = async (
       authorName: it.authorName ?? null,
       createdAt: it.createdAt ?? new Date().toISOString(),
       updatedAt: it.updatedAt ?? new Date().toISOString(),
+      acceptedCount: it.acceptedCount ?? 0,
       participants: it.acceptedCount !== undefined ? {
         current: it.acceptedCount ?? 0,
         confirmed: it.acceptedCount ?? 0,
