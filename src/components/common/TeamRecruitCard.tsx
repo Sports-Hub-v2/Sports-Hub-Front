@@ -1,5 +1,5 @@
 // src/components/common/TeamRecruitCard.tsx
-// 팀원 모집 카드 컴포넌트 (용병 카드 스타일로 개선)
+// 팀원 모집 카드 - 팀 문화 및 정기 활동 중심
 
 import React from "react";
 import { PostType } from "@/types/recruitPost";
@@ -17,40 +17,13 @@ const TeamRecruitCard: React.FC<TeamRecruitCardProps> = ({
   onApply,
   isAlreadyApplied = false,
 }) => {
-  // 날짜/시간 포맷팅
-  const formatGameDate = (dateString?: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
-    const weekday = weekdays[date.getDay()];
-    return `${month}/${day}(${weekday})`;
+  // 팀명 추출
+  const extractTeamName = () => {
+    const match = post.title.match(/\[(.*?)\]/);
+    return match ? match[1] : null;
   };
 
-  const formatGameTime = (timeString?: string) => {
-    if (!timeString) return "";
-    const [hour] = timeString.split(":").map(Number);
-
-    if (hour >= 5 && hour < 9) return "🌅 새벽";
-    if (hour >= 9 && hour < 12) return "🌞 오전";
-    if (hour >= 12 && hour < 18) return "☀️ 오후";
-    if (hour >= 18 && hour < 22) return "🌆 저녁";
-    return "🌙 늦은시간";
-  };
-
-  // 긴급도 체크
-  const isUrgent = () => {
-    if (!post.gameDate) return false;
-    const gameDate = new Date(post.gameDate);
-    const today = new Date();
-    const diffDays = Math.ceil(
-      (gameDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return diffDays <= 2;
-  };
-
-  // 작성 시간 표시 (상대 시간)
+  // 작성 시간 표시
   const getTimeAgo = (dateString: string) => {
     const now = new Date();
     const created = new Date(dateString);
@@ -67,192 +40,163 @@ const TeamRecruitCard: React.FC<TeamRecruitCardProps> = ({
     return `${Math.floor(diffDays / 30)}개월 전`;
   };
 
-  // 모집 진행도 계산
+  // 모집 진행도
   const getRecruitmentProgress = () => {
     const current = post.acceptedCount || 0;
     const required = post.requiredPersonnel;
-
     if (!required) return null;
-
     const percentage = Math.min((current / required) * 100, 100);
     return { current, required, percentage };
   };
 
   const progress = getRecruitmentProgress();
+  const teamName = extractTeamName();
 
-  // 지역 표시
-  const getLocationText = () => {
-    if (post.region && post.subRegion) {
-      return `${post.region} ${post.subRegion}`;
-    }
-    return post.region || "지역 미정";
-  };
+  // 포지션 배열로 분리
+  const positions = post.preferredPositions
+    ? post.preferredPositions.split(",").map((p) => p.trim())
+    : [];
 
   return (
     <div
-      className="bg-white rounded-lg border-2 border-gray-200 hover:border-green-400 hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
+      className="bg-white rounded-xl border-2 border-gray-200 hover:border-green-500 hover:shadow-xl transition-all duration-200 cursor-pointer overflow-hidden"
       onClick={onClick}
     >
-      <div className="flex">
-        {/* 왼쪽 상태바 */}
-        <div
-          className={`w-1.5 ${
-            isUrgent()
-              ? "bg-gradient-to-b from-red-500 to-orange-500"
-              : post.status === "RECRUITING"
-              ? "bg-gradient-to-b from-green-500 to-green-600"
-              : "bg-gray-300"
-          }`}
-        />
-
-        {/* 메인 콘텐츠 */}
-        <div className="flex-1 p-4">
-          {/* 상단: 배지들 + 작성 시간 */}
-          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-600">
-                🏃‍♂️ 팀원 모집
-              </span>
-
-              {isUrgent() && (
-                <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-bold rounded-full animate-pulse">
-                  🔥 긴급
-                </span>
-              )}
-
-              <span
-                className={`px-2 py-1 text-xs font-medium rounded-full ${
-                  post.status === "RECRUITING"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                {post.status === "RECRUITING" ? "✅ 모집중" : "마감"}
-              </span>
+      {/* 상단: 팀명 헤더 */}
+      {teamName && (
+        <div className="bg-gradient-to-r from-green-500 to-green-600 px-4 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">⚽</span>
+              <h3 className="text-white font-bold text-sm">{teamName}</h3>
             </div>
+            <span className="text-xs text-green-100">{getTimeAgo(post.createdAt)}</span>
+          </div>
+        </div>
+      )}
 
-            {/* 작성 시간 */}
-            <span className="text-xs text-gray-500">
-              🕐 {getTimeAgo(post.createdAt)}
+      <div className="p-4">
+        {/* 상태 배지 */}
+        <div className="flex items-center gap-2 mb-3 flex-wrap">
+          <span
+            className={`px-3 py-1 text-xs font-bold rounded-full ${
+              post.status === "RECRUITING"
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {post.status === "RECRUITING" ? "🟢 모집중" : "⚫ 마감"}
+          </span>
+
+          {post.skillLevel && (
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+              🎯 {post.skillLevel}
             </span>
-          </div>
-
-          {/* 제목 */}
-          <h3 className="text-base font-bold text-gray-900 mb-3 leading-snug line-clamp-2">
-            {post.title}
-          </h3>
-
-          {/* 핵심 정보 한 줄 */}
-          <div className="flex items-center gap-3 mb-3 text-sm flex-wrap">
-            {/* 날짜/시간 */}
-            <div className="flex items-center gap-1 font-medium text-gray-800">
-              <span>📅</span>
-              <span>{formatGameDate(post.gameDate) || "날짜미정"}</span>
-              {post.gameTime && (
-                <span className="ml-1">{formatGameTime(post.gameTime)}</span>
-              )}
-            </div>
-
-            {/* 지역 */}
-            <div className="flex items-center gap-1 text-gray-700">
-              <span>📍</span>
-              <span>{getLocationText()}</span>
-            </div>
-
-            {/* 인원 + 진행도 */}
-            {progress && (
-              <div className="flex items-center gap-1 font-medium text-green-600">
-                <span>👥</span>
-                <span>
-                  {progress.current}/{progress.required}명
-                  {progress.percentage >= 100 && " ✓"}
-                </span>
-              </div>
-            )}
-
-            {/* 포지션 */}
-            {post.preferredPositions && (
-              <div className="flex items-center gap-1 text-gray-700">
-                <span>⚽</span>
-                <span>{post.preferredPositions}</span>
-              </div>
-            )}
-          </div>
-
-          {/* 모집 진행도 바 */}
-          {progress && progress.required && (
-            <div className="mb-3 p-2 bg-green-50 rounded">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold text-green-600">
-                    {progress.current}/{progress.required}명
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          progress.percentage >= 100
-                            ? "bg-green-500"
-                            : progress.percentage >= 70
-                            ? "bg-yellow-500"
-                            : "bg-green-500"
-                        }`}
-                        style={{ width: `${progress.percentage}%` }}
-                      />
-                    </div>
-                    <span className="text-xs font-medium text-gray-600 w-8 text-right">
-                      {Math.round(progress.percentage)}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
           )}
 
-          {/* 구분선 */}
-          <hr className="border-gray-200 mb-3" />
+          {post.ageGroup && (
+            <span className="px-3 py-1 text-xs font-medium rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+              👥 {post.ageGroup}
+            </span>
+          )}
+        </div>
 
-          {/* 하단: 요약 + 버튼 */}
-          <div className="flex items-center justify-between gap-3">
-            {/* 내용 미리보기 또는 작성자 */}
-            <div className="flex-1 min-w-0">
-              {post.content ? (
-                <p className="text-xs text-gray-600 line-clamp-1">
-                  {post.content}
-                </p>
-              ) : (
-                <p className="text-xs text-gray-500">
-                  {post.authorName && post.authorName}
-                </p>
-              )}
+        {/* 제목 */}
+        <h3 className="text-base font-bold text-gray-900 mb-3 leading-tight line-clamp-2">
+          {post.title}
+        </h3>
+
+        {/* 모집 포지션 */}
+        {positions.length > 0 && (
+          <div className="mb-3">
+            <p className="text-xs text-gray-500 mb-1.5">모집 포지션</p>
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {positions.map((pos, idx) => (
+                <span
+                  key={idx}
+                  className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-md border border-green-200"
+                >
+                  {pos}
+                </span>
+              ))}
             </div>
+          </div>
+        )}
 
-            {/* 신청 버튼 */}
-            {onApply && post.status === "RECRUITING" && (
-              <>
-                {isAlreadyApplied ? (
-                  <button
-                    disabled
-                    className="px-4 py-2 text-sm font-semibold rounded-lg whitespace-nowrap bg-gray-300 text-gray-600 cursor-not-allowed"
-                  >
-                    ✅ 신청완료
-                  </button>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onApply(post.id);
-                    }}
-                    className="px-4 py-2 text-sm font-semibold rounded-lg transition-all whitespace-nowrap bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow"
-                  >
-                    가입 신청
-                  </button>
-                )}
-              </>
+        {/* 모집 인원 프로그레스 */}
+        {progress && (
+          <div className="mb-3 p-3 bg-green-50 rounded-lg border border-green-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-bold text-green-700">
+                모집 현황: {progress.current}/{progress.required}명
+              </span>
+              <span className="text-xs font-medium text-green-600">
+                {Math.round(progress.percentage)}%
+              </span>
+            </div>
+            <div className="w-full bg-green-200 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-green-500 to-green-600 h-2 transition-all duration-300"
+                style={{ width: `${progress.percentage}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* 활동 정보 */}
+        <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+          <div className="flex items-center gap-1.5 text-gray-700">
+            <span>📍</span>
+            <span className="truncate">
+              {post.region} {post.subRegion}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 text-gray-700">
+            <span>🏟️</span>
+            <span className="truncate">{post.fieldLocation || "협의"}</span>
+          </div>
+        </div>
+
+        {/* 구분선 */}
+        <hr className="border-gray-200 mb-3" />
+
+        {/* 하단: 설명 + 버튼 */}
+        <div className="flex items-end justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            {post.content ? (
+              <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                {post.content}
+              </p>
+            ) : (
+              <p className="text-xs text-gray-500">
+                {post.authorName && `팀장: ${post.authorName}`}
+              </p>
             )}
           </div>
+
+          {/* 가입 신청 버튼 */}
+          {onApply && post.status === "RECRUITING" && (
+            <>
+              {isAlreadyApplied ? (
+                <button
+                  disabled
+                  className="px-4 py-2.5 text-sm font-bold rounded-lg whitespace-nowrap bg-gray-200 text-gray-500 cursor-not-allowed"
+                >
+                  ✅ 신청완료
+                </button>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onApply(post.id);
+                  }}
+                  className="px-4 py-2.5 text-sm font-bold rounded-lg transition-all whitespace-nowrap bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md hover:shadow-lg"
+                >
+                  팀 합류하기
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
