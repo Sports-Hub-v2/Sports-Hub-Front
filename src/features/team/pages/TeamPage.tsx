@@ -24,7 +24,7 @@ const TeamPage = () => {
   const allPostsFromStore = useRecruitStore((s) => s.posts);
   const loadPosts = useRecruitStore((s) => s.loadPosts);
   const removePost = useRecruitStore((s) => s.removePost);
-  const { refreshApplications } = useApplicationStore();
+  const { refreshApplications, myApplications, loadMyApplications } = useApplicationStore();
 
   const focusedId = useMemo(
     () => new URLSearchParams(location.search).get("id"),
@@ -44,6 +44,10 @@ const TeamPage = () => {
       setIsLoading(true);
       try {
         await loadPosts(RecruitCategory.TEAM); // TEAM 카테고리 로드
+        // 로그인한 경우 내 신청 내역 로드
+        if (user?.id) {
+          await loadMyApplications(user.id);
+        }
       } catch (error) {
         console.error("Error loading team posts:", error);
       } finally {
@@ -51,7 +55,7 @@ const TeamPage = () => {
       }
     };
     fetchPosts();
-  }, [loadPosts]);
+  }, [loadPosts, loadMyApplications, user?.id]);
 
   const filteredPosts = useMemo(() => {
     // TEAM 카테고리만 선별
@@ -80,6 +84,11 @@ const TeamPage = () => {
           (p.subRegion && p.subRegion.includes(selectedRegion))
       );
   }, [allPostsFromStore, search, selectedRegion]);
+
+  // 중복 신청 체크
+  const isAlreadyApplied = (postId: number): boolean => {
+    return myApplications.some((app) => app.postId === postId);
+  };
 
   const handleCreate = (postData: RecruitPostCreationRequestDto) => {
     // TODO: 실제 API 호출과 게시글 생성 후 스토어 업데이트
@@ -229,6 +238,7 @@ const TeamPage = () => {
                 post={post}
                 onApply={() => handleTeamApply(post)}
                 onClick={() => handleExpand(post.id)}
+                isAlreadyApplied={isAlreadyApplied(post.id)}
               />
             ))}
           </div>

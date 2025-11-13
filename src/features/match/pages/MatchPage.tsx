@@ -11,7 +11,7 @@ import {
 } from "@/types/recruitPost";
 import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 공용 상세 카드 사용
 import MatchRecruitModal from "@/features/match/components/MatchRecruitModal";
-import MatchDayStyleCard from "@/components/common/MatchDayStyleCard";
+import MatchRecruitCard from "@/components/common/MatchRecruitCard";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
 import RegionSelectModal from "@/components/common/RegionSelectModal";
 import UserProfileModal from "@/components/common/UserProfileModal";
@@ -24,7 +24,7 @@ const MatchPage = () => {
   const allPostsFromStore = useRecruitStore((s) => s.posts);
   const loadPosts = useRecruitStore((s) => s.loadPosts);
   const removePost = useRecruitStore((s) => s.removePost);
-  const { refreshApplications } = useApplicationStore();
+  const { refreshApplications, myApplications, loadMyApplications } = useApplicationStore();
 
   const focusedId = useMemo(
     () => new URLSearchParams(location.search).get("id"),
@@ -44,6 +44,10 @@ const MatchPage = () => {
       setIsLoading(true);
       try {
         await loadPosts(RecruitCategory.MATCH); // MATCH 카테고리 로드
+        // 로그인한 경우 내 신청 내역 로드
+        if (user?.id) {
+          await loadMyApplications(user.id);
+        }
       } catch (error) {
         console.error("Error loading match posts:", error);
       } finally {
@@ -51,7 +55,7 @@ const MatchPage = () => {
       }
     };
     fetchPosts();
-  }, [loadPosts]);
+  }, [loadPosts, loadMyApplications, user?.id]);
 
   const filteredPosts = useMemo(() => {
     // MATCH 카테고리만 선별
@@ -80,6 +84,11 @@ const MatchPage = () => {
           (p.subRegion && p.subRegion.includes(selectedRegion))
       );
   }, [allPostsFromStore, search, selectedRegion]);
+
+  // 중복 신청 체크
+  const isAlreadyApplied = (postId: number): boolean => {
+    return myApplications.some((app) => app.postId === postId);
+  };
 
   const handleCreate = (postData: RecruitPostCreationRequestDto) => {
     // TODO: 실제 API 호출과 게시글 생성 후 스토어 업데이트
@@ -224,12 +233,12 @@ const MatchPage = () => {
         {sortedPosts.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {sortedPosts.map((post) => (
-              <MatchDayStyleCard
+              <MatchRecruitCard
                 key={post.id}
                 post={post}
-                cardType="match"
                 onApply={() => handleMatchApply(post)}
                 onClick={() => handleExpand(post.id)}
+                isAlreadyApplied={isAlreadyApplied(post.id)}
               />
             ))}
           </div>
