@@ -26,7 +26,7 @@ const MercenaryPage = () => {
   const user = useAuthStore((s) => s.user);
   const allPostsFromStore = useRecruitStore((s) => s.posts);
   const loadPosts = useRecruitStore((s) => s.loadPosts);
-  const { refreshApplications } = useApplicationStore();
+  const { refreshApplications, myApplications, cancelApplication, loadMyApplications } = useApplicationStore();
 
   const focusedId = useMemo(
     () => new URLSearchParams(location.search).get("id"),
@@ -85,6 +85,33 @@ const MercenaryPage = () => {
     }
   };
 
+  // 중복 신청 체크
+  const isAlreadyApplied = (postId: number): boolean => {
+    return myApplications.some((app) => app.postId === postId);
+  };
+
+  // 신청 취소 핸들러
+  const handleCancelApplication = async (postId: number) => {
+    if (!confirm("신청을 취소하시겠습니까?")) return;
+
+    const application = myApplications.find((app) => app.postId === postId);
+    if (!application) {
+      alert("신청 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      await cancelApplication(application.applicationId, postId);
+      alert("신청이 취소되었습니다.");
+      if (user?.id) {
+        await loadMyApplications(user.id);
+      }
+    } catch (error) {
+      console.error("신청 취소 오류:", error);
+      alert("신청 취소 중 오류가 발생했습니다.");
+    }
+  };
+
   useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
@@ -98,6 +125,13 @@ const MercenaryPage = () => {
     };
     fetchPosts();
   }, [loadPosts]);
+
+  // 로그인한 경우 내 신청 내역 로드
+  useEffect(() => {
+    if (user?.id) {
+      loadMyApplications(user.id);
+    }
+  }, [user?.id, loadMyApplications]);
 
   useEffect(() => {
     if (searchParams.get("action") === "create" && user) {
@@ -227,6 +261,7 @@ const MercenaryPage = () => {
                 post={post}
                 onClick={() => handleExpand(post.id)}
                 onApply={handleApply}
+                isAlreadyApplied={isAlreadyApplied(post.id)}
               />
             ))}
           </div>
@@ -251,6 +286,8 @@ const MercenaryPage = () => {
                     onAuthorNameClick={() => {
                       if (post.authorId !== null) openUserProfileModal(post.authorId);
                     }}
+                    isAlreadyApplied={isAlreadyApplied(post.id)}
+                    onCancelApplication={() => handleCancelApplication(post.id)}
                   />
                 ))}
             </div>

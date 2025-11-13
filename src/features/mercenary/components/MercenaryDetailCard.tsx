@@ -15,6 +15,8 @@ interface MercenaryDetailCardProps {
   onDelete?: () => void;
   onApply?: (postId: number) => void;
   onAuthorNameClick?: () => void;
+  isAlreadyApplied?: boolean; // 중복 신청 방지
+  onCancelApplication?: () => void; // 신청 취소
 }
 
 const getStatusDisplayForDetail = (
@@ -53,9 +55,11 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
   onDelete,
   onApply,
   onAuthorNameClick,
+  isAlreadyApplied = false,
+  onCancelApplication,
 }) => {
   const { user } = useAuthStore();
-  const navigate = useNavigate(); // 라우팅에 사용
+  const navigate = useNavigate();
   const isTeamToIndividual = post.targetType === "USER";
   const flowLabel = isTeamToIndividual
     ? "🏃‍♂️ 팀 → 용병(개인)"
@@ -74,6 +78,45 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
       onApply(post.id);
     }
   };
+
+  // 작성 시간 상대 표시
+  const getTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const created = new Date(dateString);
+    const diffMs = now.getTime() - created.getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return "방금 전";
+    if (diffMins < 60) return `${diffMins}분 전`;
+    if (diffHours < 24) return `${diffHours}시간 전`;
+    if (diffDays < 7) return `${diffDays}일 전`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)}주 전`;
+    return `${Math.floor(diffDays / 30)}개월 전`;
+  };
+
+  // 긴급도 체크
+  const isUrgent = () => {
+    if (!post.gameDate) return false;
+    const gameDate = new Date(post.gameDate);
+    const today = new Date();
+    const diffDays = Math.ceil(
+      (gameDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return diffDays <= 2;
+  };
+
+  // 모집 진행도
+  const getProgress = () => {
+    const current = post.participants?.current || 0;
+    const required = post.requiredPersonnel;
+    if (!required) return null;
+    const percentage = Math.min((current / required) * 100, 100);
+    return { current, required, percentage };
+  };
+
+  const progress = getProgress();
   /*
   const handleApply = async () => {
     const message = prompt("작성자에게 전달할 간단한 메시지를 입력하세요 (선택사항):");
@@ -149,72 +192,47 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
 
   // 상세 카드 (펼친 후)
   return (
-    <div className="bg-white shadow-xl rounded-lg p-6 col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <span className="text-xs font-semibold px-2 py-1 bg-blue-100 text-blue-700 rounded-full mr-2">
-            {flowLabel}
-          </span>
-          <h2 className="text-2xl font-bold text-gray-800 inline">
-            {post.title}
-          </h2>
-        </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-3xl leading-none"
-          >
-            &times;
-          </button>
-        )}
-      </div>
-
-      {post.thumbnailUrl && (
-        <img
-          src={post.thumbnailUrl}
-          alt={post.title}
-          className="w-full h-64 object-cover rounded-md mb-4"
-        />
-      )}
-
-      <div className="text-sm text-gray-700 space-y-2">
-        <p>
-          <strong>지역:</strong> {post.region}
-          {post.subRegion ? `, ${post.subRegion}` : ""}
-        </p>
-        <p>
-          <strong>{dateLabel}:</strong> {formattedDate}
-        </p>
-        <p>
-          <strong>{timeLabel}:</strong> {formattedTime}
-        </p>
-
-        {isTeamToIndividual && (
-          <>
-            {post.requiredPersonnel != null && (
-              <p>
-                <strong>필요 인원:</strong> {post.requiredPersonnel}명
-              </p>
+    <div className="bg-white shadow-xl rounded-xl overflow-hidden col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+      {/* 헤더 */}
+      <div className="bg-gradient-to-r from-blue-50 to-green-50 p-6 border-b border-gray-200">
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-3 py-1 bg-blue-500 text-white text-xs font-semibold rounded-full">
+              {flowLabel}
+            </span>
+            {isUrgent() && (
+              <span className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">
+                🔥 긴급
+              </span>
             )}
-            {post.ageGroup && (
-              <p>
-                <strong>모집 연령대:</strong> {post.ageGroup}
-              </p>
-            )}
-          </>
-        )}
-
-        {post.preferredPositions && (
-          <p>
-            <strong>{positionLabel}:</strong> {post.preferredPositions}
-          </p>
-        )}
-        {post.authorName && (
-          <p>
-            <strong>작성자:</strong>{" "}
             <span
-              className={`text-blue-600 ${
-                onAuthorNameClick ? "hover:underline cursor-pointer" : ""
+              className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                post.status === "RECRUITING"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-100 text-gray-600"
+              }`}
+            >
+              {getStatusDisplayForDetail(post.status)}
+            </span>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 text-3xl leading-none"
+            >
+              ×
+            </button>
+          )}
+        </div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-3">{post.title}</h2>
+
+        {/* 메타 정보 */}
+        <div className="flex items-center gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-1">
+            <span>👤</span>
+            <span
+              className={`font-medium ${
+                onAuthorNameClick ? "text-blue-600 hover:underline cursor-pointer" : ""
               }`}
               onClick={(e) => {
                 if (onAuthorNameClick) {
@@ -223,60 +241,212 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
                 }
               }}
             >
-              {post.authorName}
+              {post.authorName || "작성자"}
             </span>
-          </p>
-        )}
-        {post.status && (
-          <p>
-            <strong>상태:</strong> {getStatusDisplayForDetail(post.status)}
-          </p>
-        )}
-        <p className="mt-2 whitespace-pre-wrap">
-          <strong>상세 내용:</strong>
-          <br />
-          {post.content}
-        </p>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>🕐</span>
+            <span>{getTimeAgo(post.createdAt)}</span>
+          </div>
+        </div>
       </div>
 
-      <div className="mt-6 text-right space-x-2">
-        {/* 신청하기 버튼 */}
-        {onApply && post.status === "RECRUITING" && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleApply();
-            }}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded font-semibold"
-          >
-            신청하기
-          </button>
+      {/* 썸네일 이미지 */}
+      {post.thumbnailUrl && (
+        <img
+          src={post.thumbnailUrl}
+          alt={post.title}
+          className="w-full h-80 object-cover"
+        />
+      )}
+
+      <div className="p-6">
+        {/* 모집 진행 현황 */}
+        {isTeamToIndividual && progress && (
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-gray-900">📊 모집 현황</h3>
+              <span className="text-sm font-semibold text-blue-600">
+                {progress.current}/{progress.required}명 ({Math.round(progress.percentage)}%)
+              </span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div
+                className={`h-3 rounded-full transition-all duration-300 ${
+                  progress.percentage >= 100
+                    ? "bg-green-500"
+                    : progress.percentage >= 70
+                    ? "bg-yellow-500"
+                    : "bg-blue-500"
+                }`}
+                style={{ width: `${progress.percentage}%` }}
+              />
+            </div>
+          </div>
         )}
 
-        {/* 수정 버튼 */}
-        {onEdit && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-            className="bg-gray-500 hover:bg-gray-600 text-white text-sm px-4 py-2 rounded"
-          >
-            수정
-          </button>
+        {/* 경기/활동 정보 */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-900 mb-3 text-lg">📅 경기 정보</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-4 rounded-lg">
+            <div>
+              <span className="text-sm text-gray-600">📅 {dateLabel}</span>
+              <p className="font-semibold text-gray-900">{formattedDate}</p>
+            </div>
+            <div>
+              <span className="text-sm text-gray-600">🕐 {timeLabel}</span>
+              <p className="font-semibold text-gray-900">{formattedTime}</p>
+            </div>
+            <div>
+              <span className="text-sm text-gray-600">📍 지역</span>
+              <p className="font-semibold text-gray-900">
+                {post.region} {post.subRegion || ""}
+              </p>
+            </div>
+            {post.fieldLocation && (
+              <div>
+                <span className="text-sm text-gray-600">🏟️ 구장 위치</span>
+                <p className="font-semibold text-gray-900">{post.fieldLocation}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 모집 조건 */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-900 mb-3 text-lg">⚽ 모집 조건</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-4 rounded-lg">
+            {post.requiredPersonnel != null && (
+              <div>
+                <span className="text-sm text-gray-600">👥 필요 인원</span>
+                <p className="font-semibold text-gray-900">{post.requiredPersonnel}명</p>
+              </div>
+            )}
+            {post.preferredPositions && (
+              <div>
+                <span className="text-sm text-gray-600">⚽ {positionLabel}</span>
+                <p className="font-semibold text-gray-900">{post.preferredPositions}</p>
+              </div>
+            )}
+            {post.ageGroup && (
+              <div>
+                <span className="text-sm text-gray-600">🎂 연령대</span>
+                <p className="font-semibold text-gray-900">{post.ageGroup}</p>
+              </div>
+            )}
+            {post.skillLevel && (
+              <div>
+                <span className="text-sm text-gray-600">⭐ 실력 수준</span>
+                <p className="font-semibold text-gray-900">{post.skillLevel}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 추가 정보 */}
+        {(post.cost || post.parkingAvailable != null || post.showerFacilities != null) && (
+          <div className="mb-6">
+            <h3 className="font-bold text-gray-900 mb-3 text-lg">ℹ️ 추가 정보</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-4 rounded-lg">
+              {post.cost != null && (
+                <div>
+                  <span className="text-sm text-gray-600">💰 참가비</span>
+                  <p className="font-semibold text-gray-900">{post.cost.toLocaleString()}원</p>
+                </div>
+              )}
+              {post.parkingAvailable != null && (
+                <div>
+                  <span className="text-sm text-gray-600">🚗 주차</span>
+                  <p className="font-semibold text-gray-900">
+                    {post.parkingAvailable ? "가능" : "불가"}
+                  </p>
+                </div>
+              )}
+              {post.showerFacilities != null && (
+                <div>
+                  <span className="text-sm text-gray-600">🚿 샤워실</span>
+                  <p className="font-semibold text-gray-900">
+                    {post.showerFacilities ? "있음" : "없음"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         )}
-        {/* 삭제 버튼 */}
-        {onDelete && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded"
-          >
-            삭제
-          </button>
-        )}
+
+        {/* 상세 내용 */}
+        <div className="mb-6">
+          <h3 className="font-bold text-gray-900 mb-3 text-lg">📝 상세 내용</h3>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {post.content || "내용이 없습니다."}
+            </p>
+          </div>
+        </div>
+
+        {/* 하단 버튼 */}
+        <div className="flex flex-wrap gap-3 justify-end pt-4 border-t border-gray-200">
+          {/* 신청 관련 버튼 */}
+          {onApply && post.status === "RECRUITING" && (
+            <>
+              {isAlreadyApplied ? (
+                <div className="flex gap-2">
+                  <button
+                    disabled
+                    className="px-6 py-3 bg-gray-300 text-gray-600 rounded-lg font-semibold cursor-not-allowed"
+                  >
+                    ✅ 신청 완료
+                  </button>
+                  {onCancelApplication && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onCancelApplication();
+                      }}
+                      className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors"
+                    >
+                      신청 취소
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleApply();
+                  }}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
+                >
+                  신청하기
+                </button>
+              )}
+            </>
+          )}
+
+          {/* 작성자 전용 버튼 */}
+          {onEdit && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg font-semibold transition-colors"
+            >
+              수정
+            </button>
+          )}
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition-colors"
+            >
+              삭제
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

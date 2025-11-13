@@ -5,12 +5,14 @@ interface MercenaryMatchDayCardProps {
   post: PostType;
   onClick?: () => void;
   onApply?: (postId: number) => void;
+  isAlreadyApplied?: boolean;
 }
 
 const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
   post,
   onClick,
   onApply,
+  isAlreadyApplied = false,
 }) => {
   // 날짜/시간 포맷팅
   const formatGameDate = (dateString?: string) => {
@@ -254,15 +256,26 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
 
             {/* 신청 버튼 */}
             {onApply && post.status === "RECRUITING" && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onApply(post.id);
-                }}
-                className="px-4 py-2 text-sm font-semibold rounded-lg transition-all whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow"
-              >
-                신청하기
-              </button>
+              <>
+                {isAlreadyApplied ? (
+                  <button
+                    disabled
+                    className="px-4 py-2 text-sm font-semibold rounded-lg whitespace-nowrap bg-gray-300 text-gray-600 cursor-not-allowed"
+                  >
+                    ✅ 신청완료
+                  </button>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onApply(post.id);
+                    }}
+                    className="px-4 py-2 text-sm font-semibold rounded-lg transition-all whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow"
+                  >
+                    신청하기
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
