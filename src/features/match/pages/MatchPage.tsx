@@ -9,7 +9,7 @@ import {
   RecruitCategory,
   RecruitPostCreationRequestDto,
 } from "@/types/recruitPost";
-import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 공용 상세 카드 사용
+import MatchDetailCard from "@/features/match/components/MatchDetailCard";
 import MatchRecruitModal from "@/features/match/components/MatchRecruitModal";
 import MatchRecruitCard from "@/components/common/MatchRecruitCard";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
@@ -251,12 +251,14 @@ const MatchPage = () => {
               {sortedPosts
                 .filter((post) => String(post.id) === focusedId)
                 .map((post) => (
-                  <MercenaryDetailCard
+                  <MatchDetailCard
                     key={post.id}
                     post={post}
                     isExpanded={true}
                     onExpand={() => {}}
                     onClose={handleCloseDetail}
+                    onApply={() => handleMatchApply(post)}
+                    isAlreadyApplied={isAlreadyApplied(post.id)}
                     onEdit={user ? () => {} : undefined}
                     onDelete={
                       user &&

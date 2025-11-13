@@ -9,7 +9,7 @@ import {
   RecruitCategory,
   RecruitPostCreationRequestDto,
 } from "@/types/recruitPost";
-import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard"; // 공용 상세 카드 사용
+import TeamDetailCard from "@/features/team/components/TeamDetailCard";
 import TeamRecruitModal from "@/features/team/components/TeamRecruitModal";
 import TeamRecruitCard from "@/components/common/TeamRecruitCard";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
@@ -251,12 +251,14 @@ const TeamPage = () => {
               {sortedPosts
                 .filter((post) => String(post.id) === focusedId)
                 .map((post) => (
-                  <MercenaryDetailCard
+                  <TeamDetailCard
                     key={post.id}
                     post={post}
                     isExpanded={true}
                     onExpand={() => {}}
                     onClose={handleCloseDetail}
+                    onApply={() => handleTeamApply(post)}
+                    isAlreadyApplied={isAlreadyApplied(post.id)}
                     onEdit={user ? () => {} : undefined}
                     onDelete={
                       user &&
