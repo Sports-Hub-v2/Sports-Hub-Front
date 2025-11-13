@@ -338,7 +338,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
         <div className="mb-6">
           <h3 className="font-bold text-gray-900 mb-3 text-lg">⚽ 모집 조건</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-4 rounded-lg">
-            {post.requiredPersonnel != null && (
+            {isTeamToIndividual && post.requiredPersonnel != null && (
               <div>
                 <span className="text-sm text-gray-600">👥 필요 인원</span>
                 <p className="font-semibold text-gray-900">{post.requiredPersonnel}명</p>

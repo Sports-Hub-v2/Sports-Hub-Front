@@ -206,8 +206,8 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
             )}
           </div>
 
-          {/* 모집 진행도 바 */}
-          {progress && progress.required && (
+          {/* 모집 진행도 바 (팀 → 용병일 때만) */}
+          {post.targetType === "USER" && progress && progress.required && (
             <div className="mb-3 p-2 bg-blue-50 rounded">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
@@ -251,7 +251,7 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
                 </p>
               ) : (
                 <p className="text-xs text-gray-500">
-                  {post.authorName && `작성자: ${post.authorName}`}
+                  {post.authorName && post.authorName}
                 </p>
               )}
             </div>
