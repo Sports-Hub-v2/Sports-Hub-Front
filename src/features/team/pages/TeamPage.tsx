@@ -11,6 +11,7 @@ import {
 } from "@/types/recruitPost";
 import TeamDetailCard from "@/features/team/components/TeamDetailCard";
 import TeamRecruitModal from "@/features/team/components/TeamRecruitModal";
+import TeamApplicationModal from "@/features/team/components/TeamApplicationModal";
 import TeamRecruitCard from "@/components/common/TeamRecruitCard";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
 import RegionSelectModal from "@/components/common/RegionSelectModal";
@@ -38,6 +39,7 @@ const TeamPage = () => {
   const [selectedRegion, setSelectedRegion] = useState("전체 지역");
   const [isRegionModalOpen, setIsRegionModalOpen] = useState(false);
   const [selectedUserIdForProfile, setSelectedUserIdForProfile] = useState<number | string | null>(null);
+  const [applicationPost, setApplicationPost] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -100,24 +102,29 @@ const TeamPage = () => {
   const handleTeamApply = async (post: any) => {
     if (!user) {
       alert("로그인이 필요합니다.");
+      navigate("/login");
       return;
     }
+    // 모달 열기
+    setApplicationPost(post);
+  };
 
-    const message = prompt("팀 가입 신청 메시지를 입력해주세요:");
-    if (message) {
-      try {
-        // applyToPostApi 사용하여 실제 API 호출
-        const { applyToPostApi } = await import("@/features/mercenary/api/recruitApi");
-        await applyToPostApi(post.id, { message });
-        alert("팀 가입 신청이 완료되었습니다.");
-        // 신청 후 마이페이지 신청 내역 업데이트
-        if (user.id) {
-          await refreshApplications(user.id);
-        }
-      } catch (error) {
-        console.error("팀 가입 신청 오류:", error);
-        alert(error instanceof Error ? error.message : "신청 처리 중 오류가 발생했습니다.");
+  const handleApplicationSubmit = async (message: string) => {
+    if (!applicationPost) return;
+
+    try {
+      const { applyToPostApi } = await import("@/features/mercenary/api/recruitApi");
+      await applyToPostApi(applicationPost.id, { message });
+      alert("팀 가입 신청이 완료되었습니다!");
+      // 신청 후 마이페이지 신청 내역 업데이트
+      if (user?.id) {
+        await refreshApplications(user.id);
       }
+      setApplicationPost(null);
+    } catch (error) {
+      console.error("팀 가입 신청 오류:", error);
+      alert(error instanceof Error ? error.message : "신청 처리 중 오류가 발생했습니다.");
+      throw error;
     }
   };
 
@@ -277,6 +284,15 @@ const TeamPage = () => {
           </div>
         )}
       </div>
+
+      {/* 신청 모달 */}
+      {applicationPost && (
+        <TeamApplicationModal
+          post={applicationPost}
+          onClose={() => setApplicationPost(null)}
+          onSubmit={handleApplicationSubmit}
+        />
+      )}
 
       {selectedUserIdForProfile !== null && (
         <UserProfileModal userId={selectedUserIdForProfile} onClose={closeUserProfileModal} />
