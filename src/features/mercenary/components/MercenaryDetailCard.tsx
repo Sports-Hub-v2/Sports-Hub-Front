@@ -13,6 +13,7 @@ interface MercenaryDetailCardProps {
   onExpand?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  onApply?: (postId: number) => void;
   onAuthorNameClick?: () => void;
 }
 
@@ -50,6 +51,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
   onExpand,
   onEdit,
   onDelete,
+  onApply,
   onAuthorNameClick,
 }) => {
   const { user } = useAuthStore();
@@ -67,9 +69,10 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
     : "날짜 미정";
   const formattedTime = post.gameTime || "시간 미정";
 
-  // ✅ 수정된 부분
   const handleApply = () => {
-    navigate(`/mercenary/apply/${post.id}`); // 신청 페이지로 이동
+    if (onApply) {
+      onApply(post.id);
+    }
   };
   /*
   const handleApply = async () => {
@@ -238,13 +241,13 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
 
       <div className="mt-6 text-right space-x-2">
         {/* 신청하기 버튼 */}
-        {user && user.id !== post.authorId && post.status === "RECRUITING" && (
+        {onApply && post.status === "RECRUITING" && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleApply();
             }}
-            className="bg-green-500 ..."
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded font-semibold"
           >
             신청하기
           </button>

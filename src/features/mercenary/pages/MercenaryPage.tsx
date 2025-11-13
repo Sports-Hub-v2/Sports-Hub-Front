@@ -236,8 +236,9 @@ const MercenaryPage = () => {
                     isExpanded={true}
                     onExpand={() => {}}
                     onClose={handleCloseDetail}
-                    onEdit={user ? () => handleOpenEditModal(post) : undefined}
+                    onEdit={user?.id === post.authorId ? () => handleOpenEditModal(post) : undefined}
                     onDelete={user?.id === post.authorId ? () => handleDelete(post.id) : undefined}
+                    onApply={user?.id !== post.authorId ? handleApply : undefined}
                     onAuthorNameClick={() => {
                       if (post.authorId !== null) openUserProfileModal(post.authorId);
                     }}

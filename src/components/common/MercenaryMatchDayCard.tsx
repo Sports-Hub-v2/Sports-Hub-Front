@@ -95,11 +95,19 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
 
   // 모집 진행도 계산
   const getRecruitmentProgress = () => {
-    if (!post.requiredPersonnel) return null;
     const current = post.participants?.current || 0;
     const required = post.requiredPersonnel;
-    const percentage = Math.min((current / required) * 100, 100);
-    return { current, required, percentage };
+
+    // requiredPersonnel이 없어도 acceptedCount가 있으면 표시
+    if (!required && current === 0) return null;
+
+    if (required) {
+      const percentage = Math.min((current / required) * 100, 100);
+      return { current, required, percentage };
+    }
+
+    // requiredPersonnel 없이 acceptedCount만 있는 경우
+    return { current, required: null, percentage: 0 };
   };
 
   const progress = getRecruitmentProgress();
@@ -178,16 +186,16 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
             </div>
 
             {/* 인원 + 진행도 */}
-            {post.targetType === "USER" && post.requiredPersonnel && (
+            {post.targetType === "USER" && progress && (
               <div className="flex items-center gap-1 font-medium text-blue-600">
                 <span>👥</span>
-                {progress ? (
+                {progress.required ? (
                   <span>
                     {progress.current}/{progress.required}명
                     {progress.percentage >= 100 && " ✓"}
                   </span>
                 ) : (
-                  <span>{post.requiredPersonnel}명</span>
+                  <span>신청 {progress.current}명</span>
                 )}
               </div>
             )}
@@ -205,7 +213,7 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
           </div>
 
           {/* 모집 진행도 바 */}
-          {progress && progress.current > 0 && (
+          {progress && progress.required && progress.current > 0 && (
             <div className="mb-3">
               <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
                 <span>모집 진행률</span>
@@ -244,20 +252,16 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
               )}
             </div>
 
-            {/* 지원 버튼 */}
+            {/* 신청 버튼 */}
             {onApply && post.status === "RECRUITING" && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onApply(post.id);
                 }}
-                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all whitespace-nowrap ${
-                  post.targetType === "USER"
-                    ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow"
-                    : "bg-green-600 hover:bg-green-700 text-white shadow-sm hover:shadow"
-                }`}
+                className="px-4 py-2 text-sm font-semibold rounded-lg transition-all whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow"
               >
-                {post.targetType === "USER" ? "지원 →" : "연락 →"}
+                신청하기
               </button>
             )}
           </div>
