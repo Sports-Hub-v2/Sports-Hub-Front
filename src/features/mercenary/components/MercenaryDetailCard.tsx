@@ -305,8 +305,19 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
             </div>
             {post.fieldLocation && (
               <div>
-                <span className="text-sm text-gray-600">🏟️ 구장 위치</span>
-                <p className="font-semibold text-gray-900">{post.fieldLocation}</p>
+                <span className="text-sm text-gray-600">🏟️ 경기 장소</span>
+                <a
+                  href={`https://map.naver.com/v5/search/${encodeURIComponent(post.fieldLocation)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {post.fieldLocation}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
               </div>
             )}
           </div>
@@ -343,36 +354,6 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
           </div>
         </div>
 
-        {/* 추가 정보 */}
-        {(post.cost || post.parkingAvailable != null || post.showerFacilities != null) && (
-          <div className="mb-6">
-            <h3 className="font-bold text-gray-900 mb-3 text-lg">ℹ️ 추가 정보</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-4 rounded-lg">
-              {post.cost != null && (
-                <div>
-                  <span className="text-sm text-gray-600">💰 참가비</span>
-                  <p className="font-semibold text-gray-900">{post.cost.toLocaleString()}원</p>
-                </div>
-              )}
-              {post.parkingAvailable != null && (
-                <div>
-                  <span className="text-sm text-gray-600">🚗 주차</span>
-                  <p className="font-semibold text-gray-900">
-                    {post.parkingAvailable ? "가능" : "불가"}
-                  </p>
-                </div>
-              )}
-              {post.showerFacilities != null && (
-                <div>
-                  <span className="text-sm text-gray-600">🚿 샤워실</span>
-                  <p className="font-semibold text-gray-900">
-                    {post.showerFacilities ? "있음" : "없음"}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* 상세 내용 */}
         <div className="mb-6">

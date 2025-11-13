@@ -45,9 +45,27 @@ export const updateMyProfileApi = async (
 };
 
 export const fetchPublicUserProfileApi = async (
-  _userId: number | string
+  userId: number | string
 ): Promise<PublicUserProfileResponseDto> => {
-  throw new Error("공개 프로필 조회 API는 아직 준비 중입니다.");
+  try {
+    // userId는 실제로 profileId일 수 있음
+    const res = await axiosInstance.get(
+      `http://localhost:8082${API_USERS_BASE_URL}/profiles/${userId}`
+    );
+    const data = res.data;
+
+    // PublicUserProfileResponseDto 형식으로 변환
+    return {
+      userid: data.accountId?.toString() || "",
+      name: data.name || "사용자",
+      region: data.region || null,
+      preferredPosition: data.preferredPosition || null,
+      isExPlayer: data.isExPlayer ?? false,
+    };
+  } catch (error) {
+    console.error("프로필 조회 실패:", error);
+    throw new Error("프로필 정보를 불러올 수 없습니다.");
+  }
 };
 
 export const getUserTeamsApi = async (

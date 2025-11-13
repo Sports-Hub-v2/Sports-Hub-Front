@@ -28,12 +28,8 @@ export interface PostType {
   createdAt: string;
   updatedAt: string;
 
-  // 조기축구 특화 필드들 (추후 백엔드 추가 예정)
-  cost?: number; // 참가비
-  weatherCondition?: string; // 날씨 조건
-  fieldLocation?: string; // 구장 위치 상세
-  parkingAvailable?: boolean; // 주차 가능 여부
-  showerFacilities?: boolean; // 샤워 시설 여부
+  // 조기축구 특화 필드들
+  fieldLocation?: string; // 경기 장소 (네이버 지도 연결용)
 
   // 알림 관련 필드들 (추후 구현)
   notificationSettings?: {
