@@ -12,6 +12,7 @@ import { getProfileByAccountIdApi } from "@/features/auth/api/userApi";
 import MercenaryCardModal from "@/features/mercenary/components/MercenaryCardModal";
 import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard";
 import MercenaryMatchDayCard from "@/components/common/MercenaryMatchDayCard";
+import ApplicationModal from "@/features/mercenary/components/ApplicationModal";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
 import SkeletonCard from "@/components/common/SkeletonCard";
 import UserProfileModal from "@/components/common/UserProfileModal";
@@ -37,6 +38,7 @@ const MercenaryPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedUserIdForProfile, setSelectedUserIdForProfile] = useState<number | string | null>(null);
+  const [applicationPost, setApplicationPost] = useState<PostType | null>(null);
 
   const handleApply = async (postId: number) => {
     if (!user) {
@@ -44,6 +46,7 @@ const MercenaryPage = () => {
       navigate("/login");
       return;
     }
+
     // 프로필 ID 확보 (없으면 계정 ID로 조회)
     let profileId = user.profileId;
     if (!profileId) {
@@ -57,22 +60,28 @@ const MercenaryPage = () => {
       }
     }
 
-    const message = prompt(
-      "신청 메시지를 입력해주세요",
-      "안녕하세요. 용병으로 참여하고 싶습니다. 포지션은 미드필더, 5년 경력입니다."
-    );
-    if (message === null) return;
+    // 신청할 게시글 찾아서 모달 열기
+    const post = sortedPosts.find((p) => p.id === postId);
+    if (post) {
+      setApplicationPost(post);
+    }
+  };
+
+  const handleApplicationSubmit = async (message: string) => {
+    if (!applicationPost) return;
 
     try {
-      await applyToPostApi(postId, { message });
-      alert("신청이 완료되었습니다.");
+      await applyToPostApi(applicationPost.id, { message });
+      alert("신청이 완료되었습니다!");
       // 신청 후 마이페이지 신청 내역 업데이트
-      if (user.id) {
+      if (user?.id) {
         await refreshApplications(user.id);
       }
+      setApplicationPost(null);
     } catch (error) {
       console.error("신청 오류:", error);
       alert(error instanceof Error ? error.message : "신청 처리 중 오류가 발생했습니다.");
+      throw error;
     }
   };
 
@@ -251,6 +260,15 @@ const MercenaryPage = () => {
 
       {selectedUserIdForProfile !== null && (
         <UserProfileModal userId={selectedUserIdForProfile} onClose={closeUserProfileModal} />
+      )}
+
+      {/* 신청 모달 */}
+      {applicationPost && (
+        <ApplicationModal
+          post={applicationPost}
+          onClose={() => setApplicationPost(null)}
+          onSubmit={handleApplicationSubmit}
+        />
       )}
     </div>
   );
