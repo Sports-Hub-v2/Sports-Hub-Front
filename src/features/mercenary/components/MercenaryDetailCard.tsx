@@ -264,23 +264,34 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
         {/* 모집 진행 현황 */}
         {isTeamToIndividual && progress && (
           <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-gray-900">📊 모집 현황</h3>
-              <span className="text-sm font-semibold text-blue-600">
-                {progress.current}/{progress.required}명 ({Math.round(progress.percentage)}%)
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-              <div
-                className={`h-3 rounded-full transition-all duration-300 ${
-                  progress.percentage >= 100
-                    ? "bg-green-500"
-                    : progress.percentage >= 70
-                    ? "bg-yellow-500"
-                    : "bg-blue-500"
-                }`}
-                style={{ width: `${progress.percentage}%` }}
-              />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">📊</span>
+                <div>
+                  <div className="text-sm text-gray-600">모집 현황</div>
+                  <div className="text-xl font-bold text-blue-600">
+                    {progress.current}/{progress.required}명
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                  <span>진행률</span>
+                  <span className="font-semibold">{Math.round(progress.percentage)}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                  <div
+                    className={`h-3 rounded-full transition-all duration-300 ${
+                      progress.percentage >= 100
+                        ? "bg-green-500"
+                        : progress.percentage >= 70
+                        ? "bg-yellow-500"
+                        : "bg-blue-500"
+                    }`}
+                    style={{ width: `${progress.percentage}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

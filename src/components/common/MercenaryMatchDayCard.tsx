@@ -207,23 +207,33 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
           </div>
 
           {/* 모집 진행도 바 */}
-          {progress && progress.required && progress.current > 0 && (
-            <div className="mb-3">
-              <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-                <span>모집 진행률</span>
-                <span className="font-medium">{Math.round(progress.percentage)}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                <div
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    progress.percentage >= 100
-                      ? "bg-green-500"
-                      : progress.percentage >= 70
-                      ? "bg-yellow-500"
-                      : "bg-blue-500"
-                  }`}
-                  style={{ width: `${progress.percentage}%` }}
-                />
+          {progress && progress.required && (
+            <div className="mb-3 p-2 bg-blue-50 rounded">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <span className="text-sm font-bold text-blue-600">
+                    {progress.current}/{progress.required}명
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div
+                        className={`h-2 rounded-full transition-all duration-300 ${
+                          progress.percentage >= 100
+                            ? "bg-green-500"
+                            : progress.percentage >= 70
+                            ? "bg-yellow-500"
+                            : "bg-blue-500"
+                        }`}
+                        style={{ width: `${progress.percentage}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium text-gray-600 w-8 text-right">
+                      {Math.round(progress.percentage)}%
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
