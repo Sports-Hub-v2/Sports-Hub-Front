@@ -25,7 +25,7 @@ const TeamPage = () => {
   const allPostsFromStore = useRecruitStore((s) => s.posts);
   const loadPosts = useRecruitStore((s) => s.loadPosts);
   const removePost = useRecruitStore((s) => s.removePost);
-  const { refreshApplications, myApplications, loadMyApplications } = useApplicationStore();
+  const { refreshApplications, myApplications, loadMyApplications, cancelApplication } = useApplicationStore();
 
   const focusedId = useMemo(
     () => new URLSearchParams(location.search).get("id"),
@@ -90,6 +90,28 @@ const TeamPage = () => {
   // 중복 신청 체크
   const isAlreadyApplied = (postId: number): boolean => {
     return myApplications.some((app) => app.postId === postId);
+  };
+
+  // 신청 취소 핸들러
+  const handleCancelApplication = async (postId: number) => {
+    if (!confirm("팀 가입 신청을 취소하시겠습니까?")) return;
+
+    const application = myApplications.find((app) => app.postId === postId);
+    if (!application) {
+      alert("신청 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    try {
+      await cancelApplication(application.applicationId, postId);
+      alert("신청이 취소되었습니다.");
+      if (user?.id) {
+        await loadMyApplications(user.id);
+      }
+    } catch (error) {
+      console.error("신청 취소 오류:", error);
+      alert("신청 취소 중 오류가 발생했습니다.");
+    }
   };
 
   const handleCreate = (postData: RecruitPostCreationRequestDto) => {
@@ -246,6 +268,7 @@ const TeamPage = () => {
                 onApply={() => handleTeamApply(post)}
                 onClick={() => handleExpand(post.id)}
                 isAlreadyApplied={isAlreadyApplied(post.id)}
+                onCancelApplication={handleCancelApplication}
               />
             ))}
           </div>
@@ -266,6 +289,7 @@ const TeamPage = () => {
                     onClose={handleCloseDetail}
                     onApply={() => handleTeamApply(post)}
                     isAlreadyApplied={isAlreadyApplied(post.id)}
+                    onCancelApplication={() => handleCancelApplication(post.id)}
                     onEdit={user ? () => {} : undefined}
                     onDelete={
                       user &&

@@ -9,6 +9,7 @@ interface MatchRecruitCardProps {
   onClick?: () => void;
   onApply?: (postId: number) => void;
   isAlreadyApplied?: boolean;
+  onCancelApplication?: (postId: number) => void;
 }
 
 const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
@@ -16,6 +17,7 @@ const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
   onClick,
   onApply,
   isAlreadyApplied = false,
+  onCancelApplication,
 }) => {
   // D-day 계산
   const getDday = () => {
@@ -190,12 +192,22 @@ const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
           {onApply && post.status === "RECRUITING" && (
             <>
               {isAlreadyApplied ? (
-                <button
-                  disabled
-                  className="px-4 py-2.5 text-sm font-bold rounded-lg whitespace-nowrap bg-gray-200 text-gray-500 cursor-not-allowed"
-                >
-                  ✅ 신청완료
-                </button>
+                <div className="flex items-center gap-2">
+                  <span className="px-3 py-2 text-sm font-bold rounded-lg whitespace-nowrap bg-gray-200 text-gray-600">
+                    ✅ 신청완료
+                  </span>
+                  {onCancelApplication && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onCancelApplication(post.id);
+                      }}
+                      className="px-3 py-2 text-sm font-bold rounded-lg transition-all whitespace-nowrap bg-red-50 hover:bg-red-100 text-red-600 border border-red-200"
+                    >
+                      취소
+                    </button>
+                  )}
+                </div>
               ) : (
                 <button
                   onClick={(e) => {
