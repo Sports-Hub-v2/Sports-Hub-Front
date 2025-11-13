@@ -2,6 +2,7 @@
 // 경기 모집 상세 카드
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import type { PostType } from "@/types/recruitPost";
 import { RecruitStatus } from "@/types/recruitPost";
 
@@ -47,6 +48,29 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const navigate = useNavigate();
+
+  // 팀 페이지로 이동
+  const handleTeamClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('팀 클릭:', { teamId: post.teamId, teamName: post.teamName });
+    if (post.teamId) {
+      navigate(`/teams/${post.teamId}`);
+      if (onClose) onClose(); // 모달 닫기
+    } else {
+      console.warn('팀 ID가 없습니다.');
+    }
+  };
+
+  // 경기장 위치 클릭 시 네이버 지도로 이동
+  const handleLocationClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (post.fieldLocation) {
+      const searchQuery = encodeURIComponent(`${post.region} ${post.subRegion || ''} ${post.fieldLocation}`.trim());
+      window.open(`https://map.naver.com/v5/search/${searchQuery}`, '_blank');
+    }
+  };
+
   // D-day 계산
   const getDday = () => {
     if (!post.gameDate) return null;
@@ -163,7 +187,7 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
         <h2 className="text-2xl font-bold text-white mb-3">{post.title}</h2>
 
         {/* 메타 정보 */}
-        <div className="flex items-center gap-4 text-sm text-purple-50">
+        <div className="flex items-center gap-4 text-sm text-purple-50 flex-wrap">
           <div className="flex items-center gap-1.5">
             <span>👤</span>
             <span
@@ -179,6 +203,18 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
             >
               {post.authorName || "주최자"}
             </span>
+            {post.teamName && (
+              <>
+                <span className="text-purple-200 mx-1">|</span>
+                <span
+                  className="font-semibold text-yellow-300 hover:text-yellow-200 cursor-pointer hover:underline"
+                  onClick={handleTeamClick}
+                  title={post.teamId ? "팀 페이지로 이동" : "팀 정보 없음"}
+                >
+                  {post.teamName}
+                </span>
+              </>
+            )}
           </div>
           <div className="flex items-center gap-1.5">
             <span>🕐</span>
@@ -227,15 +263,23 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
             <span>📍</span>
             <span>경기장 위치</span>
           </h3>
-          <div className="p-5 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border-2 border-indigo-200">
+          <div
+            className="p-5 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl border-2 border-indigo-200 hover:border-indigo-300 hover:shadow-md cursor-pointer transition-all"
+            onClick={handleLocationClick}
+            title="네이버 지도에서 보기"
+          >
             <div className="flex items-start gap-3">
               <div className="text-4xl">🏟️</div>
               <div className="flex-1">
-                <div className="text-xl font-bold text-indigo-900 mb-1">
+                <div className="text-xl font-bold text-indigo-900 mb-1 flex items-center gap-2">
                   {post.fieldLocation || "경기장 미정"}
+                  <span className="text-sm text-indigo-600">🗺️</span>
                 </div>
                 <div className="text-sm text-indigo-700">
                   {post.region} {post.subRegion}
+                </div>
+                <div className="text-xs text-indigo-500 mt-1">
+                  클릭하여 지도에서 보기
                 </div>
               </div>
             </div>

@@ -3,6 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Search, Filter, MoreVertical, Mail, Phone, Calendar, MapPin, Activity, Shield, TrendingUp, TrendingDown, Edit, Trash2, Eye, Ban, MessageSquare, X } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
 import RecentInquiries from "../components/RecentInquiries";
+import MockDataBanner from "../components/MockDataBanner";
+import { fetchUsersApi } from "../api/adminApi";
 
 interface User {
   id: string;
@@ -192,13 +194,48 @@ const UsersPage = () => {
   // Quick filter preset
   const [quickFilter, setQuickFilter] = useState<string | null>(null);
 
-  const filteredUsers = mockUsers.filter((user) => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.phone.includes(searchTerm);
+  // Backend data state
+  const [backendUsers, setBackendUsers] = useState<any[]>([]);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+  const [backendError, setBackendError] = useState<string | null>(null);
+  const [useBackendData, setUseBackendData] = useState(false); // 토글 상태
+
+  // Fetch backend users on mount
+  useEffect(() => {
+    const loadBackendUsers = async () => {
+      setIsLoadingBackend(true);
+      setBackendError(null);
+      try {
+        const data = await fetchUsersApi(0, 100);
+        console.log('Backend users data:', data);
+        setBackendUsers(data.content || data || []);
+        // 백엔드 데이터를 성공적으로 가져오면 자동으로 백엔드 데이터 모드로 전환
+        if (data && (data.content || data.length > 0)) {
+          setUseBackendData(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch backend users:', error);
+        setBackendError(error instanceof Error ? error.message : 'Failed to fetch users');
+      } finally {
+        setIsLoadingBackend(false);
+      }
+    };
+    loadBackendUsers();
+  }, []);
+
+  // 데이터 소스 선택: 토글 상태에 따라 백엔드 데이터 또는 목업 데이터 사용
+  const sourceUsers = useBackendData && backendUsers.length > 0 ? backendUsers : mockUsers;
+
+  const filteredUsers = sourceUsers.filter((user) => {
+    const matchesSearch = user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.phone?.includes(searchTerm) ||
+                         user.phoneNumber?.includes(searchTerm);
     const matchesStatus = selectedStatus === "all" || user.status === selectedStatus;
     const matchesRole = selectedRole === "all" || user.role === selectedRole;
-    const matchesLocation = selectedLocation === "all" || user.location.includes(selectedLocation);
+    const matchesLocation = selectedLocation === "all" ||
+                           user.location?.includes(selectedLocation) ||
+                           user.region?.includes(selectedLocation);
 
     // Join date filter
     let matchesJoinDate = true;
@@ -258,12 +295,17 @@ const UsersPage = () => {
   });
 
   const stats = {
-    total: mockUsers.length,
-    active: mockUsers.filter(u => u.status === "active").length,
-    inactive: mockUsers.filter(u => u.status === "inactive").length,
-    suspended: mockUsers.filter(u => u.status === "suspended").length,
-    newToday: 12,
-    activeToday: 3842,
+    total: sourceUsers.length,
+    active: sourceUsers.filter(u => u.status === "active").length,
+    inactive: sourceUsers.filter(u => u.status === "inactive").length,
+    suspended: sourceUsers.filter(u => u.status === "suspended").length,
+    newToday: useBackendData ? sourceUsers.filter(u => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const createdAt = new Date(u.createdAt);
+      return createdAt >= today;
+    }).length : 12,
+    activeToday: useBackendData ? Math.floor(sourceUsers.length * 0.45) : 3842,
   };
 
   // Handle dashboard filter on mount
@@ -382,6 +424,90 @@ const UsersPage = () => {
 
   return (
     <AdminLayout activePage="users">
+      <MockDataBanner />
+
+      {/* Backend Data Connection Status */}
+      <div style={{
+        background: isLoadingBackend ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :
+                   backendError ? 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' :
+                   useBackendData ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' :
+                   'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: '0 2px 8px rgba(79, 172, 254, 0.3)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '24px' }}>
+            {isLoadingBackend ? '⏳' : backendError ? '⚠️' : useBackendData ? '🔌' : '🎨'}
+          </span>
+          <div>
+            <div style={{ fontWeight: '600', fontSize: '14px' }}>
+              {isLoadingBackend ? '백엔드 데이터 로딩 중...' :
+               backendError ? '백엔드 연결 오류' :
+               useBackendData ? `실제 데이터 표시 중 (${backendUsers.length}명)` :
+               `목업 데이터 표시 중 (${mockUsers.length}명)`}
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.9 }}>
+              {isLoadingBackend ? 'API 호출 중입니다...' :
+               backendError ? `오류: ${backendError}` :
+               useBackendData ? `백엔드 API에서 ${backendUsers.length}개의 프로필 데이터를 가져왔습니다` :
+               '프론트엔드 목업 데이터를 표시하고 있습니다'}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* 데이터 소스 토글 */}
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: backendError ? 'not-allowed' : 'pointer',
+            opacity: backendError ? 0.5 : 1
+          }}>
+            <span style={{ fontSize: '12px', fontWeight: '500' }}>실제 데이터</span>
+            <div style={{
+              position: 'relative',
+              width: '44px',
+              height: '24px',
+              background: useBackendData ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)',
+              borderRadius: '12px',
+              transition: 'background 0.3s',
+              border: '2px solid rgba(255, 255, 255, 0.4)'
+            }}>
+              <input
+                type="checkbox"
+                checked={useBackendData}
+                onChange={(e) => !backendError && setUseBackendData(e.target.checked)}
+                disabled={backendError}
+                style={{
+                  position: 'absolute',
+                  opacity: 0,
+                  width: '100%',
+                  height: '100%',
+                  cursor: backendError ? 'not-allowed' : 'pointer'
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                top: '2px',
+                left: useBackendData ? '22px' : '2px',
+                width: '16px',
+                height: '16px',
+                background: 'white',
+                borderRadius: '50%',
+                transition: 'left 0.3s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }} />
+            </div>
+          </label>
+        </div>
+      </div>
+
       {/* Quick Filter Buttons */}
       <div style={{
         display: "flex",

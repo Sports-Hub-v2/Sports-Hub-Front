@@ -105,4 +105,15 @@ export interface PublicUserProfileResponseDto {
   region?: string;
   preferredPosition?: string;
   isExPlayer?: boolean;
+  // 추가 공개 정보
+  height?: number;
+  weight?: number;
+  bio?: string;
+  profileImageUrl?: string;
+  dominantFoot?: string;
+  careerYears?: number;
+  playStyle?: string;
+  preferredTimeSlots?: string;
+  birthDate?: string;
+  activityStartDate?: string;
 }

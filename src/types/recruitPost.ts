@@ -25,6 +25,8 @@ export interface PostType {
   maxPlayers?: number;
   authorId: number | null;
   authorName: string | null;
+  teamId?: number; // 팀 모집글의 경우 해당 팀의 ID
+  teamName?: string; // 작성자가 소속된 팀 이름
   createdAt: string;
   updatedAt: string;
 

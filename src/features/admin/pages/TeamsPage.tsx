@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Filter, MoreVertical, MapPin, Calendar, Activity, Users, Trophy, TrendingUp, Shield, Edit, Trash2, Eye, Ban, X } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
+import MockDataBanner from "../components/MockDataBanner";
+import { fetchTeamsApi } from "../api/adminApi";
 
 interface Team {
   id: string;
@@ -210,68 +212,111 @@ const TeamsPage = () => {
   // Quick filter preset
   const [quickFilter, setQuickFilter] = useState<string | null>(null);
 
-  const filteredTeams = mockTeams.filter((team) => {
-    const matchesSearch = team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         team.region.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === "all" || team.status === selectedStatus;
-    const matchesRegion = selectedRegion === "all" || team.region.includes(selectedRegion);
+  // Backend data state
+  const [backendTeams, setBackendTeams] = useState<any[]>([]);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+  const [backendError, setBackendError] = useState<string | null>(null);
+  const [useBackendData, setUseBackendData] = useState(false);
+
+  // Fetch backend teams on mount
+  useEffect(() => {
+    const loadBackendTeams = async () => {
+      setIsLoadingBackend(true);
+      setBackendError(null);
+      try {
+        const data = await fetchTeamsApi(0, 100);
+        console.log('Backend teams data:', data);
+        setBackendTeams(data.content || data || []);
+        if (data && (data.content || data.length > 0)) {
+          setUseBackendData(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch backend teams:', error);
+        setBackendError(error instanceof Error ? error.message : 'Failed to fetch teams');
+      } finally {
+        setIsLoadingBackend(false);
+      }
+    };
+    loadBackendTeams();
+  }, []);
+
+  const sourceTeams = useBackendData && backendTeams.length > 0 ? backendTeams : mockTeams;
+
+  const filteredTeams = sourceTeams.filter((team) => {
+    // 안전한 필드 접근
+    const teamName = team.name || '';
+    const teamRegion = team.region || '';
+    const teamStatus = team.status || 'active';
+
+    const matchesSearch = teamName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         teamRegion.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = selectedStatus === "all" || teamStatus === selectedStatus;
+    const matchesRegion = selectedRegion === "all" || teamRegion.includes(selectedRegion);
 
     // Founded date filter
     let matchesFoundedDate = true;
-    if (foundedDateFilter !== "all") {
-      const foundedDate = new Date(team.foundedDate);
-      const now = new Date();
-      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
+    if (foundedDateFilter !== "all" && team.foundedDate) {
+      try {
+        const foundedDate = new Date(team.foundedDate);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
 
-      const diffTime = Math.abs(now.getTime() - foundedDate.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffTime = Math.abs(now.getTime() - foundedDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-      if (foundedDateFilter === "today" && foundedDate < today) matchesFoundedDate = false;
-      if (foundedDateFilter === "yesterday" && (foundedDate < yesterday || foundedDate >= today)) matchesFoundedDate = false;
-      if (foundedDateFilter === "week" && diffDays > 7) matchesFoundedDate = false;
-      if (foundedDateFilter === "month" && diffDays > 30) matchesFoundedDate = false;
-      if (foundedDateFilter === "quarter" && diffDays > 90) matchesFoundedDate = false;
-      if (foundedDateFilter === "year" && diffDays > 365) matchesFoundedDate = false;
+        if (foundedDateFilter === "today" && foundedDate < today) matchesFoundedDate = false;
+        if (foundedDateFilter === "yesterday" && (foundedDate < yesterday || foundedDate >= today)) matchesFoundedDate = false;
+        if (foundedDateFilter === "week" && diffDays > 7) matchesFoundedDate = false;
+        if (foundedDateFilter === "month" && diffDays > 30) matchesFoundedDate = false;
+        if (foundedDateFilter === "quarter" && diffDays > 90) matchesFoundedDate = false;
+        if (foundedDateFilter === "year" && diffDays > 365) matchesFoundedDate = false;
+      } catch (e) {
+        matchesFoundedDate = true; // 날짜 파싱 실패 시 필터링하지 않음
+      }
     }
 
     // Member count filter
     let matchesMemberCount = true;
-    if (memberCountFilter !== "all") {
-      if (memberCountFilter === "low" && team.stats.totalMembers >= 11) matchesMemberCount = false;
-      if (memberCountFilter === "medium" && (team.stats.totalMembers < 11 || team.stats.totalMembers > 18)) matchesMemberCount = false;
-      if (memberCountFilter === "high" && team.stats.totalMembers <= 18) matchesMemberCount = false;
+    if (memberCountFilter !== "all" && team.stats) {
+      const totalMembers = team.stats.totalMembers || 0;
+      if (memberCountFilter === "low" && totalMembers >= 11) matchesMemberCount = false;
+      if (memberCountFilter === "medium" && (totalMembers < 11 || totalMembers > 18)) matchesMemberCount = false;
+      if (memberCountFilter === "high" && totalMembers <= 18) matchesMemberCount = false;
     }
 
     // Matches played filter
     let matchesMatches = true;
-    if (matchesFilter !== "all") {
-      if (matchesFilter === "none" && team.stats.totalMatches > 0) matchesMatches = false;
-      if (matchesFilter === "beginner" && (team.stats.totalMatches < 1 || team.stats.totalMatches > 20)) matchesMatches = false;
-      if (matchesFilter === "intermediate" && (team.stats.totalMatches < 21 || team.stats.totalMatches > 40)) matchesMatches = false;
-      if (matchesFilter === "veteran" && team.stats.totalMatches <= 40) matchesMatches = false;
+    if (matchesFilter !== "all" && team.stats) {
+      const totalMatches = team.stats.totalMatches || 0;
+      if (matchesFilter === "none" && totalMatches > 0) matchesMatches = false;
+      if (matchesFilter === "beginner" && (totalMatches < 1 || totalMatches > 20)) matchesMatches = false;
+      if (matchesFilter === "intermediate" && (totalMatches < 21 || totalMatches > 40)) matchesMatches = false;
+      if (matchesFilter === "veteran" && totalMatches <= 40) matchesMatches = false;
     }
 
     // Win rate filter
     let matchesWinRate = true;
-    if (winRateFilter !== "all") {
-      if (winRateFilter === "high" && team.stats.winRate < 60) matchesWinRate = false;
-      if (winRateFilter === "medium" && (team.stats.winRate < 40 || team.stats.winRate >= 60)) matchesWinRate = false;
-      if (winRateFilter === "low" && team.stats.winRate >= 40) matchesWinRate = false;
+    if (winRateFilter !== "all" && team.stats) {
+      const winRate = team.stats.winRate || 0;
+      if (winRateFilter === "high" && winRate < 60) matchesWinRate = false;
+      if (winRateFilter === "medium" && (winRate < 40 || winRate >= 60)) matchesWinRate = false;
+      if (winRateFilter === "low" && winRate >= 40) matchesWinRate = false;
     }
 
     // Team level filter
     let matchesTeamLevel = true;
-    if (teamLevelFilter !== "all") {
+    if (teamLevelFilter !== "all" && team.teamLevel) {
       if (team.teamLevel !== teamLevelFilter) matchesTeamLevel = false;
     }
 
     // Verified filter
     let matchesVerified = true;
     if (verifiedFilter !== "all") {
-      if (verifiedFilter === "verified" && !team.verified) matchesVerified = false;
-      if (verifiedFilter === "unverified" && team.verified) matchesVerified = false;
+      const isVerified = team.verified || false;
+      if (verifiedFilter === "verified" && !isVerified) matchesVerified = false;
+      if (verifiedFilter === "unverified" && isVerified) matchesVerified = false;
     }
 
     return matchesSearch && matchesStatus && matchesRegion && matchesFoundedDate &&
@@ -279,12 +324,12 @@ const TeamsPage = () => {
   });
 
   const stats = {
-    total: mockTeams.length,
-    active: mockTeams.filter(t => t.status === "active").length,
-    inactive: mockTeams.filter(t => t.status === "inactive").length,
-    disbanded: mockTeams.filter(t => t.status === "disbanded").length,
-    totalMatches: mockTeams.reduce((sum, t) => sum + t.stats.totalMatches, 0),
-    totalMembers: mockTeams.reduce((sum, t) => sum + t.stats.totalMembers, 0),
+    total: sourceTeams.length,
+    active: sourceTeams.filter(t => (t.status || 'active') === "active").length,
+    inactive: sourceTeams.filter(t => (t.status || '') === "inactive").length,
+    disbanded: sourceTeams.filter(t => (t.status || '') === "disbanded").length,
+    totalMatches: sourceTeams.reduce((sum, t) => sum + ((t.stats?.totalMatches) || 0), 0),
+    totalMembers: sourceTeams.reduce((sum, t) => sum + ((t.stats?.totalMembers) || 0), 0),
   };
 
   useEffect(() => {
@@ -386,6 +431,89 @@ const TeamsPage = () => {
 
   return (
     <AdminLayout activePage="teams">
+      <MockDataBanner />
+
+      {/* Backend Data Connection Status */}
+      <div style={{
+        background: isLoadingBackend ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :
+                   backendError ? 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' :
+                   useBackendData ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' :
+                   'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: '0 2px 8px rgba(79, 172, 254, 0.3)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '24px' }}>
+            {isLoadingBackend ? '⏳' : backendError ? '⚠️' : useBackendData ? '🔌' : '🎨'}
+          </span>
+          <div>
+            <div style={{ fontWeight: '600', fontSize: '14px' }}>
+              {isLoadingBackend ? '백엔드 데이터 로딩 중...' :
+               backendError ? '백엔드 연결 오류' :
+               useBackendData ? `실제 데이터 표시 중 (${backendTeams.length}개 팀)` :
+               `목업 데이터 표시 중 (${mockTeams.length}개 팀)`}
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.9 }}>
+              {isLoadingBackend ? 'API 호출 중입니다...' :
+               backendError ? `오류: ${backendError}` :
+               useBackendData ? `백엔드 API에서 ${backendTeams.length}개의 팀 데이터를 가져왔습니다` :
+               '프론트엔드 목업 데이터를 표시하고 있습니다'}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: backendError ? 'not-allowed' : 'pointer',
+            opacity: backendError ? 0.5 : 1
+          }}>
+            <span style={{ fontSize: '12px', fontWeight: '500' }}>실제 데이터</span>
+            <div style={{
+              position: 'relative',
+              width: '44px',
+              height: '24px',
+              background: useBackendData ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)',
+              borderRadius: '12px',
+              transition: 'background 0.3s',
+              border: '2px solid rgba(255, 255, 255, 0.4)'
+            }}>
+              <input
+                type="checkbox"
+                checked={useBackendData}
+                onChange={(e) => !backendError && setUseBackendData(e.target.checked)}
+                disabled={backendError}
+                style={{
+                  position: 'absolute',
+                  opacity: 0,
+                  width: '100%',
+                  height: '100%',
+                  cursor: backendError ? 'not-allowed' : 'pointer'
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                top: '2px',
+                left: useBackendData ? '22px' : '2px',
+                width: '16px',
+                height: '16px',
+                background: 'white',
+                borderRadius: '50%',
+                transition: 'left 0.3s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }} />
+            </div>
+          </label>
+        </div>
+      </div>
+
       {/* Quick Filter Buttons */}
       <div style={{
         display: "flex",

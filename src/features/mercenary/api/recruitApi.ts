@@ -64,6 +64,8 @@ export const fetchRecruitPosts = async (
       maxPlayers: it.maxPlayers ?? null,
       authorId: it.writerProfileId ?? null,
       authorName: it.authorName ?? null,
+      teamId: it.teamId ?? null,
+      teamName: it.teamName ?? null,
       createdAt: it.createdAt ?? new Date().toISOString(),
       updatedAt: it.updatedAt ?? new Date().toISOString(),
       acceptedCount: it.acceptedCount ?? 0,

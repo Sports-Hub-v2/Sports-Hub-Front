@@ -2,6 +2,7 @@
 // 팀원 모집 상세 카드
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import type { PostType } from "@/types/recruitPost";
 import { RecruitStatus } from "@/types/recruitPost";
 
@@ -47,10 +48,21 @@ const TeamDetailCard: React.FC<TeamDetailCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const navigate = useNavigate();
+
   // 팀명 추출
   const extractTeamName = () => {
     const match = post.title.match(/\[(.*?)\]/);
     return match ? match[1] : null;
+  };
+
+  // 팀 페이지로 이동
+  const handleTeamNameClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (post.teamId) {
+      navigate(`/teams/${post.teamId}`);
+      if (onClose) onClose(); // 모달 닫기
+    }
   };
 
   // 작성 시간
@@ -96,7 +108,10 @@ const TeamDetailCard: React.FC<TeamDetailCardProps> = ({
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-center gap-3 flex-wrap">
             {teamName && (
-              <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg">
+              <div
+                className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg hover:bg-white/30 cursor-pointer transition-colors"
+                onClick={handleTeamNameClick}
+              >
                 <span className="text-2xl">⚽</span>
                 <span className="text-white font-bold text-xl">{teamName}</span>
               </div>

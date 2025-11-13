@@ -2,6 +2,7 @@
 // 팀원 모집 카드 - 팀 문화 및 정기 활동 중심
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { PostType } from "@/types/recruitPost";
 
 interface TeamRecruitCardProps {
@@ -19,10 +20,23 @@ const TeamRecruitCard: React.FC<TeamRecruitCardProps> = ({
   isAlreadyApplied = false,
   onCancelApplication,
 }) => {
+  const navigate = useNavigate();
+
   // 팀명 추출
   const extractTeamName = () => {
     const match = post.title.match(/\[(.*?)\]/);
     return match ? match[1] : null;
+  };
+
+  // 팀 페이지로 이동
+  const handleTeamNameClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('팀명 클릭:', { teamId: post.teamId, postId: post.id, title: post.title });
+    if (post.teamId) {
+      navigate(`/teams/${post.teamId}`);
+    } else {
+      console.warn('teamId가 없습니다. 백엔드에서 teamId를 제공하는지 확인하세요.');
+    }
   };
 
   // 작성 시간 표시
@@ -70,7 +84,12 @@ const TeamRecruitCard: React.FC<TeamRecruitCardProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xl">⚽</span>
-              <h3 className="text-white font-bold text-sm">{teamName}</h3>
+              <h3
+                className="text-white font-bold text-sm hover:underline cursor-pointer"
+                onClick={handleTeamNameClick}
+              >
+                {teamName}
+              </h3>
             </div>
             <span className="text-xs text-green-100">{getTimeAgo(post.createdAt)}</span>
           </div>

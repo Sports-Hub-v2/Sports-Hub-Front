@@ -2,6 +2,7 @@
 // 경기 모집 카드 - 경기 일정 및 장소 중심
 
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { PostType } from "@/types/recruitPost";
 
 interface MatchRecruitCardProps {
@@ -19,6 +20,28 @@ const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
   isAlreadyApplied = false,
   onCancelApplication,
 }) => {
+  const navigate = useNavigate();
+
+  // 팀 페이지로 이동
+  const handleTeamClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('팀 클릭:', { teamId: post.teamId, teamName: post.teamName });
+    if (post.teamId) {
+      navigate(`/teams/${post.teamId}`);
+    } else {
+      console.warn('팀 ID가 없습니다.');
+    }
+  };
+
+  // 경기장 위치 클릭 시 네이버 지도로 이동
+  const handleLocationClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (post.fieldLocation) {
+      const searchQuery = encodeURIComponent(`${post.region} ${post.subRegion || ''} ${post.fieldLocation}`.trim());
+      window.open(`https://map.naver.com/v5/search/${searchQuery}`, '_blank');
+    }
+  };
+
   // D-day 계산
   const getDday = () => {
     if (!post.gameDate) return null;
@@ -86,7 +109,7 @@ const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
       {/* 상단: 경기 날짜 헤더 */}
       <div className="bg-gradient-to-r from-purple-600 to-purple-700 px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5">
               <p className="text-white font-bold text-lg leading-none">
                 {formatGameDate(post.gameDate)}
@@ -140,11 +163,17 @@ const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
         </h3>
 
         {/* 경기장 위치 - 크게 강조 */}
-        <div className="mb-3 p-3 bg-purple-50 rounded-lg border border-purple-100">
+        <div
+          className="mb-3 p-3 bg-purple-50 rounded-lg border border-purple-100 hover:bg-purple-100 hover:border-purple-200 cursor-pointer transition-colors"
+          onClick={handleLocationClick}
+          title="지도에서 보기"
+        >
           <div className="flex items-start gap-2">
             <span className="text-lg mt-0.5">📍</span>
             <div className="flex-1">
-              <p className="text-xs text-purple-600 font-medium mb-0.5">경기장</p>
+              <p className="text-xs text-purple-600 font-medium mb-0.5 flex items-center gap-1">
+                경기장 <span className="text-[10px]">🗺️</span>
+              </p>
               <p className="text-sm font-bold text-purple-900">
                 {post.fieldLocation || "장소 미정"}
               </p>
@@ -177,13 +206,26 @@ const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
         {/* 하단: 설명 + 버튼 */}
         <div className="flex items-end justify-between gap-3">
           <div className="flex-1 min-w-0">
-            {post.content ? (
-              <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
-                {post.content}
+            {post.authorName && (
+              <p className="text-xs text-gray-500 mb-1">
+                주최: <span className="font-semibold text-gray-700">{post.authorName}</span>
+                {post.teamName && (
+                  <>
+                    <span className="text-gray-400 mx-1">|</span>
+                    <span
+                      className="font-semibold text-purple-600 hover:text-purple-700 cursor-pointer hover:underline"
+                      onClick={handleTeamClick}
+                      title={post.teamId ? "팀 페이지로 이동" : "팀 정보 없음"}
+                    >
+                      {post.teamName}
+                    </span>
+                  </>
+                )}
               </p>
-            ) : (
-              <p className="text-xs text-gray-500">
-                {post.authorName && `주최: ${post.authorName}`}
+            )}
+            {post.content && (
+              <p className="text-xs text-gray-600 line-clamp-1 leading-relaxed">
+                {post.content}
               </p>
             )}
           </div>

@@ -1,8 +1,10 @@
 ﻿import { useLocation, useNavigate } from "react-router-dom";
 import { X, Search, Filter, Eye, Edit2, Trash2, CheckCircle, Clock, FileText, MessageSquare, AlertTriangle, Ban, Shield } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminLayout from "../components/AdminLayout";
+import MockDataBanner from "../components/MockDataBanner";
 import ContentDetailModal from "../components/ContentDetailModal";
+import { fetchPostsApi } from "../api/adminApi";
 
 const contentMetrics = [
   {
@@ -648,6 +650,34 @@ const ContentPage = () => {
     sortBy: 'newest' // newest, oldest, views
   });
 
+  // Backend data state
+  const [backendPosts, setBackendPosts] = useState<any[]>([]);
+  const [isLoadingBackend, setIsLoadingBackend] = useState(false);
+  const [backendError, setBackendError] = useState<string | null>(null);
+  const [useBackendData, setUseBackendData] = useState(false);
+
+  // Fetch backend posts on mount
+  useEffect(() => {
+    const loadBackendPosts = async () => {
+      setIsLoadingBackend(true);
+      setBackendError(null);
+      try {
+        const data = await fetchPostsApi(0, 100);
+        console.log('Backend posts data:', data);
+        setBackendPosts(data.content || data || []);
+        if (data && (data.content || data.length > 0)) {
+          setUseBackendData(true);
+        }
+      } catch (error) {
+        console.error('Failed to fetch backend posts:', error);
+        setBackendError(error instanceof Error ? error.message : 'Failed to fetch posts');
+      } finally {
+        setIsLoadingBackend(false);
+      }
+    };
+    loadBackendPosts();
+  }, []);
+
   const clearFilter = () => {
     navigate('/admin/content', { replace: true, state: {} });
   };
@@ -730,6 +760,89 @@ const ContentPage = () => {
 
   return (
     <AdminLayout activePage="content">
+      <MockDataBanner />
+
+      {/* Backend Data Connection Status */}
+      <div style={{
+        background: isLoadingBackend ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :
+                   backendError ? 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' :
+                   useBackendData ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' :
+                   'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        marginBottom: '16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: '0 2px 8px rgba(79, 172, 254, 0.3)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span style={{ fontSize: '24px' }}>
+            {isLoadingBackend ? '⏳' : backendError ? '⚠️' : useBackendData ? '🔌' : '🎨'}
+          </span>
+          <div>
+            <div style={{ fontWeight: '600', fontSize: '14px' }}>
+              {isLoadingBackend ? '백엔드 데이터 로딩 중...' :
+               backendError ? '백엔드 연결 오류' :
+               useBackendData ? `실제 데이터 표시 중 (${backendPosts.length}개 게시물)` :
+               `목업 데이터 표시 중`}
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.9 }}>
+              {isLoadingBackend ? 'API 호출 중입니다...' :
+               backendError ? `오류: ${backendError}` :
+               useBackendData ? `백엔드 API에서 ${backendPosts.length}개의 게시물 데이터를 가져왔습니다` :
+               '프론트엔드 목업 데이터를 표시하고 있습니다'}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: backendError ? 'not-allowed' : 'pointer',
+            opacity: backendError ? 0.5 : 1
+          }}>
+            <span style={{ fontSize: '12px', fontWeight: '500' }}>실제 데이터</span>
+            <div style={{
+              position: 'relative',
+              width: '44px',
+              height: '24px',
+              background: useBackendData ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)',
+              borderRadius: '12px',
+              transition: 'background 0.3s',
+              border: '2px solid rgba(255, 255, 255, 0.4)'
+            }}>
+              <input
+                type="checkbox"
+                checked={useBackendData}
+                onChange={(e) => !backendError && setUseBackendData(e.target.checked)}
+                disabled={backendError}
+                style={{
+                  position: 'absolute',
+                  opacity: 0,
+                  width: '100%',
+                  height: '100%',
+                  cursor: backendError ? 'not-allowed' : 'pointer'
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                top: '2px',
+                left: useBackendData ? '22px' : '2px',
+                width: '16px',
+                height: '16px',
+                background: 'white',
+                borderRadius: '50%',
+                transition: 'left 0.3s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }} />
+            </div>
+          </label>
+        </div>
+      </div>
+
       {/* Filter Banner */}
       {isFilterActive && (
         <div
