@@ -203,13 +203,10 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
             )}
 
             {/* 포지션 */}
-            {post.preferredPositions && post.preferredPositions.length > 0 && (
+            {post.preferredPositions && (
               <div className="flex items-center gap-1 text-gray-700">
                 <span>⚽</span>
-                <span>
-                  {post.preferredPositions.slice(0, 2).join(", ")}
-                  {post.preferredPositions.length > 2 && " 외"}
-                </span>
+                <span>{post.preferredPositions}</span>
               </div>
             )}
           </div>
