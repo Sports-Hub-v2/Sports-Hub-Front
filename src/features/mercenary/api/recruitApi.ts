@@ -21,10 +21,11 @@ export const fetchRecruitPosts = async (
 ): Promise<PostType[]> => {
   try {
     // 프론트엔드 카테고리를 백엔드 카테고리로 매핑
+    // 백엔드가 TEAM, MATCH를 그대로 사용하므로 매핑 불필요
     const categoryMap: Record<string, string> = {
       'MERCENARY': 'MERCENARY',
-      'TEAM': 'TEAM_MEMBER',
-      'MATCH': 'MATCH_OPPONENT'
+      'TEAM': 'TEAM',
+      'MATCH': 'MATCH'
     };
     const backendCategory = categoryMap[category] || category;
 
