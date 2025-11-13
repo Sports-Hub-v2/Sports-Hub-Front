@@ -21,7 +21,7 @@ export interface TeamCreateRequestDto {
  */
 export const getTeamsByProfileApi = async (profileId: number): Promise<Team[]> => {
   try {
-    const response = await axiosInstance.get<Team[]>(`/api/teams/memberships/by-profile/${profileId}`);
+    const response = await axiosInstance.get<Team[]>(`http://localhost:8083/api/teams/memberships/by-profile/${profileId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching teams for profile ID ${profileId}:`, error);
@@ -55,7 +55,7 @@ export const createTeamApi = async (
       requestData.captainProfileId = (user?.profileId as number | undefined) ?? 1;
     }
 
-    const response = await axiosInstance.post<Team>("/api/teams", requestData);
+    const response = await axiosInstance.post<Team>("http://localhost:8083/api/teams", requestData);
     return response.data;
   } catch (error: unknown) {
     // ▼▼▼ 버전에 상관없이 동작하는 안전한 에러 처리 로직 ▼▼▼
@@ -75,7 +75,7 @@ export const createTeamApi = async (
  */
 export const getTeamDetailApi = async (teamId: string): Promise<Team> => {
   try {
-    const response = await axiosInstance.get<Team>(`/api/teams/${teamId}`);
+    const response = await axiosInstance.get<Team>(`http://localhost:8083/api/teams/${teamId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching team detail for ID ${teamId}:`, error);

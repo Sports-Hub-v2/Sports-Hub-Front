@@ -1,13 +1,13 @@
-﻿// src/types/user.ts
+// src/types/user.ts
 
 /**
- * ?쒕쾭 ?묐떟 ?먮뒗 ???대??먯꽌 ?ъ슜???ъ슜???뺣낫 ???
- * 諛깆뿏??UserResponseDto.java ? ?꾨뱶 援ъ“瑜??쇱튂?쒗궢?덈떎.
+ * 백엔드 UserResponseDto와 일치하는 사용자 정보 타입
  */
-export interface UserResponseDto { // 諛깆뿏??UserResponseDto? ?쇱튂?쒗궗 ???  id: number;
+export interface UserResponseDto {
+  id: number;
   name: string;
   email: string;
-  userid: string; // User.java 諛?UserResponseDto.java 湲곗?
+  userid: string;
   role?: string;
   isExPlayer?: boolean;
   region?: string;
@@ -18,23 +18,32 @@ export interface UserResponseDto { // 諛깆뿏??UserResponseDto? ?쇱튂?쒗�
   birthDate?: string;
   createdAt?: string;
   updatedAt?: string;
+
+  // 추가 필드
+  height?: number;              // 키 (cm)
+  weight?: number;              // 몸무게 (kg)
+  bio?: string;                 // 자기소개
+  profileImageUrl?: string;     // 프로필 이미지 URL
+  dominantFoot?: string;        // 주발 (RIGHT/LEFT/BOTH)
+  careerYears?: number;         // 축구 경력 (년)
+  playStyle?: string;           // 플레이 스타일
+  instagramUrl?: string;        // 인스타그램 URL
+  facebookUrl?: string;         // 페이스북 URL
+  preferredTimeSlots?: string;  // 선호 시간대
 }
 
 /**
- * 湲곗〈 User ?명꽣?섏씠??(UserResponseDto? ?숈씪?섍쾶 ?ъ슜?섍굅??
- * ???대? ?쒗쁽??留욊쾶 ?꾨뱶瑜?異붽?/?쒖쇅?????덉뒿?덈떎.)
- * ?ш린?쒕뒗 UserResponseDto? ?숈씪?섍쾶 ?뺤쓽?⑸땲??
+ * User 타입 (UserResponseDto와 동일)
  */
 export type User = UserResponseDto;
 
-
 /**
- * ?뚯썝媛???붿껌 ???쒕쾭濡??꾩넚???곗씠?곗쓽 援ъ“瑜??뺤쓽?섎뒗 ???
+ * 회원가입 요청 DTO
  */
 export interface UserSignUpRequestDto {
   name: string;
   email: string;
-  userid: string; // 諛깆뿏??UserSignUpRequestDto.java??'userid'瑜??ъ슜
+  userid: string;
   password: string;
   isExPlayer?: boolean;
   region?: string;
@@ -43,42 +52,57 @@ export interface UserSignUpRequestDto {
 }
 
 /**
- * 濡쒓렇???붿껌 DTO.
- * 諛깆뿏??濡쒓렇??DTO??"loginId" ?꾨뱶瑜?湲곕??⑸땲??(?ㅻ쪟 硫붿떆吏 湲곕컲).
+ * 로그인 요청 DTO
  */
 export interface UserLoginRequestDto {
-  loginId: string; // ??諛깆뿏?쒖뿉??湲곕??섎뒗 ?꾨뱶紐?  password: string;
+  loginId: string;
+  password: string;
 }
 
 /**
- * ?몄쬆 ?묐떟 DTO.
- * 諛깆뿏?쒖쓽 AuthLoginResponseDto.java 援ъ“? ?쇱튂?쒗궢?덈떎.
+ * 인증 응답 DTO
  */
 export interface AuthResponseDto {
-  token: string; // 諛깆뿏??AuthLoginResponseDto.java???꾨뱶紐?'token'
-  user: UserResponseDto; // 濡쒓렇????諛섑솚?섎뒗 ?ъ슜???뺣낫
+  token: string;
+  user: UserResponseDto;
 }
 
+/**
+ * 프로필 업데이트 DTO
+ */
 export interface UserProfileUpdateDto {
-  name?: string;                 // @Size(max = 50)
-  email?: string;                // @Email, @Size(max = 100)
-  password?: string;             // @Size(max = 255), 蹂댄넻 蹂꾨룄 API ?ъ슜
-  isExPlayer?: boolean;          //
-  region?: string;               //
-  preferredPosition?: string;    //
-  phoneNumber?: string;          // @Size(max = 20)
-  activityStartDate?: string;    // Java??LocalDate??string?쇰줈
-  activityEndDate?: string;      // Java??LocalDate??string?쇰줈
-  birthDate?: string;            // Java??LocalDate??string?쇰줈
+  name?: string;
+  email?: string;
+  password?: string;
+  isExPlayer?: boolean;
+  region?: string;
+  preferredPosition?: string;
+  phoneNumber?: string;
+  activityStartDate?: string;
+  activityEndDate?: string;
+  birthDate?: string;
+
+  // 추가 필드
+  height?: number;
+  weight?: number;
+  bio?: string;
+  profileImageUrl?: string;
+  dominantFoot?: string;
+  careerYears?: number;
+  playStyle?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  preferredTimeSlots?: string;
 }
 
+/**
+ * 공개 프로필 응답 DTO
+ */
 export interface PublicUserProfileResponseDto {
   id: number;
   name: string;
-  userid: string; // ?먮뒗 loginId ??諛깆뿏??DTO ?꾨뱶紐낃낵 ?쇱튂
+  userid: string;
   region?: string;
   preferredPosition?: string;
   isExPlayer?: boolean;
-  // 諛깆뿏??PublicUserProfileResponseDto???뺤쓽???ㅻⅨ 怨듦컻 ?꾨뱶??}
-
-
+}

@@ -1,7 +1,7 @@
 // src/features/myPage/pages/MyPageLayout.tsx
 
 import React, { useState, useEffect } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/useAuthStore";
 import MatchDayStyleProfile from "@/components/common/MatchDayStyleProfile";
 import MatchDayStyleTabs from "@/components/common/MatchDayStyleTabs";
@@ -10,6 +10,7 @@ import { getTeamsByProfileApi } from "@/features/team/api/teamApi";
 const MyPageLayout: React.FC = () => {
   const { user } = useAuthStore();
   const location = useLocation();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     matchesPlayed: 0,
     teamsCount: 0,
@@ -90,8 +91,7 @@ const MyPageLayout: React.FC = () => {
   };
 
   const handleEditProfile = () => {
-    // TODO: 프로필 수정 페이지로 이동
-    alert("프로필 수정 기능은 준비 중입니다.");
+    navigate("/mypage/edit");
   };
 
   if (!user) {

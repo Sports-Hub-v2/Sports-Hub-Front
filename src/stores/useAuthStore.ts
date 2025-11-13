@@ -84,14 +84,21 @@ export const useAuthStore = create<AuthState>((set) => ({
     localStorage.setItem("user", JSON.stringify(userToStore));
     set({ token, user: userToStore, isLoggedIn: true });
 
-    // Fetch profile by accountId to attach profileId
+    // Fetch profile by accountId to attach profileId and name
     const accountId = userToStore.id;
-    fetch(`/api/users/profiles/by-account/${accountId}`)
+    fetch(`http://localhost:8082/api/users/profiles/by-account/${accountId}`)
       .then(async (res) => (res.ok ? ((await res.json()) as any) : null))
       .then((prof) => {
         if (prof && typeof prof.id === "number") {
           const current = JSON.parse(localStorage.getItem("user") || "null") as any;
-          const nextUser = { ...(current ?? userToStore), profileId: prof.id };
+          const nextUser = {
+            ...(current ?? userToStore),
+            profileId: prof.id,
+            name: prof.name || userToStore.name,  // 프로필에서 실제 이름 가져오기
+            region: prof.region,
+            preferredPosition: prof.preferredPosition,
+            phoneNumber: prof.phoneNumber
+          };
           localStorage.setItem("user", JSON.stringify(nextUser));
           set({ user: nextUser });
         }
@@ -148,13 +155,20 @@ export const useAuthStore = create<AuthState>((set) => ({
       } as StoreUser;
       set({ token: accessToken, user: userToStore, isLoggedIn: true });
 
-      // Attach profileId in background
+      // Attach profileId and name in background
       try {
-        const res2 = await fetch(`/api/users/profiles/by-account/${userToStore.id}`);
+        const res2 = await fetch(`http://localhost:8082/api/users/profiles/by-account/${userToStore.id}`);
         if (res2.ok) {
           const prof: any = await res2.json();
           if (prof && typeof prof.id === "number") {
-            const nextUser = { ...userToStore, profileId: prof.id } as StoreUser;
+            const nextUser = {
+              ...userToStore,
+              profileId: prof.id,
+              name: prof.name || userToStore.name,
+              region: prof.region,
+              preferredPosition: prof.preferredPosition,
+              phoneNumber: prof.phoneNumber
+            } as StoreUser;
             localStorage.setItem("user", JSON.stringify(nextUser));
             set({ user: nextUser });
           }
@@ -173,11 +187,18 @@ if (typeof window !== 'undefined') {
       const raw = localStorage.getItem('user');
       const u = raw ? (JSON.parse(raw) as any) : null;
       if (u && !u.profileId && typeof u.id === 'number') {
-        const res = await fetch(`/api/users/profiles/by-account/${u.id}`);
+        const res = await fetch(`http://localhost:8082/api/users/profiles/by-account/${u.id}`);
         if (res.ok) {
           const prof: any = await res.json();
           if (prof && typeof prof.id === 'number') {
-            const nextUser = { ...u, profileId: prof.id };
+            const nextUser = {
+              ...u,
+              profileId: prof.id,
+              name: prof.name || u.name,
+              region: prof.region,
+              preferredPosition: prof.preferredPosition,
+              phoneNumber: prof.phoneNumber
+            };
             localStorage.setItem('user', JSON.stringify(nextUser));
             // Zustand direct set
             (useAuthStore as any).setState({ user: nextUser });

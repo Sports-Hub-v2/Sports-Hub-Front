@@ -52,7 +52,7 @@ const TeamDetailPage: React.FC = () => {
 
         // 팀 멤버 조회
         const membersResponse = await axiosInstance.get(
-          `/api/teams/${teamId}/members`
+          `http://localhost:8083/api/teams/${teamId}/members`
         );
         setMembers(membersResponse.data || []);
 
@@ -84,7 +84,7 @@ const TeamDetailPage: React.FC = () => {
     setIsJoining(true);
     try {
       const response = await axiosInstance.post(
-        `/api/teams/${teamId}/members`,
+        `http://localhost:8083/api/teams/${teamId}/members`,
         {
           profileId: user.profileId,
           roleInTeam: "MEMBER",
@@ -94,7 +94,7 @@ const TeamDetailPage: React.FC = () => {
       setUserMembership(response.data);
       // 멤버 목록 새로고침
       const membersResponse = await axiosInstance.get(
-        `/api/teams/${teamId}/members`
+        `http://localhost:8083/api/teams/${teamId}/members`
       );
       setMembers(membersResponse.data || []);
     } catch (err) {
@@ -115,11 +115,11 @@ const TeamDetailPage: React.FC = () => {
     if (!confirm("정말로 팀을 탈퇴하시겠습니까?")) return;
 
     try {
-      await axiosInstance.delete(`/api/teams/${teamId}/members/${user.profileId}`);
+      await axiosInstance.delete(`http://localhost:8083/api/teams/${teamId}/members/${user.profileId}`);
       setUserMembership(null);
       // 멤버 목록 새로고침
       const membersResponse = await axiosInstance.get(
-        `/api/teams/${teamId}/members`
+        `http://localhost:8083/api/teams/${teamId}/members`
       );
       setMembers(membersResponse.data || []);
     } catch (err) {
@@ -153,6 +153,34 @@ const TeamDetailPage: React.FC = () => {
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getSkillLevelKorean = (level: string | null) => {
+    switch (level) {
+      case "BEGINNER":
+        return "초급";
+      case "INTERMEDIATE":
+        return "중급";
+      case "ADVANCED":
+        return "고급";
+      case "PROFESSIONAL":
+        return "프로";
+      default:
+        return level;
+    }
+  };
+
+  const getActivityTypeKorean = (type: string | null) => {
+    switch (type) {
+      case "REGULAR":
+        return "정기 활동";
+      case "WEEKEND":
+        return "주말 활동";
+      case "CASUAL":
+        return "자유 활동";
+      default:
+        return type;
     }
   };
 
@@ -201,7 +229,7 @@ const TeamDetailPage: React.FC = () => {
 
           <div className="flex items-start gap-6">
             {/* 팀 로고 */}
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg relative overflow-hidden">
               {team.logoUrl ? (
                 <img
                   src={team.logoUrl}
@@ -209,7 +237,19 @@ const TeamDetailPage: React.FC = () => {
                   className="w-full h-full object-cover rounded-xl"
                 />
               ) : (
-                team.teamName?.charAt(0) || "T"
+                <div className="flex flex-col items-center justify-center">
+                  <svg
+                    className="w-12 h-12 text-white opacity-90"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                  </svg>
+                  <span className="text-xs font-semibold mt-1">
+                    {team.teamName?.charAt(0) || "T"}
+                  </span>
+                </div>
               )}
             </div>
 
@@ -226,7 +266,7 @@ const TeamDetailPage: React.FC = () => {
                         team.skillLevel
                       )}`}
                     >
-                      {team.skillLevel}
+                      {getSkillLevelKorean(team.skillLevel)}
                     </span>
                   )}
                   {team.activityType && (
@@ -235,7 +275,7 @@ const TeamDetailPage: React.FC = () => {
                         team.activityType
                       )}`}
                     >
-                      {team.activityType}
+                      {getActivityTypeKorean(team.activityType)}
                     </span>
                   )}
                 </div>
@@ -373,48 +413,180 @@ const TeamDetailPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* 팀 상세 정보 */}
             <div className="lg:col-span-2 space-y-6">
+              {/* 팀 소개 */}
+              {team.description && (
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <span>📝</span>
+                    팀 소개
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+                    {team.description}
+                  </p>
+                </div>
+              )}
+
+              {/* 팀 상세 정보 */}
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span>ℹ️</span>
                   팀 상세 정보
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {team.ageGroup && (
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">
-                        연령대
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">📍</div>
+                    <div className="flex-1">
+                      <dt className="text-sm font-medium text-gray-500 mb-1">
+                        활동 지역
                       </dt>
-                      <dd className="mt-1 text-sm text-gray-900">
-                        {team.ageGroup}
+                      <dd className="text-sm text-gray-900 font-medium">
+                        {team.region || "지역 미정"}
                       </dd>
                     </div>
-                  )}
+                  </div>
+
                   {team.homeGround && (
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">
-                        홈구장
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900">
-                        {team.homeGround}
-                      </dd>
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">🏟️</div>
+                      <div className="flex-1">
+                        <dt className="text-sm font-medium text-gray-500 mb-1">
+                          주요 활동 구장
+                        </dt>
+                        <dd className="text-sm text-gray-900 font-medium">
+                          {team.homeGround}
+                        </dd>
+                      </div>
                     </div>
                   )}
+
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">📅</div>
+                    <div className="flex-1">
+                      <dt className="text-sm font-medium text-gray-500 mb-1">
+                        창설일
+                      </dt>
+                      <dd className="text-sm text-gray-900 font-medium">
+                        {new Date(team.createdAt).toLocaleDateString("ko-KR", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                        <span className="text-xs text-gray-500 ml-2">
+                          (활동 {Math.floor((new Date().getTime() - new Date(team.createdAt).getTime()) / (1000 * 60 * 60 * 24))}일)
+                        </span>
+                      </dd>
+                    </div>
+                  </div>
+
+                  {team.skillLevel && (
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">⭐</div>
+                      <div className="flex-1">
+                        <dt className="text-sm font-medium text-gray-500 mb-1">
+                          팀 실력 수준
+                        </dt>
+                        <dd className="text-sm text-gray-900 font-medium">
+                          {getSkillLevelKorean(team.skillLevel)}
+                        </dd>
+                      </div>
+                    </div>
+                  )}
+
+                  {team.activityType && (
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">🎯</div>
+                      <div className="flex-1">
+                        <dt className="text-sm font-medium text-gray-500 mb-1">
+                          활동 유형
+                        </dt>
+                        <dd className="text-sm text-gray-900 font-medium">
+                          {getActivityTypeKorean(team.activityType)}
+                        </dd>
+                      </div>
+                    </div>
+                  )}
+
+                  {team.ageGroup && (
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">👥</div>
+                      <div className="flex-1">
+                        <dt className="text-sm font-medium text-gray-500 mb-1">
+                          연령대
+                        </dt>
+                        <dd className="text-sm text-gray-900 font-medium">
+                          {team.ageGroup}
+                        </dd>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl">👤</div>
+                    <div className="flex-1">
+                      <dt className="text-sm font-medium text-gray-500 mb-1">
+                        팀 정원
+                      </dt>
+                      <dd className="text-sm text-gray-900 font-medium">
+                        현재 {members.length}명
+                        {team.maxMembers ? ` / 최대 ${team.maxMembers}명` : ""}
+                      </dd>
+                      {team.maxMembers && (
+                        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-blue-600 h-2 rounded-full"
+                            style={{
+                              width: `${Math.min((members.length / team.maxMembers) * 100, 100)}%`,
+                            }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   {team.rivalTeams && (
-                    <div>
-                      <dt className="text-sm font-medium text-gray-500">
-                        라이벌 팀
-                      </dt>
-                      <dd className="mt-1 text-sm text-gray-900">
-                        {team.rivalTeams}
-                      </dd>
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">🔥</div>
+                      <div className="flex-1">
+                        <dt className="text-sm font-medium text-gray-500 mb-1">
+                          라이벌 팀
+                        </dt>
+                        <dd className="text-sm text-gray-900 font-medium">
+                          {team.rivalTeams}
+                        </dd>
+                      </div>
                     </div>
                   )}
-                  <div>
-                    <dt className="text-sm font-medium text-gray-500">
-                      창설일
-                    </dt>
-                    <dd className="mt-1 text-sm text-gray-900">
-                      {new Date(team.createdAt).toLocaleDateString()}
-                    </dd>
+                </div>
+              </div>
+
+              {/* 팀 활동 정보 */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <span>📊</span>
+                  활동 현황
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{members.length}</div>
+                    <div className="text-xs text-gray-600 mt-1">총 멤버</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">
+                      {members.filter((m) => m.isActive).length}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">활동 중</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {members.filter((m) => m.roleInTeam === "CAPTAIN").length}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">주장</div>
+                  </div>
+                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {Math.floor((new Date().getTime() - new Date(team.createdAt).getTime()) / (1000 * 60 * 60 * 24 * 30))}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">활동 개월</div>
                   </div>
                 </div>
               </div>
@@ -423,28 +595,82 @@ const TeamDetailPage: React.FC = () => {
             {/* 팀 통계 */}
             <div className="space-y-6">
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-yellow-500" />
                   팀 통계
                 </h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">총 멤버</span>
-                    <span className="font-semibold">{members.length}명</span>
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      총 멤버
+                    </span>
+                    <span className="font-semibold text-lg text-gray-900">{members.length}명</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">주장</span>
-                    <span className="font-semibold">
-                      {members.filter((m) => m.roleInTeam === "CAPTAIN").length}
-                      명
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-yellow-500" />
+                      주장
+                    </span>
+                    <span className="font-semibold text-lg text-gray-900">
+                      {members.filter((m) => m.roleInTeam === "CAPTAIN").length}명
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-600">일반 멤버</span>
-                    <span className="font-semibold">
-                      {members.filter((m) => m.roleInTeam === "MEMBER").length}
-                      명
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Star className="w-4 h-4" />
+                      일반 멤버
+                    </span>
+                    <span className="font-semibold text-lg text-gray-900">
+                      {members.filter((m) => m.roleInTeam === "MEMBER").length}명
                     </span>
                   </div>
+                  <div className="flex items-center justify-between py-3">
+                    <span className="text-gray-600 flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-green-500" />
+                      활동 멤버
+                    </span>
+                    <span className="font-semibold text-lg text-green-600">
+                      {members.filter((m) => m.isActive).length}명
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 최근 가입 멤버 */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <UserPlus className="w-5 h-5 text-blue-500" />
+                  최근 가입 멤버
+                </h3>
+                <div className="space-y-3">
+                  {members
+                    .sort((a, b) => new Date(b.joinedAt).getTime() - new Date(a.joinedAt).getTime())
+                    .slice(0, 5)
+                    .map((member) => (
+                      <div
+                        key={`${member.id.teamId}-${member.id.profileId}`}
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50"
+                      >
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
+                          {member.profileName?.charAt(0) || "?"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-gray-900 truncate">
+                            {member.profileName || `멤버 ${member.id.profileId}`}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {new Date(member.joinedAt).toLocaleDateString("ko-KR", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </div>
+                        </div>
+                        {member.roleInTeam === "CAPTAIN" && (
+                          <Crown className="w-4 h-4 text-yellow-500" />
+                        )}
+                      </div>
+                    ))}
                 </div>
               </div>
             </div>

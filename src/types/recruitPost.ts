@@ -144,6 +144,7 @@ export interface RecruitPostResponseDto {
   authorName: string | null;
   createdAt: string; // "YYYY-MM-DDTHH:mm:ss" 형식의 ISO 문자열
   updatedAt: string;
+  acceptedCount?: number; // 승인된 신청자 수
 }
 
 export type RecruitPostUpdateRequestDto =

@@ -40,6 +40,7 @@ import UserTeamList from "@/features/mypage/components/UserTeamList";
 import MyPost from "@/features/mypage/components/MyPost";
 import MyApplicationPage from "@/features/mypage/components/MyApplicationPage";
 import MyNotifications from "@/features/mypage/components/MyNotifications";
+import MyProfileEditPage from "@/features/mypage/pages/MyProfileEditPage";
 import MercenaryApplyPage from "@/features/mercenary/pages/MercenaryApplyPage.tsx";
 
 // Fallback Page
@@ -69,6 +70,9 @@ const AppRouter = () => {
             <Route path="posts" element={<MyPost />} />
             <Route path="applications" element={<MyApplicationPage />} />
           </Route>
+
+          {/* MyPage Edit - separate route */}
+          <Route path="mypage/edit" element={<MyProfileEditPage />} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />

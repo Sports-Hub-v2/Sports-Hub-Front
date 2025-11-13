@@ -78,19 +78,16 @@ export const loginApi = async (
     headers: { "Content-Type": "application/json" },
   });
 
-  const { accessToken, refreshToken } = (res.data as any) || {};
+  const { accessToken, refreshToken, account } = (res.data as any) || {};
   if (!accessToken) throw new Error("로그인 실패: 토큰 없음");
 
-  const claims = decodeJwt(accessToken);
+  // 백엔드 응답의 account 객체 사용
   const user: UserResponseDto = {
-    id: Number(claims.accountId ?? 0),
-    name:
-      typeof claims.email === "string" && (claims.email as string).includes("@")
-        ? (claims.email as string).split("@")[0]
-        : "user",
-    userid: (claims.userid as string) ?? "",
-    email: (claims.email as string) ?? "",
-    role: (claims.role as string) ?? "USER",
+    id: account?.id ?? 0,
+    name: account?.userid ?? "user",  // name은 프로필에서 가져옴 (일단 userid 표시)
+    userid: account?.userid ?? "",
+    email: account?.email ?? "",
+    role: account?.role ?? "USER",
   } as UserResponseDto;
 
   if (opts?.persistRefresh) {

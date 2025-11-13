@@ -117,7 +117,7 @@ const ImprovedMercenaryCard = ({
     >
       {/* 상태 뱃지 */}
       <div className="absolute top-3 left-3 z-10 flex gap-2">
-        <span className="px-3 py-1 bg-blue-500/90 backdrop-blur text-white text-xs font-bold rounded-full">
+        <span className="px-3 py-1 bg-blue-750/90 backdrop-blur text-white text-xs font-bold rounded-full">
           {post.status === "RECRUITING" ? "모집중" : "모집완료"}
         </span>
         {urgent && (

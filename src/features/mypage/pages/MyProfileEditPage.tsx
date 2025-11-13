@@ -17,7 +17,7 @@ const updateUserProfileApi = async (data: UserProfileUpdateDto): Promise<UserRes
   if (typeof body.isExPlayer === 'boolean') body.isExPlayer = String(body.isExPlayer);
   delete body.password;
 
-  const res = await axiosInstance.patch(`/api/users/profiles/${profileId}`, body, {
+  const res = await axiosInstance.patch(`http://localhost:8082/api/users/profiles/${profileId}`, body, {
     headers: { 'Content-Type': 'application/json' },
   });
 
@@ -59,6 +59,16 @@ const MyProfileEditPage: React.FC = () => {
     activityStartDate: undefined,
     activityEndDate: undefined,
     birthDate: undefined,
+    height: undefined,
+    weight: undefined,
+    bio: '',
+    profileImageUrl: '',
+    dominantFoot: '',
+    careerYears: undefined,
+    playStyle: '',
+    instagramUrl: '',
+    facebookUrl: '',
+    preferredTimeSlots: '',
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -87,6 +97,16 @@ const MyProfileEditPage: React.FC = () => {
           activityStartDate: current.activityStartDate ? current.activityStartDate.split('T')[0] : undefined,
           activityEndDate: current.activityEndDate ? current.activityEndDate.split('T')[0] : undefined,
           birthDate: current.birthDate ? current.birthDate.split('T')[0] : undefined,
+          height: current.height,
+          weight: current.weight,
+          bio: current.bio,
+          profileImageUrl: current.profileImageUrl,
+          dominantFoot: current.dominantFoot,
+          careerYears: current.careerYears,
+          playStyle: current.playStyle,
+          instagramUrl: current.instagramUrl,
+          facebookUrl: current.facebookUrl,
+          preferredTimeSlots: current.preferredTimeSlots,
         });
       } catch (e) {
         setError('프로필 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.');
@@ -139,6 +159,18 @@ const MyProfileEditPage: React.FC = () => {
     if (pick(formData.activityEndDate) !== authUserInStore?.activityEndDate?.split('T')[0]) updatePayload.activityEndDate = pick(formData.activityEndDate);
     if (pick(formData.birthDate) !== authUserInStore?.birthDate?.split('T')[0]) updatePayload.birthDate = pick(formData.birthDate);
 
+    // 새로운 필드 체크
+    if (formData.height !== authUserInStore?.height) updatePayload.height = formData.height;
+    if (formData.weight !== authUserInStore?.weight) updatePayload.weight = formData.weight;
+    if (formData.bio !== authUserInStore?.bio) updatePayload.bio = formData.bio || undefined;
+    if (formData.profileImageUrl !== authUserInStore?.profileImageUrl) updatePayload.profileImageUrl = formData.profileImageUrl || undefined;
+    if (formData.dominantFoot !== authUserInStore?.dominantFoot) updatePayload.dominantFoot = formData.dominantFoot || undefined;
+    if (formData.careerYears !== authUserInStore?.careerYears) updatePayload.careerYears = formData.careerYears;
+    if (formData.playStyle !== authUserInStore?.playStyle) updatePayload.playStyle = formData.playStyle || undefined;
+    if (formData.instagramUrl !== authUserInStore?.instagramUrl) updatePayload.instagramUrl = formData.instagramUrl || undefined;
+    if (formData.facebookUrl !== authUserInStore?.facebookUrl) updatePayload.facebookUrl = formData.facebookUrl || undefined;
+    if (formData.preferredTimeSlots !== authUserInStore?.preferredTimeSlots) updatePayload.preferredTimeSlots = formData.preferredTimeSlots || undefined;
+
     if (Object.keys(updatePayload).length === 0) {
       setSuccessMessage('변경된 사항이 없습니다.');
       setIsSubmitting(false);
@@ -157,6 +189,29 @@ const MyProfileEditPage: React.FC = () => {
   };
 
   const positionOptions = ['GK', 'DF', 'MF', 'FW', '기타'];
+  const dominantFootOptions = [
+    { value: '', label: '선택 안함' },
+    { value: 'RIGHT', label: '오른발' },
+    { value: 'LEFT', label: '왼발' },
+    { value: 'BOTH', label: '양발' },
+  ];
+  const playStyleOptions = [
+    { value: '', label: '선택 안함' },
+    { value: 'OFFENSIVE', label: '공격적' },
+    { value: 'DEFENSIVE', label: '수비적' },
+    { value: 'BALANCED', label: '밸런스' },
+    { value: 'TECHNICAL', label: '기술형' },
+    { value: 'PHYSICAL', label: '피지컬형' },
+  ];
+  const timeSlotOptions = [
+    { value: '', label: '선택 안함' },
+    { value: 'WEEKDAY_MORNING', label: '평일 오전' },
+    { value: 'WEEKDAY_AFTERNOON', label: '평일 오후' },
+    { value: 'WEEKDAY_EVENING', label: '평일 저녁' },
+    { value: 'WEEKEND_MORNING', label: '주말 오전' },
+    { value: 'WEEKEND_AFTERNOON', label: '주말 오후' },
+    { value: 'WEEKEND_EVENING', label: '주말 저녁' },
+  ];
 
   if (isLoading) {
     return <div className="text-center py-20 pt-24">프로필 정보를 불러오는 중입니다...</div>;
@@ -257,7 +312,77 @@ const MyProfileEditPage: React.FC = () => {
                 <input type="date" name="activityEndDate" id="activityEndDate" value={formData.activityEndDate || ''} onChange={handleChange} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"/>
               </div>
 
-              <div className="flex justify-end gap-3 pt-5">
+              {/* 신체 정보 섹션 */}
+              <div className="col-span-full border-t pt-6 mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">신체 정보</h3>
+              </div>
+              <div>
+                <label htmlFor="height" className="block text-sm font-medium text-gray-700">키 (cm)</label>
+                <input type="number" name="height" id="height" value={formData.height || ''} onChange={handleChange} placeholder="예: 175" className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"/>
+              </div>
+              <div>
+                <label htmlFor="weight" className="block text-sm font-medium text-gray-700">몸무게 (kg)</label>
+                <input type="number" name="weight" id="weight" value={formData.weight || ''} onChange={handleChange} placeholder="예: 70" className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"/>
+              </div>
+
+              {/* 축구 정보 섹션 */}
+              <div className="col-span-full border-t pt-6 mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">축구 정보</h3>
+              </div>
+              <div>
+                <label htmlFor="dominantFoot" className="block text-sm font-medium text-gray-700">주발</label>
+                <select id="dominantFoot" name="dominantFoot" value={formData.dominantFoot || ''} onChange={handleChange} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                  {dominantFootOptions.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="careerYears" className="block text-sm font-medium text-gray-700">축구 경력 (년)</label>
+                <input type="number" name="careerYears" id="careerYears" value={formData.careerYears || ''} onChange={handleChange} placeholder="예: 5" className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"/>
+              </div>
+              <div>
+                <label htmlFor="playStyle" className="block text-sm font-medium text-gray-700">플레이 스타일</label>
+                <select id="playStyle" name="playStyle" value={formData.playStyle || ''} onChange={handleChange} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                  {playStyleOptions.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="preferredTimeSlots" className="block text-sm font-medium text-gray-700">선호 시간대</label>
+                <select id="preferredTimeSlots" name="preferredTimeSlots" value={formData.preferredTimeSlots || ''} onChange={handleChange} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                  {timeSlotOptions.map((opt) => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
+                </select>
+              </div>
+
+              {/* 자기소개 */}
+              <div className="col-span-full">
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-700">자기소개</label>
+                <textarea name="bio" id="bio" rows={4} value={formData.bio || ''} onChange={handleChange} placeholder="자신을 소개해주세요..." className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"/>
+              </div>
+
+              {/* SNS 정보 섹션 */}
+              <div className="col-span-full border-t pt-6 mt-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">SNS 정보</h3>
+              </div>
+              <div>
+                <label htmlFor="instagramUrl" className="block text-sm font-medium text-gray-700">인스타그램</label>
+                <input type="url" name="instagramUrl" id="instagramUrl" value={formData.instagramUrl || ''} onChange={handleChange} placeholder="https://instagram.com/username" className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"/>
+              </div>
+              <div>
+                <label htmlFor="facebookUrl" className="block text-sm font-medium text-gray-700">페이스북</label>
+                <input type="url" name="facebookUrl" id="facebookUrl" value={formData.facebookUrl || ''} onChange={handleChange} placeholder="https://facebook.com/username" className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"/>
+              </div>
+
+              {/* 프로필 이미지 */}
+              <div className="col-span-full">
+                <label htmlFor="profileImageUrl" className="block text-sm font-medium text-gray-700">프로필 이미지 URL</label>
+                <input type="url" name="profileImageUrl" id="profileImageUrl" value={formData.profileImageUrl || ''} onChange={handleChange} placeholder="https://example.com/image.jpg" className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2"/>
+                {formData.profileImageUrl && (
+                  <div className="mt-2">
+                    <img src={formData.profileImageUrl} alt="프로필 미리보기" className="w-24 h-24 rounded-full object-cover border-2 border-gray-300" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-3 pt-5 col-span-full">
                 <button type="button" onClick={() => navigate('/mypage')} className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                   취소
                 </button>

@@ -12,7 +12,7 @@ import type {
 } from "@/types/recruitPost";
 import type { ApplicationRequestDto } from "@/types/application";
 
-const API_BASE_URL = "/api/posts";
+const API_BASE_URL = "http://localhost:8084/api/recruit/posts";
 
 export const fetchRecruitPosts = async (
   category: string,
@@ -20,8 +20,16 @@ export const fetchRecruitPosts = async (
   size: number = 10
 ): Promise<PostType[]> => {
   try {
+    // 프론트엔드 카테고리를 백엔드 카테고리로 매핑
+    const categoryMap: Record<string, string> = {
+      'MERCENARY': 'MERCENARY',
+      'TEAM': 'TEAM_MEMBER',
+      'MATCH': 'MATCH_OPPONENT'
+    };
+    const backendCategory = categoryMap[category] || category;
+
     const response = await axiosInstance.get(`${API_BASE_URL}`, {
-      params: { postType: "RECRUIT", category, page, size },
+      params: { category: backendCategory, page, size },
     });
     const data: any = response.data;
     const items: any[] = Array.isArray(data)
@@ -55,6 +63,11 @@ export const fetchRecruitPosts = async (
       authorName: it.authorName ?? null,
       createdAt: it.createdAt ?? new Date().toISOString(),
       updatedAt: it.updatedAt ?? new Date().toISOString(),
+      participants: it.acceptedCount !== undefined ? {
+        current: it.acceptedCount ?? 0,
+        confirmed: it.acceptedCount ?? 0,
+        pending: 0,
+      } : undefined,
     });
 
     return items.map(toPostType);

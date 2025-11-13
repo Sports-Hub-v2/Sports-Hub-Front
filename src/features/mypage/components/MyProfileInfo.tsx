@@ -1,34 +1,52 @@
-// src/features/myPage/components/MyProfileInfo.tsx (reconstructed)
+// src/features/myPage/components/MyProfileInfo.tsx
+
 import React, { useEffect, useState } from "react";
 import { useAuthStore } from "@/stores/useAuthStore";
-import {
-  getProfileByAccountIdApi,
-  createProfileApi,
-  updateMyProfileApi,
-} from "@/features/auth/api/userApi";
-import type { User, UserProfileUpdateDto } from "@/types/user";
-import { REGIONS } from "@/constants/regions";
+import { getProfileByAccountIdApi } from "@/features/auth/api/userApi";
+import type { User } from "@/types/user";
 
-const fmt = (v?: string | null) => (v && v.length > 0 ? v : "미입력");
+const fmt = (v?: string | null | number) => (v !== null && v !== undefined && v !== '' ? v : "미입력");
 const fmtDate = (v?: string | null) =>
   v ? new Date(v).toLocaleDateString("ko-KR") : "정보 없음";
+
+const dominantFootLabel = (foot?: string) => {
+  if (!foot) return "미입력";
+  if (foot === 'RIGHT') return "오른발";
+  if (foot === 'LEFT') return "왼발";
+  if (foot === 'BOTH') return "양발";
+  return foot;
+};
+
+const playStyleLabel = (style?: string) => {
+  if (!style) return "미입력";
+  const labels: Record<string, string> = {
+    OFFENSIVE: "공격적",
+    DEFENSIVE: "수비적",
+    BALANCED: "밸런스",
+    TECHNICAL: "기술형",
+    PHYSICAL: "피지컬형",
+  };
+  return labels[style] || style;
+};
+
+const timeSlotLabel = (slot?: string) => {
+  if (!slot) return "미입력";
+  const labels: Record<string, string> = {
+    WEEKDAY_MORNING: "평일 오전",
+    WEEKDAY_AFTERNOON: "평일 오후",
+    WEEKDAY_EVENING: "평일 저녁",
+    WEEKEND_MORNING: "주말 오전",
+    WEEKEND_AFTERNOON: "주말 오후",
+    WEEKEND_EVENING: "주말 저녁",
+  };
+  return labels[slot] || slot;
+};
 
 const MyProfileInfo: React.FC = () => {
   const { user } = useAuthStore();
   const [profile, setProfile] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // 신규 생성 폼
-  const [createForm, setCreateForm] = useState({
-    name: "",
-    region: "",
-    preferredPosition: "",
-  });
-
-  // 수정 폼
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState<Partial<UserProfileUpdateDto>>({});
 
   useEffect(() => {
     const run = async () => {
@@ -41,12 +59,6 @@ const MyProfileInfo: React.FC = () => {
       try {
         const data = await getProfileByAccountIdApi(user.id);
         setProfile(data);
-        setEditData({
-          name: data.name,
-          region: data.region,
-          preferredPosition: data.preferredPosition,
-          phoneNumber: data.phoneNumber,
-        });
       } catch (e: any) {
         if (e?.response?.status === 404) {
           setProfile(null);
@@ -60,51 +72,6 @@ const MyProfileInfo: React.FC = () => {
     run();
   }, [user]);
 
-  const handleCreate = async (ev: React.FormEvent) => {
-    ev.preventDefault();
-    if (!user) return;
-    if (!createForm.name.trim()) {
-      alert("이름은 필수입니다.");
-      return;
-    }
-    try {
-      const created = await createProfileApi({
-        accountId: user.id,
-        name: createForm.name.trim(),
-        region: createForm.region || undefined,
-        preferredPosition: createForm.preferredPosition || undefined,
-      });
-      setProfile(created);
-      setEditData({
-        name: created.name,
-        region: created.region,
-        preferredPosition: created.preferredPosition,
-        phoneNumber: created.phoneNumber,
-      });
-      alert("프로필이 생성되었습니다.");
-    } catch (e) {
-      console.error(e);
-      alert("프로필 생성 중 오류가 발생했습니다.");
-    }
-  };
-
-  const handleSave = async () => {
-    if (!profile) return;
-    if (!editData.name || editData.name.trim() === "") {
-      alert("이름은 필수입니다.");
-      return;
-    }
-    try {
-      const updated = await updateMyProfileApi(profile.id, editData);
-      setProfile(updated);
-      setIsEditing(false);
-      alert("프로필이 수정되었습니다.");
-    } catch (e) {
-      console.error(e);
-      alert("프로필 수정 중 오류가 발생했습니다.");
-    }
-  };
-
   if (isLoading) {
     return <div className="text-center text-gray-500 py-8">정보를 불러오는 중...</div>;
   }
@@ -112,158 +79,164 @@ const MyProfileInfo: React.FC = () => {
     return <div className="text-center text-red-500 py-8">{error}</div>;
   }
 
-  // 프로필이 없으면 생성 폼
   if (!profile) {
     return (
-      <div className="max-w-lg">
-        <h3 className="text-xl font-semibold mb-4">프로필 만들기</h3>
-        <form onSubmit={handleCreate} className="space-y-4">
-          <div>
-            <label className="block text-sm text-gray-700">이름</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              value={createForm.name}
-              onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700">활동 지역</label>
-            <select
-              className="border rounded px-2 py-1 w-full"
-              value={createForm.region}
-              onChange={(e) => setCreateForm({ ...createForm, region: e.target.value })}
-            >
-              <option value="">선택</option>
-              {REGIONS.map((r) => (
-                <option key={r} value={r}>
-                  {r}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-700">선호 포지션</label>
-            <input
-              className="border rounded px-2 py-1 w-full"
-              value={createForm.preferredPosition}
-              onChange={(e) =>
-                setCreateForm({ ...createForm, preferredPosition: e.target.value })
-              }
-            />
-          </div>
-          <button className="mt-2 bg-blue-600 text-white px-4 py-2 rounded" type="submit">
-            생성하기
-          </button>
-        </form>
+      <div className="text-center py-8">
+        <p className="text-gray-500 mb-4">프로필 정보가 없습니다.</p>
+        <p className="text-sm text-gray-400">상단의 프로필 수정 버튼을 클릭하여 정보를 입력해주세요.</p>
       </div>
     );
   }
 
-  // 프로필 표시/수정
+  // 읽기 전용 프로필 표시
   return (
     <div className="space-y-8">
+      {/* 기본 정보 */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xl font-semibold">기본 정보</h3>
-          {isEditing ? (
-            <div className="space-x-2">
-              <button onClick={handleSave} className="text-sm bg-blue-600 text-white px-3 py-1 rounded">
-                저장
-              </button>
-              <button onClick={() => setIsEditing(false)} className="text-sm bg-gray-200 px-3 py-1 rounded">
-                취소
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => setIsEditing(true)} className="text-sm bg-gray-200 px-3 py-1 rounded">
-              수정
-            </button>
-          )}
-        </div>
+        <h3 className="text-xl font-semibold border-b pb-2 mb-4">기본 정보</h3>
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
           <div>
             <dt className="font-medium text-gray-500">이름</dt>
-            <dd className="mt-1">
-              {isEditing ? (
-                <input
-                  className="border rounded px-2 py-1 w-full"
-                  value={editData.name || ""}
-                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                />
-              ) : (
-                fmt(profile.name)
-              )}
-            </dd>
+            <dd className="mt-1 text-gray-800">{fmt(profile.name)}</dd>
           </div>
           <div>
             <dt className="font-medium text-gray-500">이메일</dt>
-            <dd className="mt-1">{fmt((user && user.email) || "")}</dd>
+            <dd className="mt-1 text-gray-800">{fmt(user?.email)}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-gray-500">사용자 ID</dt>
+            <dd className="mt-1 text-gray-800">{fmt(profile.userid)}</dd>
           </div>
           <div>
             <dt className="font-medium text-gray-500">권한</dt>
-            <dd className="mt-1">{fmt(profile.role)}</dd>
+            <dd className="mt-1 text-gray-800">{fmt(profile.role)}</dd>
           </div>
           <div>
             <dt className="font-medium text-gray-500">전화번호</dt>
-            <dd className="mt-1">
-              {isEditing ? (
-                <input
-                  className="border rounded px-2 py-1 w-full"
-                  value={editData.phoneNumber || ""}
-                  onChange={(e) => setEditData({ ...editData, phoneNumber: e.target.value })}
-                />
-              ) : (
-                fmt(profile.phoneNumber)
-              )}
-            </dd>
+            <dd className="mt-1 text-gray-800">{fmt(profile.phoneNumber)}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-gray-500">생년월일</dt>
+            <dd className="mt-1 text-gray-800">{fmtDate(profile.birthDate)}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-gray-500">선수 출신</dt>
+            <dd className="mt-1 text-gray-800">{profile.isExPlayer ? "예" : "아니오"}</dd>
           </div>
         </dl>
       </div>
 
+      {/* 활동 정보 */}
       <div>
         <h3 className="text-xl font-semibold border-b pb-2 mb-4">활동 정보</h3>
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
           <div>
             <dt className="font-medium text-gray-500">활동 지역</dt>
-            <dd className="mt-1">
-              {isEditing ? (
-                <select
-                  className="border rounded px-2 py-1 w-full"
-                  value={editData.region || ""}
-                  onChange={(e) => setEditData({ ...editData, region: e.target.value })}
-                >
-                  <option value="">선택</option>
-                  {REGIONS.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                fmt(profile.region)
-              )}
-            </dd>
+            <dd className="mt-1 text-gray-800">{fmt(profile.region)}</dd>
           </div>
           <div>
             <dt className="font-medium text-gray-500">선호 포지션</dt>
-            <dd className="mt-1">
-              {isEditing ? (
-                <input
-                  className="border rounded px-2 py-1 w-full"
-                  value={editData.preferredPosition || ""}
-                  onChange={(e) =>
-                    setEditData({ ...editData, preferredPosition: e.target.value })
-                  }
-                />
-              ) : (
-                fmt(profile.preferredPosition)
-              )}
-            </dd>
+            <dd className="mt-1 text-gray-800">{fmt(profile.preferredPosition)}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-gray-500">활동 시작일</dt>
+            <dd className="mt-1 text-gray-800">{fmtDate(profile.activityStartDate)}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-gray-500">활동 종료일</dt>
+            <dd className="mt-1 text-gray-800">{fmtDate(profile.activityEndDate)}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-gray-500">선호 시간대</dt>
+            <dd className="mt-1 text-gray-800">{timeSlotLabel(profile.preferredTimeSlots)}</dd>
           </div>
         </dl>
       </div>
 
+      {/* 신체 정보 */}
+      {(profile.height || profile.weight) && (
+        <div>
+          <h3 className="text-xl font-semibold border-b pb-2 mb-4">신체 정보</h3>
+          <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+            <div>
+              <dt className="font-medium text-gray-500">키</dt>
+              <dd className="mt-1 text-gray-800">{profile.height ? `${profile.height} cm` : "미입력"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-gray-500">몸무게</dt>
+              <dd className="mt-1 text-gray-800">{profile.weight ? `${profile.weight} kg` : "미입력"}</dd>
+            </div>
+          </dl>
+        </div>
+      )}
+
+      {/* 축구 정보 */}
+      {(profile.dominantFoot || profile.careerYears || profile.playStyle) && (
+        <div>
+          <h3 className="text-xl font-semibold border-b pb-2 mb-4">축구 정보</h3>
+          <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+            <div>
+              <dt className="font-medium text-gray-500">주발</dt>
+              <dd className="mt-1 text-gray-800">{dominantFootLabel(profile.dominantFoot)}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-gray-500">축구 경력</dt>
+              <dd className="mt-1 text-gray-800">{profile.careerYears ? `${profile.careerYears}년` : "미입력"}</dd>
+            </div>
+            <div>
+              <dt className="font-medium text-gray-500">플레이 스타일</dt>
+              <dd className="mt-1 text-gray-800">{playStyleLabel(profile.playStyle)}</dd>
+            </div>
+          </dl>
+        </div>
+      )}
+
+      {/* 자기소개 */}
+      {profile.bio && (
+        <div>
+          <h3 className="text-xl font-semibold border-b pb-2 mb-4">자기소개</h3>
+          <p className="text-sm text-gray-800 whitespace-pre-wrap">{profile.bio}</p>
+        </div>
+      )}
+
+      {/* SNS 정보 */}
+      {(profile.instagramUrl || profile.facebookUrl) && (
+        <div>
+          <h3 className="text-xl font-semibold border-b pb-2 mb-4">SNS</h3>
+          <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+            {profile.instagramUrl && (
+              <div>
+                <dt className="font-medium text-gray-500">인스타그램</dt>
+                <dd className="mt-1">
+                  <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    {profile.instagramUrl}
+                  </a>
+                </dd>
+              </div>
+            )}
+            {profile.facebookUrl && (
+              <div>
+                <dt className="font-medium text-gray-500">페이스북</dt>
+                <dd className="mt-1">
+                  <a href={profile.facebookUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    {profile.facebookUrl}
+                  </a>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      )}
+
+      {/* 프로필 이미지 */}
+      {profile.profileImageUrl && (
+        <div>
+          <h3 className="text-xl font-semibold border-b pb-2 mb-4">프로필 이미지</h3>
+          <img src={profile.profileImageUrl} alt="프로필" className="w-32 h-32 rounded-full object-cover border-2 border-gray-300" />
+        </div>
+      )}
+
+      {/* 메타 정보 */}
       <div>
         <h3 className="text-xl font-semibold border-b pb-2 mb-4">메타 정보</h3>
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
@@ -282,4 +255,3 @@ const MyProfileInfo: React.FC = () => {
 };
 
 export default MyProfileInfo;
-

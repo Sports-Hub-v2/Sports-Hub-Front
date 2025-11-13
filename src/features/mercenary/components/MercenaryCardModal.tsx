@@ -152,13 +152,13 @@ const MercenaryCardModal = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* 헤더 */}
-        <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-6 rounded-t-xl">
+        <div className="bg-blue-900 text-white p-6 rounded-t-xl">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold">
                 ⚽ {isEditMode ? "모집글 수정" : "모집글 작성"}
               </h2>
-              <p className="text-blue-100 mt-1">
+              <p className="text-blue-200 mt-1">
                 {category === "mercenary"
                   ? "용병 카드 모달"
                   : category === "team"
@@ -168,7 +168,7 @@ const MercenaryCardModal = ({
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-colors"
+              className="text-red-500 hover:text-red-600 hover:bg-red-100 rounded-full p-2 transition-colors text-2xl font-bold"
             >
               ✕
             </button>
