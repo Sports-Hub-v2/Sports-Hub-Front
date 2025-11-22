@@ -21,6 +21,7 @@ interface FormData {
   gameTime: string;
   requiredPersonnel: number | '';
   preferredPositions: string;
+  teamName: string; // 팀→개인 모집 시 소속팀 이름
 }
 
 interface Props {
@@ -45,6 +46,7 @@ const RecruitPostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, category
     gameTime: "",
     requiredPersonnel: '',
     preferredPositions: "",
+    teamName: "",
   });
 
   const [recruitmentFlow, setRecruitmentFlow] = useState<RecruitmentFlow>('TEAM_TO_INDIVIDUAL');
@@ -80,6 +82,7 @@ const RecruitPostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, category
         gameTime: initialData.gameTime || "",
         requiredPersonnel: initialData.requiredPersonnel ?? '',
         preferredPositions: initialData.preferredPositions || "",
+        teamName: initialData.teamName || "",
       });
       if (category === RecruitCategory.MERCENARY) {
         setRecruitmentFlow(initialData.fromParticipant === 'INDIVIDUAL' ? 'INDIVIDUAL_TO_TEAM' : 'TEAM_TO_INDIVIDUAL');
@@ -88,7 +91,7 @@ const RecruitPostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, category
       setFormData({
         title: "", content: "", region: "", subRegion: "",
         gameDate: "", gameTime: "", requiredPersonnel: '',
-        preferredPositions: "",
+        preferredPositions: "", teamName: "",
       });
       setRecruitmentFlow('TEAM_TO_INDIVIDUAL');
       setFormError(null);
@@ -114,36 +117,47 @@ const RecruitPostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, category
       return;
     }
 
+    if (!formData.gameDate || !formData.gameTime) {
+      setFormError("경기 날짜와 시간은 필수 입력 항목입니다.");
+      return;
+    }
+
+    // 날짜/시간 유효성 검사
+    const now = new Date();
+    const selectedDateTime = new Date(`${formData.gameDate}T${formData.gameTime}`);
+
+    if (selectedDateTime < now) {
+      setFormError("과거 날짜와 시간은 선택할 수 없습니다. 현재 시간 이후로 선택해주세요.");
+      return;
+    }
+
     setIsLoading(true);
 
     const isTeamToIndividual = recruitmentFlow === 'TEAM_TO_INDIVIDUAL';
 
     const dto: RecruitPostCreationRequestDto = {
+      teamId: user.teamId || 1, // TODO: 실제 사용자의 팀 ID
+      writerProfileId: user.profileId || 1, // 현재 사용자의 프로필 ID
       title: formData.title.trim(),
       content: formData.content.trim(),
       category: category,
       region: formData.region,
       subRegion: formData.subRegion.trim() || undefined,
-      gameDate: formData.gameDate || undefined,
-      gameTime: formData.gameTime || undefined,
+      matchDate: formData.gameDate, // matchDate로 전송
+      gameTime: formData.gameTime,
       requiredPersonnel: formData.requiredPersonnel !== '' ? Number(formData.requiredPersonnel) : undefined,
       preferredPositions: formData.preferredPositions.trim() || undefined,
-      fromParticipant: category === RecruitCategory.MERCENARY
-        ? (isTeamToIndividual ? ParticipantType.TEAM : ParticipantType.INDIVIDUAL)
-        : ParticipantType.TEAM,
-      toParticipant: category === RecruitCategory.MERCENARY
-        ? (isTeamToIndividual ? ParticipantType.INDIVIDUAL : ParticipantType.TEAM)
-        : ParticipantType.INDIVIDUAL,
       targetType: category === RecruitCategory.MERCENARY
         ? (isTeamToIndividual ? RecruitTargetType.USER : RecruitTargetType.TEAM)
         : RecruitTargetType.USER,
+      status: "RECRUITING",
     };
 
     try {
       await onSubmit(dto);
     } catch (error) {
       console.error("게시글 저장 실패:", error);
-      setFormError("게시글 저장 중 오류가 발생했습니다.");
+      setFormError(error instanceof Error ? error.message : "게시글 저장 중 오류가 발생했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -162,17 +176,59 @@ const RecruitPostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, category
             {/* 용병 전용: 모집 유형 */}
             {category === RecruitCategory.MERCENARY && (
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">
-                  모집 유형
+                <label className="block text-xs font-medium text-gray-500 mb-2">
+                  모집 유형 <span className="text-red-500">*</span>
                 </label>
-                <select
-                  value={recruitmentFlow}
-                  onChange={(e) => setRecruitmentFlow(e.target.value as RecruitmentFlow)}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setRecruitmentFlow('TEAM_TO_INDIVIDUAL')}
+                    className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                      recruitmentFlow === 'TEAM_TO_INDIVIDUAL'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-lg">🛡️</span>
+                      <span className="text-sm">팀 → 용병</span>
+                      <span className="text-xs text-gray-500">팀에서 용병 모집</span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRecruitmentFlow('INDIVIDUAL_TO_TEAM')}
+                    className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                      recruitmentFlow === 'INDIVIDUAL_TO_TEAM'
+                        ? 'border-green-500 bg-green-50 text-green-700 font-semibold'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-lg">⚔️</span>
+                      <span className="text-sm">개인 → 팀</span>
+                      <span className="text-xs text-gray-500">개인이 팀 찾기</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 팀→용병 선택 시 소속팀 입력 */}
+            {category === RecruitCategory.MERCENARY && recruitmentFlow === 'TEAM_TO_INDIVIDUAL' && (
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  소속 팀 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="teamName"
+                  type="text"
+                  required
+                  value={formData.teamName}
+                  onChange={handleInputChange}
+                  placeholder="예: FC 서울, 강남 유나이티드"
                   className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="TEAM_TO_INDIVIDUAL">팀에서 용병 모집</option>
-                  <option value="INDIVIDUAL_TO_TEAM">개인이 팀 찾기</option>
-                </select>
+                />
               </div>
             )}
 

@@ -93,11 +93,30 @@ export const createRecruitPostApi = async (
     // 보장: 작성자 프로필 ID 주입
     const { user } = useAuthStore.getState();
     let writerProfileId = (postData as any).writerProfileId;
+    let teamId = (postData as any).teamId;
+
     if (!writerProfileId && user?.profileId) writerProfileId = user.profileId;
     if (!writerProfileId && user?.id) {
       try { const prof = await getProfileByAccountIdApi(user.id); writerProfileId = (prof as any).id; } catch {}
     }
-    const enriched = { ...postData, writerProfileId } as any;
+
+    if (!teamId && user?.teamId) teamId = user.teamId;
+    if (!teamId) teamId = 1; // 기본값 (팀이 없는 경우)
+
+    // matchDate로 필드명 변환
+    const enriched = {
+      ...postData,
+      writerProfileId,
+      teamId,
+      matchDate: postData.matchDate || postData.gameDate, // gameDate를 matchDate로 변환
+    } as any;
+
+    // fromParticipant, toParticipant 제거 (백엔드에 없는 필드)
+    delete enriched.fromParticipant;
+    delete enriched.toParticipant;
+    delete enriched.gameDate; // matchDate로 변환했으므로 제거
+
+    console.log("백엔드로 전송할 데이터:", enriched);
 
     const response = await axiosInstance.post<RecruitPostResponseDto>(
       API_BASE_URL,
@@ -108,6 +127,7 @@ export const createRecruitPostApi = async (
     // ▼▼▼ 새로운 에러 처리 방식 ▼▼▼
     if (typeof error === "object" && error !== null && "response" in error) {
       const err = error as { response?: { data?: { message?: string } } };
+      console.error("백엔드 에러 응답:", err.response?.data);
       throw new Error(
         err.response?.data?.message || "게시글 생성 중 오류가 발생했습니다."
       );
