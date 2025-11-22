@@ -22,17 +22,13 @@ const TeamRecruitCard: React.FC<TeamRecruitCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // 팀명 추출
-  const extractTeamName = () => {
-    const match = post.title.match(/\[(.*?)\]/);
-    return match ? match[1] : null;
-  };
-
   // 팀 페이지로 이동
   const handleTeamNameClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    console.log('팀명 클릭:', { teamId: post.teamId, postId: post.id, title: post.title });
+    console.log('팀명 클릭:', { teamId: post.teamId, teamName: post.teamName, postId: post.id });
     if (post.teamId) {
+      console.log('네비게이션 실행:', `/teams/${post.teamId}`);
       navigate(`/teams/${post.teamId}`);
     } else {
       console.warn('teamId가 없습니다. 백엔드에서 teamId를 제공하는지 확인하세요.');
@@ -66,7 +62,6 @@ const TeamRecruitCard: React.FC<TeamRecruitCardProps> = ({
   };
 
   const progress = getRecruitmentProgress();
-  const teamName = extractTeamName();
 
   // 포지션 배열로 분리
   const positions = post.preferredPositions
@@ -79,7 +74,7 @@ const TeamRecruitCard: React.FC<TeamRecruitCardProps> = ({
       onClick={onClick}
     >
       {/* 상단: 팀명 헤더 */}
-      {teamName && (
+      {post.teamName && (
         <div className="bg-gradient-to-r from-green-500 to-green-600 px-4 py-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -88,7 +83,7 @@ const TeamRecruitCard: React.FC<TeamRecruitCardProps> = ({
                 className="text-white font-bold text-sm hover:underline cursor-pointer"
                 onClick={handleTeamNameClick}
               >
-                {teamName}
+                {post.teamName}
               </h3>
             </div>
             <span className="text-xs text-green-100">{getTimeAgo(post.createdAt)}</span>

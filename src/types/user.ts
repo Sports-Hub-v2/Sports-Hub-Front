@@ -99,13 +99,19 @@ export interface UserProfileUpdateDto {
  * 공개 프로필 응답 DTO
  */
 export interface PublicUserProfileResponseDto {
-  id: number;
+  id?: number;
   name: string;
   userid: string;
   region?: string;
+  subRegion?: string;
   preferredPosition?: string;
+  skillLevel?: string;
   isExPlayer?: boolean;
-  // 추가 공개 정보
+  phoneNumber?: string;
+  birthDate?: string;
+  activityStartDate?: string;
+  activityEndDate?: string;
+  // 추가 공개 정보 (향후 백엔드 추가 예정)
   height?: number;
   weight?: number;
   bio?: string;
@@ -114,6 +120,4 @@ export interface PublicUserProfileResponseDto {
   careerYears?: number;
   playStyle?: string;
   preferredTimeSlots?: string;
-  birthDate?: string;
-  activityStartDate?: string;
 }

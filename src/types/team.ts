@@ -6,29 +6,32 @@ export interface Team {
   teamName: string;
   captainProfileId: number | null;
   region: string | null;
+  subRegion: string | null;
   description: string | null;
-  maxMembers: number | null;
-  ageGroup: string | null;
-  skillLevel: string | null;
-  activityType: string | null;
   logoUrl: string | null;
   homeGround: string | null;
-  rivalTeams: string | null;
+  maxMembers: number | null;
+  skillLevel: string | null;
+  status: string; // ACTIVE, INACTIVE, SUSPENDED
+  verified: boolean;
+  // 통계 필드
+  totalMembers: number;
+  totalMatches: number;
+  totalWins: number;
+  totalDraws: number;
+  totalLosses: number;
+  // 메타 정보
   createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 }
 
-// 팀 멤버 정보 타입
+// 팀 멤버 정보 타입 (백엔드 TeamMemberResponseDto와 일치)
 export interface TeamMember {
-  id: {
-    teamId: number;
-    profileId: number;
-  };
-  roleInTeam: string;
-  joinedAt: string;
+  profileId: number;
+  name: string;
+  role: string; // CAPTAIN(팀장), MEMBER(팀원)
   isActive: boolean;
-  // 프로필 정보 (조인된 데이터)
-  profileName?: string;
-  profileRegion?: string;
 }
 
 // 팀 목록 등에서 간단히 사용할 타입

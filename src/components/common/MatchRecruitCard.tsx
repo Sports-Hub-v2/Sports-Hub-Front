@@ -24,9 +24,11 @@ const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
 
   // 팀 페이지로 이동
   const handleTeamClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     console.log('팀 클릭:', { teamId: post.teamId, teamName: post.teamName });
     if (post.teamId) {
+      console.log('네비게이션 실행:', `/teams/${post.teamId}`);
       navigate(`/teams/${post.teamId}`);
     } else {
       console.warn('팀 ID가 없습니다.');
@@ -196,6 +198,14 @@ const MatchRecruitCard: React.FC<MatchRecruitCardProps> = ({
             <div className="flex items-center gap-1.5 text-xs">
               <span className="text-gray-500">👥 연령</span>
               <span className="font-semibold text-gray-900">{post.ageGroup}</span>
+            </div>
+          )}
+          {post.requiredPersonnel && (
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-gray-500">🙋 모집</span>
+              <span className="font-semibold text-gray-900">
+                {post.acceptedCount || 0}/{post.requiredPersonnel}명
+              </span>
             </div>
           )}
         </div>

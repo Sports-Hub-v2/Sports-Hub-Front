@@ -16,6 +16,7 @@ import MessageTeamModal from '../components/MessageTeamModal';
 import EditTeamModal from '../components/EditTeamModal';
 import type { AdminLog } from '../types/adminLog';
 import { mockTeamAdminLogs } from '../types/adminLog';
+import { verifyTeamApi, unverifyTeamApi, disbandTeamApi } from '../api/adminApi';
 
 // 팀 상세 타입 정의
 interface TeamMember {
@@ -235,26 +236,69 @@ const TeamDetailPage = () => {
     alert('팀 정보가 수정되었습니다. (목업)');
   };
 
+  const handleVerify = async () => {
+    if (!team) return;
+
+    const confirmed = window.confirm('이 팀을 인증하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+      await verifyTeamApi(team.id);
+      setTeam({
+        ...team,
+        verified: true
+      });
+      alert('팀이 인증되었습니다.');
+    } catch (error) {
+      console.error('팀 인증 실패:', error);
+      alert('팀 인증에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleUnverify = async () => {
+    if (!team) return;
+
+    const confirmed = window.confirm('이 팀의 인증을 해제하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+      await unverifyTeamApi(team.id);
+      setTeam({
+        ...team,
+        verified: false
+      });
+      alert('팀 인증이 해제되었습니다.');
+    } catch (error) {
+      console.error('인증 해제 실패:', error);
+      alert('인증 해제에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
   const handleDissolve = () => {
     setShowDissolveModal(true);
   };
 
-  const handleDissolveSubmit = (dissolveData: any) => {
-    console.log('팀 해체:', dissolveData);
-    if (team) {
+  const handleDissolveSubmit = async (dissolveData: any) => {
+    if (!team) return;
+
+    try {
+      await disbandTeamApi(team.id, dissolveData.reason);
       setTeam({
         ...team,
         status: 'DISBANDED'
       });
+      setShowDissolveModal(false);
+      alert('팀이 해산되었습니다.');
+    } catch (error) {
+      console.error('팀 해산 실패:', error);
+      alert('팀 해산에 실패했습니다. 다시 시도해주세요.');
     }
-    setShowDissolveModal(false);
-    alert('팀이 해체되었습니다. (목업)');
   };
 
   const handleDelete = () => {
     if (window.confirm('이 팀을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
       console.log('삭제:', teamId);
-      navigate('/admin/data-management');
+      navigate('/admin/teams');
     }
   };
 
@@ -416,6 +460,23 @@ const TeamDetailPage = () => {
                 <Edit className="w-4 h-4" />
                 편집
               </button>
+              {team?.verified ? (
+                <button
+                  onClick={handleUnverify}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                >
+                  <Shield className="w-4 h-4" />
+                  인증 해제
+                </button>
+              ) : (
+                <button
+                  onClick={handleVerify}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  <Shield className="w-4 h-4" />
+                  팀 인증
+                </button>
+              )}
               <button
                 onClick={handleDissolve}
                 className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"

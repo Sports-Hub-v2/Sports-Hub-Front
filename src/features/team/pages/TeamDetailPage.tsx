@@ -20,6 +20,7 @@ import {
   Activity,
 } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
+import UserProfileModal from "@/components/common/UserProfileModal";
 
 const TeamDetailPage: React.FC = () => {
   const { id: teamId } = useParams<{ id: string }>();
@@ -30,13 +31,16 @@ const TeamDetailPage: React.FC = () => {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"info" | "members" | "notices">(
+  const [activeTab, setActiveTab] = useState<"info" | "members" | "matches" | "records" | "stats" | "notices">(
     "info"
   );
 
   // 현재 사용자의 팀 멤버십 상태
   const [userMembership, setUserMembership] = useState<TeamMember | null>(null);
   const [isJoining, setIsJoining] = useState(false);
+
+  // 선택된 멤버의 프로필 ID (모달용)
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!teamId) return;
@@ -391,6 +395,45 @@ const TeamDetailPage: React.FC = () => {
               </div>
             </button>
             <button
+              onClick={() => setActiveTab("matches")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "matches"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                경기 일정
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("records")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "records"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Trophy className="w-4 h-4" />
+                경기 기록
+              </div>
+            </button>
+            <button
+              onClick={() => setActiveTab("stats")}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "stats"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4" />
+                팀 통계
+              </div>
+            </button>
+            <button
               onClick={() => setActiveTab("notices")}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "notices"
@@ -433,18 +476,6 @@ const TeamDetailPage: React.FC = () => {
                   팀 상세 정보
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="flex items-start gap-3">
-                    <div className="text-2xl">📍</div>
-                    <div className="flex-1">
-                      <dt className="text-sm font-medium text-gray-500 mb-1">
-                        활동 지역
-                      </dt>
-                      <dd className="text-sm text-gray-900 font-medium">
-                        {team.region || "지역 미정"}
-                      </dd>
-                    </div>
-                  </div>
-
                   {team.homeGround && (
                     <div className="flex items-start gap-3">
                       <div className="text-2xl">🏟️</div>
@@ -454,53 +485,6 @@ const TeamDetailPage: React.FC = () => {
                         </dt>
                         <dd className="text-sm text-gray-900 font-medium">
                           {team.homeGround}
-                        </dd>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-start gap-3">
-                    <div className="text-2xl">📅</div>
-                    <div className="flex-1">
-                      <dt className="text-sm font-medium text-gray-500 mb-1">
-                        창설일
-                      </dt>
-                      <dd className="text-sm text-gray-900 font-medium">
-                        {new Date(team.createdAt).toLocaleDateString("ko-KR", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                        <span className="text-xs text-gray-500 ml-2">
-                          (활동 {Math.floor((new Date().getTime() - new Date(team.createdAt).getTime()) / (1000 * 60 * 60 * 24))}일)
-                        </span>
-                      </dd>
-                    </div>
-                  </div>
-
-                  {team.skillLevel && (
-                    <div className="flex items-start gap-3">
-                      <div className="text-2xl">⭐</div>
-                      <div className="flex-1">
-                        <dt className="text-sm font-medium text-gray-500 mb-1">
-                          팀 실력 수준
-                        </dt>
-                        <dd className="text-sm text-gray-900 font-medium">
-                          {getSkillLevelKorean(team.skillLevel)}
-                        </dd>
-                      </div>
-                    </div>
-                  )}
-
-                  {team.activityType && (
-                    <div className="flex items-start gap-3">
-                      <div className="text-2xl">🎯</div>
-                      <div className="flex-1">
-                        <dt className="text-sm font-medium text-gray-500 mb-1">
-                          활동 유형
-                        </dt>
-                        <dd className="text-sm text-gray-900 font-medium">
-                          {getActivityTypeKorean(team.activityType)}
                         </dd>
                       </div>
                     </div>
@@ -520,29 +504,6 @@ const TeamDetailPage: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="flex items-start gap-3">
-                    <div className="text-2xl">👤</div>
-                    <div className="flex-1">
-                      <dt className="text-sm font-medium text-gray-500 mb-1">
-                        팀 정원
-                      </dt>
-                      <dd className="text-sm text-gray-900 font-medium">
-                        현재 {members.length}명
-                        {team.maxMembers ? ` / 최대 ${team.maxMembers}명` : ""}
-                      </dd>
-                      {team.maxMembers && (
-                        <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-blue-600 h-2 rounded-full"
-                            style={{
-                              width: `${Math.min((members.length / team.maxMembers) * 100, 100)}%`,
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
                   {team.rivalTeams && (
                     <div className="flex items-start gap-3">
                       <div className="text-2xl">🔥</div>
@@ -559,36 +520,40 @@ const TeamDetailPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 팀 활동 정보 */}
+              {/* 시즌 전적 요약 */}
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <span>📊</span>
-                  활동 현황
+                  <Trophy className="w-5 h-5 text-yellow-500" />
+                  <span>2025 시즌 전적</span>
                 </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <div className="text-2xl font-bold text-blue-600">{members.length}</div>
-                    <div className="text-xs text-gray-600 mt-1">총 멤버</div>
+                <div className="grid grid-cols-4 gap-3 mb-4">
+                  <div className="text-center p-3 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">15</div>
+                    <div className="text-xs text-gray-600">경기</div>
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <div className="text-2xl font-bold text-green-600">
-                      {members.filter((m) => m.isActive).length}
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">활동 중</div>
+                  <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">9</div>
+                    <div className="text-xs text-gray-600">승</div>
                   </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <div className="text-2xl font-bold text-purple-600">
-                      {members.filter((m) => m.roleInTeam === "CAPTAIN").length}
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">주장</div>
+                  <div className="text-center p-3 bg-gray-50 rounded-lg">
+                    <div className="text-2xl font-bold text-gray-600">3</div>
+                    <div className="text-xs text-gray-600">무</div>
                   </div>
-                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {Math.floor((new Date().getTime() - new Date(team.createdAt).getTime()) / (1000 * 60 * 60 * 24 * 30))}
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">활동 개월</div>
+                  <div className="text-center p-3 bg-red-50 rounded-lg">
+                    <div className="text-2xl font-bold text-red-600">3</div>
+                    <div className="text-xs text-gray-600">패</div>
                   </div>
                 </div>
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                  <div className="text-sm font-medium text-gray-700">승률</div>
+                  <div className="text-xl font-bold text-blue-600">60%</div>
+                </div>
+                <button
+                  onClick={() => setActiveTab("stats")}
+                  className="mt-4 w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  상세 통계 보기 →
+                </button>
               </div>
             </div>
 
@@ -650,7 +615,8 @@ const TeamDetailPage: React.FC = () => {
                     .map((member) => (
                       <div
                         key={`${member.id.teamId}-${member.id.profileId}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50"
+                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => setSelectedProfileId(member.id.profileId)}
                       >
                         <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-xs font-semibold">
                           {member.profileName?.charAt(0) || "?"}
@@ -673,6 +639,44 @@ const TeamDetailPage: React.FC = () => {
                     ))}
                 </div>
               </div>
+
+              {/* 최근 전적 */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-purple-500" />
+                  최근 5경기
+                </h3>
+                <div className="space-y-3">
+                  {/* 샘플 데이터 - 실제로는 API에서 가져와야 함 */}
+                  {[
+                    { id: 1, opponent: "인천 유나이티드", result: "승", score: "3-1" },
+                    { id: 2, opponent: "대전 시티즌", result: "무", score: "2-2" },
+                    { id: 3, opponent: "부산 아이파크", result: "승", score: "4-2" },
+                    { id: 4, opponent: "광주 FC", result: "패", score: "1-3" },
+                    { id: 5, opponent: "울산 현대", result: "승", score: "2-0" },
+                  ].map((match) => (
+                    <div key={match.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                          match.result === '승' ? 'bg-blue-500' : match.result === '무' ? 'bg-gray-400' : 'bg-red-500'
+                        }`}>
+                          {match.result}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">{match.opponent}</div>
+                        </div>
+                      </div>
+                      <div className="text-sm font-bold text-gray-700">{match.score}</div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setActiveTab("records")}
+                  className="mt-4 w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  전체 기록 보기 →
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -693,7 +697,8 @@ const TeamDetailPage: React.FC = () => {
                   {members.map((member) => (
                     <div
                       key={`${member.id.teamId}-${member.id.profileId}`}
-                      className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg"
+                      className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                      onClick={() => setSelectedProfileId(member.id.profileId)}
                     >
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
                         {member.profileName?.charAt(0) || "?"}
@@ -726,6 +731,186 @@ const TeamDetailPage: React.FC = () => {
           </div>
         )}
 
+        {activeTab === "matches" && (
+          <div className="space-y-6">
+            {/* 예정된 경기 */}
+            <div className="bg-white rounded-xl shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">예정된 경기</h3>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {/* 샘플 데이터 - 실제로는 API에서 가져와야 함 */}
+                  {[
+                    { id: 1, opponent: "FC 서울", date: "2025-11-20", time: "14:00", location: "강남구민운동장", type: "친선경기" },
+                    { id: 2, opponent: "수원 블루윙즈", date: "2025-11-27", time: "16:00", location: "수원월드컵경기장", type: "리그전" },
+                  ].map((match) => (
+                    <div key={match.id} className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">
+                          {match.type}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {new Date(match.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-4">
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-gray-600">우리 팀</div>
+                            <div className="text-lg font-bold text-blue-600">{team?.teamName}</div>
+                          </div>
+                          <div className="text-2xl font-bold text-gray-400">VS</div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-gray-600">상대 팀</div>
+                            <div className="text-lg font-bold text-red-600">{match.opponent}</div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-3 pt-3 border-t">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {match.time}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          {match.location}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "records" && (
+          <div className="space-y-6">
+            {/* 최근 경기 결과 */}
+            <div className="bg-white rounded-xl shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">최근 경기 결과</h3>
+              </div>
+              <div className="p-6">
+                <div className="space-y-3">
+                  {/* 샘플 데이터 - 실제로는 API에서 가져와야 함 */}
+                  {[
+                    { id: 1, opponent: "인천 유나이티드", date: "2025-11-13", result: "승", score: "3-1", type: "친선경기" },
+                    { id: 2, opponent: "대전 시티즌", date: "2025-11-10", result: "무", score: "2-2", type: "리그전" },
+                    { id: 3, opponent: "부산 아이파크", date: "2025-11-06", result: "승", score: "4-2", type: "친선경기" },
+                    { id: 4, opponent: "광주 FC", date: "2025-11-03", result: "패", score: "1-3", type: "리그전" },
+                    { id: 5, opponent: "울산 현대", date: "2025-10-30", result: "승", score: "2-0", type: "친선경기" },
+                  ].map((match) => (
+                    <div key={match.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white ${
+                          match.result === '승' ? 'bg-blue-500' : match.result === '무' ? 'bg-gray-400' : 'bg-red-500'
+                        }`}>
+                          {match.result}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-900">vs {match.opponent}</div>
+                          <div className="text-sm text-gray-500 flex items-center gap-2">
+                            <span>{match.type}</span>
+                            <span>•</span>
+                            <span>{new Date(match.date).toLocaleDateString('ko-KR')}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-xl font-bold text-gray-900">{match.score}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "stats" && (
+          <div className="space-y-6">
+            {/* 시즌 통계 */}
+            <div className="bg-white rounded-xl shadow-sm">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900">2025 시즌 통계</h3>
+              </div>
+              <div className="p-6">
+                {/* 전적 요약 */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-3xl font-bold text-blue-600">15</div>
+                    <div className="text-sm text-gray-600 mt-1">총 경기</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-3xl font-bold text-green-600">9</div>
+                    <div className="text-sm text-gray-600 mt-1">승</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 rounded-lg">
+                    <div className="text-3xl font-bold text-gray-600">3</div>
+                    <div className="text-sm text-gray-600 mt-1">무</div>
+                  </div>
+                  <div className="text-center p-4 bg-red-50 rounded-lg">
+                    <div className="text-3xl font-bold text-red-600">3</div>
+                    <div className="text-sm text-gray-600 mt-1">패</div>
+                  </div>
+                </div>
+
+                {/* 승률 및 득실 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div className="p-4 border border-gray-200 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-2">승률</div>
+                    <div className="flex items-end gap-2 mb-2">
+                      <div className="text-3xl font-bold text-blue-600">60%</div>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3">
+                      <div className="bg-blue-600 h-3 rounded-full" style={{ width: '60%' }}></div>
+                    </div>
+                  </div>
+                  <div className="p-4 border border-gray-200 rounded-lg">
+                    <div className="text-sm text-gray-600 mb-2">득실차</div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-600">32</div>
+                        <div className="text-xs text-gray-500">득점</div>
+                      </div>
+                      <div className="text-xl text-gray-400">-</div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-red-600">18</div>
+                        <div className="text-xs text-gray-500">실점</div>
+                      </div>
+                      <div className="text-center ml-auto">
+                        <div className="text-2xl font-bold text-blue-600">+14</div>
+                        <div className="text-xs text-gray-500">득실차</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 평균 득실 */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <div className="text-sm text-green-700 font-medium mb-1">경기당 평균 득점</div>
+                    <div className="text-2xl font-bold text-green-600">2.13</div>
+                  </div>
+                  <div className="p-4 bg-red-50 rounded-lg">
+                    <div className="text-sm text-red-700 font-medium mb-1">경기당 평균 실점</div>
+                    <div className="text-2xl font-bold text-red-600">1.20</div>
+                  </div>
+                </div>
+
+                {/* 연속 기록 */}
+                <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Trophy className="w-5 h-5 text-yellow-600" />
+                    <div className="text-sm font-semibold text-yellow-900">현재 기록</div>
+                  </div>
+                  <div className="text-lg font-bold text-yellow-800">3연승 진행 중 🔥</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === "notices" && (
           <div className="bg-white rounded-xl shadow-sm">
             <div className="px-6 py-4 border-b border-gray-200">
@@ -745,6 +930,14 @@ const TeamDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* 멤버 프로필 모달 */}
+      {selectedProfileId && (
+        <UserProfileModal
+          userId={selectedProfileId}
+          onClose={() => setSelectedProfileId(null)}
+        />
+      )}
     </div>
   );
 };

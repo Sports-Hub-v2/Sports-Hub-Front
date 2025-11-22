@@ -645,6 +645,7 @@ const ContentPage = () => {
   // 필터 상태
   const [contentFilters, setContentFilters] = useState({
     type: 'all', // all, 공지, 게시물, 배너, 팀 게시물, 용병 모집, 팀 모집, 후기
+    category: 'all', // all, MERCENARY, TEAM, MATCH (모집글 카테고리)
     status: 'all', // all, 게시됨, 검수 중, 초안
     searchQuery: '',
     sortBy: 'newest' // newest, oldest, views
@@ -656,13 +657,13 @@ const ContentPage = () => {
   const [backendError, setBackendError] = useState<string | null>(null);
   const [useBackendData, setUseBackendData] = useState(false);
 
-  // Fetch backend posts on mount
+  // Fetch backend posts on mount and when filters change
   useEffect(() => {
     const loadBackendPosts = async () => {
       setIsLoadingBackend(true);
       setBackendError(null);
       try {
-        const data = await fetchPostsApi(0, 100);
+        const data = await fetchPostsApi(0, 100, contentFilters.category);
         console.log('Backend posts data:', data);
         setBackendPosts(data.content || data || []);
         if (data && (data.content || data.length > 0)) {
@@ -676,7 +677,7 @@ const ContentPage = () => {
       }
     };
     loadBackendPosts();
-  }, []);
+  }, [contentFilters.category]);
 
   const clearFilter = () => {
     navigate('/admin/content', { replace: true, state: {} });
@@ -911,6 +912,7 @@ const ContentPage = () => {
                 <tr>
                   <th>ID</th>
                   <th>유형</th>
+                  <th>카테고리</th>
                   <th>제목</th>
                   <th>작성자</th>
                   <th>상태</th>
@@ -928,6 +930,23 @@ const ContentPage = () => {
                   >
                     <td>{post.id}</td>
                     <td>{post.type}</td>
+                    <td>
+                      {post.category ? (
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          post.category === 'MERCENARY' ? 'bg-green-100 text-green-700' :
+                          post.category === 'TEAM' ? 'bg-blue-100 text-blue-700' :
+                          post.category === 'MATCH' ? 'bg-purple-100 text-purple-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {post.category === 'MERCENARY' ? '⚽ 용병' :
+                           post.category === 'TEAM' ? '👥 팀' :
+                           post.category === 'MATCH' ? '🏆 경기' :
+                           post.category}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">-</span>
+                      )}
+                    </td>
                     <td>{post.title}</td>
                     <td>{post.author}</td>
                     <td>
@@ -992,6 +1011,7 @@ const ContentPage = () => {
               <tr>
                 <th>ID</th>
                 <th>유형</th>
+                <th>카테고리</th>
                 <th>제목</th>
                 <th>작성자</th>
                 <th>상태</th>
@@ -1008,6 +1028,23 @@ const ContentPage = () => {
                 >
                   <td>{item.id}</td>
                   <td>{item.type}</td>
+                  <td>
+                    {item.category ? (
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        item.category === 'MERCENARY' ? 'bg-green-100 text-green-700' :
+                        item.category === 'TEAM' ? 'bg-blue-100 text-blue-700' :
+                        item.category === 'MATCH' ? 'bg-purple-100 text-purple-700' :
+                        'bg-gray-100 text-gray-700'
+                      }`}>
+                        {item.category === 'MERCENARY' ? '⚽ 용병' :
+                         item.category === 'TEAM' ? '👥 팀' :
+                         item.category === 'MATCH' ? '🏆 경기' :
+                         item.category}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400 text-xs">-</span>
+                    )}
+                  </td>
                   <td>{item.title}</td>
                   <td>{item.author}</td>
                   <td>
@@ -1099,6 +1136,38 @@ const ContentPage = () => {
             </div>
           </div>
 
+          {/* 모집글 카테고리 필터 */}
+          <div style={{ marginBottom: '20px', paddingTop: '20px', borderTop: '1px solid var(--admin-border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <Filter className="w-4 h-4" style={{ color: 'var(--admin-text-secondary)' }} />
+              <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--admin-text)' }}>모집글 카테고리</span>
+              <span style={{ fontSize: '12px', color: 'var(--admin-text-secondary)', marginLeft: '4px' }}>
+                (post_type = RECRUIT인 게시물만 해당)
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {[
+                { value: 'all', label: '전체 모집글', icon: '🏃' },
+                { value: 'MERCENARY', label: '용병 모집', icon: '⚽' },
+                { value: 'TEAM', label: '팀 모집', icon: '👥' },
+                { value: 'MATCH', label: '경기 모집', icon: '🏆' },
+              ].map(option => (
+                <button
+                  key={option.value}
+                  onClick={() => setContentFilters({ ...contentFilters, category: option.value })}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    contentFilters.category === option.value
+                      ? 'bg-green-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <span style={{ marginRight: '4px' }}>{option.icon}</span>
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* 상태 및 검색 필터 */}
           <div style={{ display: 'grid', gridTemplateColumns: '200px 200px 1fr', gap: '12px' }}>
             {/* 상태 필터 */}
@@ -1161,11 +1230,12 @@ const ContentPage = () => {
           </div>
 
           {/* 필터 초기화 버튼 */}
-          {(contentFilters.type !== 'all' || contentFilters.status !== 'all' || contentFilters.searchQuery) && (
+          {(contentFilters.type !== 'all' || contentFilters.category !== 'all' || contentFilters.status !== 'all' || contentFilters.searchQuery) && (
             <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
               <button
                 onClick={() => setContentFilters({
                   type: 'all',
+                  category: 'all',
                   status: 'all',
                   searchQuery: '',
                   sortBy: 'newest'
@@ -1186,6 +1256,7 @@ const ContentPage = () => {
               <tr>
                 <th>ID</th>
                 <th>타입</th>
+                <th>카테고리</th>
                 <th>제목</th>
                 <th>작성자</th>
                 <th>상태</th>
@@ -1209,18 +1280,35 @@ const ContentPage = () => {
                     </td>
                     <td>
                       <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
-                        {content.type}
+                        {content.type || content.postType}
                       </span>
                     </td>
+                    <td>
+                      {content.category ? (
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${
+                          content.category === 'MERCENARY' ? 'bg-green-100 text-green-700' :
+                          content.category === 'TEAM' ? 'bg-blue-100 text-blue-700' :
+                          content.category === 'MATCH' ? 'bg-purple-100 text-purple-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {content.category === 'MERCENARY' ? '⚽ 용병' :
+                           content.category === 'TEAM' ? '👥 팀' :
+                           content.category === 'MATCH' ? '🏆 경기' :
+                           content.category}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">-</span>
+                      )}
+                    </td>
                     <td style={{ fontWeight: '500' }}>{content.title}</td>
-                    <td>{content.author}</td>
+                    <td>{content.author || content.authorName}</td>
                     <td>
                       <span className={`status-pill ${
-                        content.status === '게시됨' ? 'positive' :
+                        content.status === '게시됨' || content.status === 'PUBLISHED' ? 'positive' :
                         content.status === '검수 중' ? 'warning' :
                         'neutral'
                       }`}>
-                        {content.status}
+                        {content.status === 'PUBLISHED' ? '게시됨' : content.status}
                       </span>
                     </td>
                     <td>{content.createdAt}</td>

@@ -12,7 +12,6 @@ import {
   Settings
 } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
-import MockDataBanner from "../components/MockDataBanner";
 import ReportDetailModal from "../components/ReportDetailModal";
 import AssignStaffModal from "../components/AssignStaffModal";
 import { fetchReportsApi } from "../api/adminApi";
@@ -388,9 +387,60 @@ const ReportsPage = () => {
       try {
         const data = await fetchReportsApi(0, 100);
         console.log('Backend reports data:', data);
-        setBackendReports(data.content || data || []);
-        if (data && (data.content || data.length > 0)) {
+
+        // Backend Report 엔티티 → Frontend ReportItem 타입 매핑
+        const mappedReports = (data.content || data || []).map((report: any) => {
+          // 신고 타입 매핑 (reason을 기반으로 type 결정)
+          const typeMapping: Record<string, string> = {
+            '폭언': '폭언',
+            '욕설': '폭언',
+            '노쇼': '노쇼',
+            '불참': '노쇼',
+            '부적절한 행동': '부적절한 행동',
+            '기타': '기타',
+          };
+          const reportType = typeMapping[report.reason] || report.reason || '기타';
+
+          // 심각도 결정 (기본값 '보통', 실제로는 백엔드에서 제공해야 함)
+          const severity = report.severity || '보통';
+
+          // 상태 매핑
+          const statusMapping: Record<string, string> = {
+            'PENDING': '배정 대기',
+            'IN_REVIEW': '검토 중',
+            'RESOLVED': '처리 완료',
+            'REJECTED': '기각',
+          };
+          const status = statusMapping[report.status] || report.status || '배정 대기';
+
+          // 대상 정보 (targetType, targetId 조합)
+          const target = report.targetType === 'POST' ? `게시물 P-${report.targetId}` :
+                        report.targetType === 'COMMENT' ? `댓글 C-${report.targetId}` :
+                        report.targetType === 'USER' ? `사용자 U-${report.targetId}` :
+                        report.targetType === 'MATCH' ? `매치 M-${report.targetId}` :
+                        `${report.targetType} ${report.targetId}`;
+
+          return {
+            id: `R-${report.id}`,
+            type: reportType,
+            target: target,
+            severity: severity,
+            status: status,
+            receivedAt: report.createdAt || new Date().toISOString(),
+            reporter: report.reporter?.name || '익명',
+            reporterUserId: report.reporter?.id?.toString(),
+            description: report.description || '',
+            evidence: report.evidence || [],
+            assignee: report.reviewer?.name,
+            reportedUser: report.reportedUser || undefined,
+            sanctionHistory: report.sanctionHistory || [],
+          };
+        });
+
+        setBackendReports(mappedReports);
+        if (mappedReports.length > 0) {
           setUseBackendData(true);
+          setReportQueue(mappedReports); // 매핑된 데이터를 reportQueue에도 설정
         }
       } catch (error) {
         console.error('Failed to fetch backend reports:', error);
@@ -491,8 +541,6 @@ const ReportsPage = () => {
 
   return (
     <AdminLayout activePage="reports">
-      <MockDataBanner />
-
       {/* Backend Data Connection Status */}
       <div style={{
         background: isLoadingBackend ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :

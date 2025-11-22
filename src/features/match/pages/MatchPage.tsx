@@ -114,11 +114,17 @@ const MatchPage = () => {
     }
   };
 
-  const handleCreate = (postData: RecruitPostCreationRequestDto) => {
-    // TODO: 실제 API 호출과 게시글 생성 후 스토어 업데이트
-    console.log("경기 모집글 생성:", postData);
-    loadPosts(RecruitCategory.MATCH);
-    setModalOpen(false);
+  const handleCreate = async (postData: RecruitPostCreationRequestDto) => {
+    try {
+      const { createRecruitPostApi } = await import("@/features/mercenary/api/recruitApi");
+      await createRecruitPostApi(postData);
+      alert("경기 모집글이 작성되었습니다!");
+      await loadPosts(RecruitCategory.MATCH);
+      setModalOpen(false);
+    } catch (error) {
+      console.error("경기 모집글 생성 오류:", error);
+      alert(error instanceof Error ? error.message : "작성 중 오류가 발생했습니다.");
+    }
   };
 
   const handleMatchApply = async (post: any) => {
@@ -153,10 +159,13 @@ const MatchPage = () => {
   const handleDelete = async (postId: number) => {
     if (window.confirm("정말 삭제하시겠습니까?")) {
       try {
-        await removePost(postId);
+        const { deleteRecruitPostApi } = await import("@/features/mercenary/api/recruitApi");
+        await deleteRecruitPostApi(postId);
+        alert("게시글이 삭제되었습니다.");
         if (String(postId) === focusedId) {
-          navigate("/match", { replace: true }); // 경기 페이지 경로로 지정
+          navigate("/match", { replace: true });
         }
+        await loadPosts(RecruitCategory.MATCH);
       } catch (error) {
         console.error("Error deleting post:", error);
         alert("삭제 중 오류가 발생했습니다.");
@@ -290,7 +299,14 @@ const MatchPage = () => {
                     onApply={() => handleMatchApply(post)}
                     isAlreadyApplied={isAlreadyApplied(post.id)}
                     onCancelApplication={() => handleCancelApplication(post.id)}
-                    onEdit={user ? () => {} : undefined}
+                    onEdit={
+                      user &&
+                      user.id &&
+                      post.authorId &&
+                      user.id === post.authorId
+                        ? () => {}
+                        : undefined
+                    }
                     onDelete={
                       user &&
                       user.id &&

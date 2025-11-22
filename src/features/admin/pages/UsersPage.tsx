@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Search, Filter, MoreVertical, Mail, Phone, Calendar, MapPin, Activity, Shield, TrendingUp, TrendingDown, Edit, Trash2, Eye, Ban, MessageSquare, X } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
 import RecentInquiries from "../components/RecentInquiries";
-import MockDataBanner from "../components/MockDataBanner";
 import { fetchUsersApi } from "../api/adminApi";
 
 interface User {
@@ -208,9 +207,36 @@ const UsersPage = () => {
       try {
         const data = await fetchUsersApi(0, 100);
         console.log('Backend users data:', data);
-        setBackendUsers(data.content || data || []);
+
+        // 백엔드 Profile 데이터를 프론트엔드 User 형식으로 매핑
+        const mappedUsers = (data.content || data || []).map((profile: any) => ({
+          id: profile.id?.toString() || '',
+          name: profile.name || '',
+          email: profile.email || profile.account?.email || '',
+          phone: profile.phoneNumber || profile.phone || '',
+          phoneNumber: profile.phoneNumber || profile.phone || '',
+          profileImage: profile.profileImageUrl || profile.profileImage,
+          joinDate: profile.createdAt || profile.joinDate || new Date().toISOString(),
+          lastActive: profile.lastActiveAt ? calculateTimeAgo(profile.lastActiveAt) : '알 수 없음',
+          location: profile.region && profile.subRegion
+            ? `${profile.region} ${profile.subRegion}`
+            : profile.region || profile.location || '',
+          region: profile.region || '',
+          status: (profile.status || profile.accountStatus || 'ACTIVE').toLowerCase() as "active" | "inactive" | "suspended",
+          role: profile.role || 'player', // 기본값: player
+          stats: {
+            matchesPlayed: profile.totalMatchesPlayed || profile.stats?.matchesPlayed || 0,
+            winRate: profile.winRate || profile.stats?.winRate || 0,
+            attendance: profile.attendanceRate || profile.stats?.attendance || 0,
+            rating: profile.mannerTemperature ? Number((profile.mannerTemperature / 20).toFixed(1)) :
+                    profile.stats?.rating || 0,
+          },
+          teams: profile.teams || [],
+        }));
+
+        setBackendUsers(mappedUsers);
         // 백엔드 데이터를 성공적으로 가져오면 자동으로 백엔드 데이터 모드로 전환
-        if (data && (data.content || data.length > 0)) {
+        if (mappedUsers.length > 0) {
           setUseBackendData(true);
         }
       } catch (error) {
@@ -220,6 +246,22 @@ const UsersPage = () => {
         setIsLoadingBackend(false);
       }
     };
+
+    // 시간 차이 계산 헬퍼 함수
+    const calculateTimeAgo = (lastActiveAt: string) => {
+      const now = new Date();
+      const lastActive = new Date(lastActiveAt);
+      const diffMs = now.getTime() - lastActive.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return '방금 전';
+      if (diffMins < 60) return `${diffMins}분 전`;
+      if (diffHours < 24) return `${diffHours}시간 전`;
+      return `${diffDays}일 전`;
+    };
+
     loadBackendUsers();
   }, []);
 
@@ -424,8 +466,6 @@ const UsersPage = () => {
 
   return (
     <AdminLayout activePage="users">
-      <MockDataBanner />
-
       {/* Backend Data Connection Status */}
       <div style={{
         background: isLoadingBackend ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :

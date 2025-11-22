@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
 import ReportDetailModal from "../components/ReportDetailModal";
+import { fetchAdminStatsApi } from "../api/adminApi";
 
 interface MetricData {
   label: string;
@@ -321,20 +322,120 @@ const DashboardPage = () => {
   const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
+  // 실제 통계 데이터 상태
+  const [statsData, setStatsData] = useState<any>(null);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
+  const [statsError, setStatsError] = useState<string | null>(null);
+  const [useRealData, setUseRealData] = useState(true);
+
+  // 통계 데이터 불러오기
+  const loadStats = async () => {
+    setIsLoadingStats(true);
+    setStatsError(null);
+    try {
+      const data = await fetchAdminStatsApi();
+      console.log('Dashboard stats loaded:', data);
+      setStatsData(data);
+      if (data) {
+        setUseRealData(true);
+      }
+    } catch (error) {
+      console.error('Failed to load dashboard stats:', error);
+      setStatsError(error instanceof Error ? error.message : 'Failed to load stats');
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
+
+  // 초기 로드 및 자동 새로고침
+  useEffect(() => {
+    loadStats();
+  }, []);
+
   useEffect(() => {
     if (!isAutoRefresh) return;
 
     const interval = setInterval(() => {
       setLastUpdate(new Date().toLocaleTimeString('ko-KR'));
+      if (useRealData) {
+        loadStats(); // 실제 데이터 사용 시 자동 갱신
+      }
     }, 60000); // Update every minute
 
     return () => clearInterval(interval);
-  }, [isAutoRefresh]);
+  }, [isAutoRefresh, useRealData]);
 
   const handleRefresh = () => {
     setLastUpdate(new Date().toLocaleTimeString('ko-KR'));
     console.log('대시보드 새로고침:', new Date().toISOString());
+    if (useRealData) {
+      loadStats(); // 실제 데이터 새로고침
+    }
   };
+
+  // 실제 데이터를 사용한 메트릭 생성
+  const realOverviewMetrics: MetricData[] = statsData ? [
+    {
+      label: "총 회원 수",
+      value: statsData.totalUsers.toLocaleString(),
+      pill: "TOTAL",
+      pillClass: "metric-pill",
+      delta: `+${statsData.todayUsers} 명`,
+      deltaTone: "metric-positive",
+      note: "오늘 신규 가입",
+      icon: Users,
+    },
+    {
+      label: "오늘 접속 회원",
+      value: statsData.todayActiveUsers.toLocaleString(),
+      pill: "TODAY",
+      pillClass: "metric-pill metric-live",
+      delta: "+247 명",
+      deltaTone: "metric-positive",
+      note: "전일 대비",
+      icon: Activity,
+    },
+    {
+      label: "총 매칭 수",
+      value: statsData.totalMatches.toLocaleString(),
+      pill: "MATCHES",
+      pillClass: "metric-pill",
+      delta: `+${statsData.todayMatches} 건`,
+      deltaTone: "metric-positive",
+      note: "이번 주",
+      icon: Calendar,
+    },
+    {
+      label: "등록 팀 수",
+      value: statsData.totalTeams.toLocaleString(),
+      pill: "TEAMS",
+      pillClass: "metric-pill",
+      delta: "+6 팀",
+      deltaTone: "metric-positive",
+      note: "이번 달",
+      icon: Users,
+    },
+    {
+      label: "오늘 예정 경기",
+      value: statsData.todayMatches.toLocaleString(),
+      pill: "TODAY",
+      pillClass: "metric-pill",
+      delta: `+${Math.max(0, statsData.todayMatches - 5)} 건`,
+      deltaTone: "metric-positive",
+      note: "어제보다",
+      icon: Calendar,
+    },
+    {
+      label: "총 게시물",
+      value: statsData.totalPosts.toLocaleString(),
+      pill: "POSTS",
+      pillClass: "metric-pill",
+      delta: `${statsData.pendingReports} 건 대기`,
+      deltaTone: statsData.pendingReports > 0 ? "metric-negative" : "metric-neutral",
+      note: "모집글 포함",
+      icon: AlertCircle,
+    },
+  ] : overviewMetrics;
 
   const handleExportCSV = () => {
     console.log('CSV 내보내기 요청');
@@ -402,9 +503,12 @@ const DashboardPage = () => {
 
   return (
     <AdminLayout activePage="dashboard">
-      {/* 목업 데이터 표시 배너 */}
+      {/* 데이터 연결 상태 배너 */}
       <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: isLoadingStats ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :
+                   statsError ? 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' :
+                   useRealData ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' :
+                   'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         color: 'white',
         padding: '12px 20px',
         borderRadius: '8px',
@@ -412,25 +516,71 @@ const DashboardPage = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
+        boxShadow: '0 2px 8px rgba(79, 172, 254, 0.3)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: '24px' }}>🎨</span>
+          <span style={{ fontSize: '24px' }}>
+            {isLoadingStats ? '⏳' : statsError ? '⚠️' : useRealData ? '🔌' : '🎨'}
+          </span>
           <div>
-            <div style={{ fontWeight: '600', fontSize: '14px' }}>프론트엔드 목업 데이터</div>
-            <div style={{ fontSize: '12px', opacity: 0.9 }}>현재 표시되는 데이터는 설계/참고용 샘플 데이터입니다</div>
+            <div style={{ fontWeight: '600', fontSize: '14px' }}>
+              {isLoadingStats ? '통계 데이터 로딩 중...' :
+               statsError ? '백엔드 연결 오류' :
+               useRealData ? `실제 데이터 표시 중` :
+               `목업 데이터 표시 중`}
+            </div>
+            <div style={{ fontSize: '12px', opacity: 0.9 }}>
+              {isLoadingStats ? 'API 호출 중입니다...' :
+               statsError ? `오류: ${statsError}` :
+               useRealData ? `총 ${statsData?.totalUsers || 0}명 회원, ${statsData?.totalTeams || 0}개 팀, ${statsData?.totalPosts || 0}개 게시물` :
+               '프론트엔드 샘플 데이터를 표시하고 있습니다'}
+            </div>
           </div>
         </div>
-        <div style={{
-          background: 'rgba(255, 255, 255, 0.2)',
-          padding: '6px 12px',
-          borderRadius: '6px',
-          fontSize: '11px',
-          fontWeight: '600',
-          textTransform: 'uppercase',
-          letterSpacing: '0.5px'
-        }}>
-          Mock Data
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <label style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: statsError ? 'not-allowed' : 'pointer',
+            opacity: statsError ? 0.5 : 1
+          }}>
+            <span style={{ fontSize: '12px', fontWeight: '500' }}>실제 데이터</span>
+            <div style={{
+              position: 'relative',
+              width: '44px',
+              height: '24px',
+              background: useRealData ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.2)',
+              borderRadius: '12px',
+              transition: 'background 0.3s',
+              border: '2px solid rgba(255, 255, 255, 0.4)'
+            }}>
+              <input
+                type="checkbox"
+                checked={useRealData}
+                onChange={(e) => !statsError && setUseRealData(e.target.checked)}
+                disabled={statsError}
+                style={{
+                  position: 'absolute',
+                  opacity: 0,
+                  width: '100%',
+                  height: '100%',
+                  cursor: statsError ? 'not-allowed' : 'pointer'
+                }}
+              />
+              <div style={{
+                position: 'absolute',
+                top: '2px',
+                left: useRealData ? '22px' : '2px',
+                width: '16px',
+                height: '16px',
+                background: 'white',
+                borderRadius: '50%',
+                transition: 'left 0.3s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }} />
+            </div>
+          </label>
         </div>
       </div>
 
@@ -491,7 +641,7 @@ const DashboardPage = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '16px',
         }}>
-          {overviewMetrics.map((metric) => {
+          {(useRealData ? realOverviewMetrics : overviewMetrics).map((metric) => {
             const Icon = metric.icon;
             return (
               <div

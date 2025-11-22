@@ -16,6 +16,7 @@ import MessageUserModal from '../components/MessageUserModal';
 import EditUserModal from '../components/EditUserModal';
 import type { AdminLog } from '../types/adminLog';
 import { mockUserAdminLogs } from '../types/adminLog';
+import { suspendUserApi, unsuspendUserApi, deleteUserApi } from '../api/adminApi';
 
 // 임시 타입 정의
 interface UserDetail {
@@ -698,17 +699,69 @@ const UserDetailPage = () => {
     setShowBanModal(true);
   };
 
-  const handleBanSubmit = (banData: any) => {
-    console.log('사용자 정지:', banData);
-    // TODO: 실제 API 호출
-    if (user) {
+  const handleBanSubmit = async (banData: any) => {
+    if (!user) return;
+
+    try {
+      // 실제 API 호출
+      await suspendUserApi(user.id, banData.reason, banData.duration);
+
+      // UI 상태 업데이트
       setUser({
         ...user,
         status: 'BANNED'
       });
+
+      setShowBanModal(false);
+      alert(`사용자가 ${banData.duration}일간 정지되었습니다.`);
+    } catch (error) {
+      console.error('사용자 정지 실패:', error);
+      alert('사용자 정지에 실패했습니다. 다시 시도해주세요.');
     }
-    setShowBanModal(false);
-    alert('사용자가 정지되었습니다. (목업)');
+  };
+
+  const handleUnsuspend = async () => {
+    if (!user) return;
+
+    const confirmed = window.confirm('정말로 이 사용자의 정지를 해제하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+      // 실제 API 호출
+      await unsuspendUserApi(user.id);
+
+      // UI 상태 업데이트
+      setUser({
+        ...user,
+        status: 'ACTIVE'
+      });
+
+      alert('사용자 정지가 해제되었습니다.');
+    } catch (error) {
+      console.error('정지 해제 실패:', error);
+      alert('정지 해제에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!user) return;
+
+    const confirmed = window.confirm(
+      '정말로 이 사용자를 삭제하시겠습니까?\n\n' +
+      '이 작업은 되돌릴 수 없으며, 사용자의 모든 데이터가 삭제됩니다.'
+    );
+    if (!confirmed) return;
+
+    try {
+      // 실제 API 호출
+      await deleteUserApi(user.id);
+
+      alert('사용자가 삭제되었습니다.');
+      navigate('/admin/users'); // 사용자 목록 페이지로 이동
+    } catch (error) {
+      console.error('사용자 삭제 실패:', error);
+      alert('사용자 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   const handleAddNote = (logId: number, noteContent: string) => {
@@ -775,14 +828,6 @@ const UserDetailPage = () => {
     }
     setShowAdminLogModal(false);
     alert('관리 기록이 추가되었습니다. (목업)');
-  };
-
-  const handleDelete = () => {
-    if (window.confirm('이 사용자를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-      console.log('삭제:', userId);
-      // TODO: 삭제 API 호출
-      navigate('/admin/data-management');
-    }
   };
 
   if (loading) {
@@ -899,13 +944,23 @@ const UserDetailPage = () => {
                 <Edit className="w-4 h-4" />
                 편집
               </button>
-              <button
-                onClick={handleBan}
-                className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
-              >
-                <Ban className="w-4 h-4" />
-                정지
-              </button>
+              {user?.status === 'BANNED' ? (
+                <button
+                  onClick={handleUnsuspend}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  정지 해제
+                </button>
+              ) : (
+                <button
+                  onClick={handleBan}
+                  className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
+                >
+                  <Ban className="w-4 h-4" />
+                  정지
+                </button>
+              )}
               <button
                 onClick={handleDelete}
                 className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"

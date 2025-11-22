@@ -9,14 +9,14 @@ import type { PostType, RecruitPostCreationRequestDto } from "@/types/recruitPos
 import { RecruitCategory } from "@/types/recruitPost";
 import { getProfileByAccountIdApi } from "@/features/auth/api/userApi";
 
-import MercenaryCardModal from "@/features/mercenary/components/MercenaryCardModal";
+import RecruitPostModal from "@/components/common/RecruitPostModal";
 import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard";
 import MercenaryMatchDayCard from "@/components/common/MercenaryMatchDayCard";
 import ApplicationModal from "@/features/mercenary/components/ApplicationModal";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
 import SkeletonCard from "@/components/common/SkeletonCard";
 import UserProfileModal from "@/components/common/UserProfileModal";
-import { applyToPostApi } from "@/features/mercenary/api/recruitApi";
+import { applyToPostApi, createRecruitPostApi, updateRecruitPostApi, deleteRecruitPostApi } from "@/features/mercenary/api/recruitApi";
 
 const MercenaryPage = () => {
   const location = useLocation();
@@ -170,13 +170,47 @@ const MercenaryPage = () => {
     setEditingPost(null);
     setIsModalOpen(true);
   };
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingPost(null);
+  };
   const handleOpenEditModal = (post: PostType) => {
     setEditingPost(post);
     setIsModalOpen(true);
   };
-  const handleDelete = async (_id: number) => {
-    /* 구현되지 않음: 서버 연동 삭제 */
+
+  // 생성과 수정을 모두 처리하는 통합 핸들러
+  const handleSavePost = async (formData: RecruitPostCreationRequestDto) => {
+    try {
+      if (editingPost) {
+        await updateRecruitPostApi(editingPost.id, formData);
+        alert("게시글이 성공적으로 수정되었습니다.");
+      } else {
+        await createRecruitPostApi(formData);
+        alert("게시글이 성공적으로 등록되었습니다.");
+      }
+      handleCloseModal();
+      await loadPosts(RecruitCategory.MERCENARY);
+    } catch (error) {
+      alert("처리 중 오류가 발생했습니다.");
+      console.error("Save post failed:", error);
+    }
+  };
+
+  const handleDelete = async (postId: number) => {
+    if (window.confirm("정말 삭제하시겠습니까?")) {
+      try {
+        await deleteRecruitPostApi(postId);
+        alert("게시글이 삭제되었습니다.");
+        if (String(postId) === focusedId) {
+          navigate("/mercenary", { replace: true });
+        }
+        await loadPosts(RecruitCategory.MERCENARY);
+      } catch (error) {
+        console.error("Error deleting post:", error);
+        alert("삭제 중 오류가 발생했습니다.");
+      }
+    }
   };
 
   const handleExpand = (postId: number | string) => navigate(`/mercenary?id=${postId}`);
@@ -221,15 +255,14 @@ const MercenaryPage = () => {
           )}
         </div>
 
-        {/* 모달 */}
-        {isModalOpen && (
-          <MercenaryCardModal
-            category="mercenary"
-            onClose={handleCloseModal}
-            onSubmit={() => setIsModalOpen(false)}
-            initialData={editingPost}
-          />
-        )}
+        {/* 모집글 작성/수정 모달 */}
+        <RecruitPostModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleSavePost}
+          category={RecruitCategory.MERCENARY}
+          initialData={editingPost}
+        />
 
         {/* 빈 상태 메시지 */}
         {!isLoading && sortedPosts.length === 0 && (

@@ -52,11 +52,13 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
 
   // 팀 페이지로 이동
   const handleTeamClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    console.log('팀 클릭:', { teamId: post.teamId, teamName: post.teamName });
+    console.log('[MatchDetailCard] 팀 클릭:', { teamId: post.teamId, teamName: post.teamName });
     if (post.teamId) {
+      console.log('[MatchDetailCard] 네비게이션 실행:', `/teams/${post.teamId}`);
+      if (onClose) onClose(); // 모달 먼저 닫기
       navigate(`/teams/${post.teamId}`);
-      if (onClose) onClose(); // 모달 닫기
     } else {
       console.warn('팀 ID가 없습니다.');
     }

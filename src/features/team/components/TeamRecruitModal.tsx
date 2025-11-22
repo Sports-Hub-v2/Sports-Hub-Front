@@ -17,6 +17,7 @@ interface FormData {
   teamLevel: string;
   activityDay: string;
   activityTime: string;
+  fieldLocation: string;
   requiredPersonnel: number | "";
   ageGroup: string;
   preferredPositions: string;
@@ -47,6 +48,7 @@ const TeamRecruitModal: React.FC<Props> = ({
     teamLevel: "중급",
     activityDay: "",
     activityTime: "",
+    fieldLocation: "",
     requiredPersonnel: "",
     ageGroup: "",
     preferredPositions: "",
@@ -63,10 +65,11 @@ const TeamRecruitModal: React.FC<Props> = ({
         region: initialData.region || "",
         subRegion: initialData.subRegion || "",
         thumbnailUrl: initialData.thumbnailUrl || "",
-        teamName: "",
-        teamLevel: "중급",
+        teamName: initialData.teamName || "",
+        teamLevel: initialData.skillLevel || "중급",
         activityDay: "",
         activityTime: "",
+        fieldLocation: initialData.fieldLocation || "",
         requiredPersonnel: initialData.requiredPersonnel ?? "",
         ageGroup: initialData.ageGroup || "",
         preferredPositions: initialData.preferredPositions || "",
@@ -82,6 +85,7 @@ const TeamRecruitModal: React.FC<Props> = ({
         teamLevel: "중급",
         activityDay: "",
         activityTime: "",
+        fieldLocation: "",
         requiredPersonnel: "",
         ageGroup: "",
         preferredPositions: "",
@@ -125,11 +129,17 @@ const TeamRecruitModal: React.FC<Props> = ({
       title: formData.title.trim(),
       content: formData.content.trim(),
       region: formData.region,
+      subRegion: formData.subRegion.trim() || undefined,
       imageUrl: formData.thumbnailUrl.trim() || undefined,
       matchDate: undefined,
       category: "TEAM",
       targetType: "USER",
       status: "RECRUITING",
+      requiredPersonnel: formData.requiredPersonnel ? Number(formData.requiredPersonnel) : undefined,
+      preferredPositions: formData.preferredPositions.trim() || undefined,
+      ageGroup: formData.ageGroup.trim() || undefined,
+      skillLevel: formData.teamLevel || undefined,
+      fieldLocation: formData.fieldLocation.trim() || undefined,
     };
 
     try {
@@ -272,6 +282,25 @@ const TeamRecruitModal: React.FC<Props> = ({
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
             />
           </div>
+        </div>
+
+        {/* 활동 구장 */}
+        <div>
+          <label
+            htmlFor="fieldLocation"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            주 활동 구장
+          </label>
+          <input
+            id="fieldLocation"
+            name="fieldLocation"
+            type="text"
+            value={formData.fieldLocation}
+            onChange={handleInputChange}
+            placeholder="예: 강남구민운동장, 삼성역 풋살장"
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
         </div>
 
         {/* 모집 인원 / 연령대 / 포지션 */}

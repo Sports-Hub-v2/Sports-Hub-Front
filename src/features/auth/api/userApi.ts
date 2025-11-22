@@ -56,11 +56,27 @@ export const fetchPublicUserProfileApi = async (
 
     // PublicUserProfileResponseDto 형식으로 변환
     return {
+      id: data.id || undefined,
       userid: data.accountId?.toString() || "",
       name: data.name || "사용자",
       region: data.region || null,
+      subRegion: data.subRegion || null,
       preferredPosition: data.preferredPosition || null,
+      skillLevel: data.skillLevel || null,
       isExPlayer: data.isExPlayer ?? false,
+      phoneNumber: data.phoneNumber || null,
+      birthDate: data.birthDate || null,
+      activityStartDate: data.activityStartDate || null,
+      activityEndDate: data.activityEndDate || null,
+      // 향후 백엔드 추가 예정 필드들
+      height: data.height || null,
+      weight: data.weight || null,
+      bio: data.bio || null,
+      profileImageUrl: data.profileImageUrl || null,
+      dominantFoot: data.dominantFoot || null,
+      careerYears: data.careerYears || null,
+      playStyle: data.playStyle || null,
+      preferredTimeSlots: data.preferredTimeSlots || null,
     };
   } catch (error) {
     console.error("프로필 조회 실패:", error);

@@ -50,18 +50,17 @@ const TeamDetailCard: React.FC<TeamDetailCardProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // 팀명 추출
-  const extractTeamName = () => {
-    const match = post.title.match(/\[(.*?)\]/);
-    return match ? match[1] : null;
-  };
-
   // 팀 페이지로 이동
   const handleTeamNameClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+    console.log('[TeamDetailCard] 팀명 클릭:', { teamId: post.teamId, teamName: post.teamName });
     if (post.teamId) {
+      console.log('[TeamDetailCard] 네비게이션 실행:', `/teams/${post.teamId}`);
+      if (onClose) onClose(); // 모달 먼저 닫기
       navigate(`/teams/${post.teamId}`);
-      if (onClose) onClose(); // 모달 닫기
+    } else {
+      console.warn('teamId가 없습니다.');
     }
   };
 
@@ -92,7 +91,6 @@ const TeamDetailCard: React.FC<TeamDetailCardProps> = ({
   };
 
   const progress = getProgress();
-  const teamName = extractTeamName();
 
   // 포지션 배열
   const positions = post.preferredPositions
@@ -107,13 +105,13 @@ const TeamDetailCard: React.FC<TeamDetailCardProps> = ({
       <div className="bg-gradient-to-r from-green-500 to-green-600 p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-center gap-3 flex-wrap">
-            {teamName && (
+            {post.teamName && (
               <div
                 className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg hover:bg-white/30 cursor-pointer transition-colors"
                 onClick={handleTeamNameClick}
               >
                 <span className="text-2xl">⚽</span>
-                <span className="text-white font-bold text-xl">{teamName}</span>
+                <span className="text-white font-bold text-xl">{post.teamName}</span>
               </div>
             )}
             <span

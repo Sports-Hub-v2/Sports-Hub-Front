@@ -5,6 +5,7 @@ import {
   CheckCircle, Clock, AlertTriangle, ThumbsUp, Share2, Flag,
   TrendingUp, Calendar, ExternalLink, Shield
 } from 'lucide-react';
+import { approvePostApi, rejectPostApi, deletePostApi } from '../api/adminApi';
 
 interface EditHistory {
   id: string;
@@ -61,12 +62,14 @@ interface ContentDetailModalProps {
   content: Content | null;
   isOpen: boolean;
   onClose: () => void;
+  onUpdate?: () => void; // 게시물 업데이트 후 호출될 콜백
 }
 
 const ContentDetailModal: React.FC<ContentDetailModalProps> = ({
   content,
   isOpen,
-  onClose
+  onClose,
+  onUpdate
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'detail' | 'history' | 'management' | 'comments' | 'stats'>('detail');
@@ -78,6 +81,63 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({
     if (userId) {
       navigate(`/admin/users/${userId}`);
       onClose();
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!content || !content.id) return;
+
+    const confirmed = window.confirm('이 게시물을 승인하시겠습니까?');
+    if (!confirmed) return;
+
+    try {
+      const postId = parseInt(content.id.replace(/\D/g, ''));
+      await approvePostApi(postId);
+      alert('게시물이 승인되었습니다.');
+      onUpdate?.();
+      onClose();
+    } catch (error) {
+      console.error('게시물 승인 실패:', error);
+      alert('게시물 승인에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleReject = async () => {
+    if (!content || !content.id) return;
+
+    const reason = window.prompt('거부 사유를 입력해주세요:');
+    if (!reason) return;
+
+    try {
+      const postId = parseInt(content.id.replace(/\D/g, ''));
+      await rejectPostApi(postId, reason);
+      alert('게시물이 거부되었습니다.');
+      onUpdate?.();
+      onClose();
+    } catch (error) {
+      console.error('게시물 거부 실패:', error);
+      alert('게시물 거부에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!content || !content.id) return;
+
+    const confirmed = window.confirm(
+      '정말로 이 게시물을 삭제하시겠습니까?\n\n' +
+      '이 작업은 되돌릴 수 없습니다.'
+    );
+    if (!confirmed) return;
+
+    try {
+      const postId = parseInt(content.id.replace(/\D/g, ''));
+      await deletePostApi(postId);
+      alert('게시물이 삭제되었습니다.');
+      onUpdate?.();
+      onClose();
+    } catch (error) {
+      console.error('게시물 삭제 실패:', error);
+      alert('게시물 삭제에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -264,20 +324,27 @@ const ContentDetailModal: React.FC<ContentDetailModalProps> = ({
                 <h4 className="font-semibold text-gray-900 mb-4">관리 액션</h4>
                 <div className="flex flex-wrap gap-3">
                   {content.status !== '게시됨' && (
-                    <button className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm">
+                    <button
+                      onClick={handleApprove}
+                      className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium text-sm"
+                    >
                       <CheckCircle className="w-4 h-4" />
                       승인 및 게시
                     </button>
                   )}
-                  <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm">
-                    <Edit2 className="w-4 h-4" />
-                    수정
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium text-sm">
-                    <Clock className="w-4 h-4" />
-                    검수 대기로 변경
-                  </button>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm">
+                  {content.status !== '거부됨' && (
+                    <button
+                      onClick={handleReject}
+                      className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors font-medium text-sm"
+                    >
+                      <Clock className="w-4 h-4" />
+                      거부
+                    </button>
+                  )}
+                  <button
+                    onClick={handleDelete}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+                  >
                     <Trash2 className="w-4 h-4" />
                     삭제
                   </button>

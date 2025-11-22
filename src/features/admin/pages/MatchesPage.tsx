@@ -2,7 +2,6 @@
 import { X, Search, Calendar, Filter, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import AdminLayout from "../components/AdminLayout";
-import MockDataBanner from "../components/MockDataBanner";
 import MatchDetailModal from "../components/MatchDetailModal";
 import { fetchMatchesApi } from "../api/adminApi";
 
@@ -444,8 +443,48 @@ const MatchesPage = () => {
       try {
         const data = await fetchMatchesApi(0, 100);
         console.log('Backend matches data:', data);
-        setBackendMatches(data.content || data || []);
-        if (data && (data.content || data.length > 0)) {
+
+        // Backend Match 엔티티 → Frontend Match 타입 매핑
+        const mappedMatches = (data.content || data || []).map((match: any) => ({
+          id: match.id?.toString() || `M-${match.id}`,
+          venue: match.venue || '',
+          venueId: match.venueId?.toString() || '',
+          venueUrl: match.venueUrl || '',
+          time: match.matchTime || '',
+          date: match.matchDate || '',
+          home: {
+            id: match.homeTeam?.id || match.homeTeamId || 0,
+            name: match.homeTeam?.teamName || match.homeTeamName || '홈 팀',
+            score: match.homeScore,
+          },
+          away: {
+            id: match.awayTeam?.id || match.awayTeamId || 0,
+            name: match.awayTeam?.teamName || match.awayTeamName || '어웨이 팀',
+            score: match.awayScore,
+          },
+          status: (match.status || 'SCHEDULED').toLowerCase() as "scheduled" | "in_progress" | "completed" | "cancelled",
+          notes: match.notes || [],
+          managementHistory: match.managementHistory || [],
+          referee: match.referee || '',
+          description: match.description || '',
+          matchType: match.matchType || 'FRIENDLY',
+          matchFormat: match.matchFormat || '11VS11',
+          minPlayers: match.minPlayers,
+          maxPlayers: match.maxPlayers,
+          confirmedPlayers: match.confirmedPlayers || 0,
+          weatherCondition: match.weatherCondition,
+          cancellationReason: match.cancellationReason,
+          result: match.homeScore !== null && match.awayScore !== null
+            ? match.homeScore > match.awayScore
+              ? `${match.homeTeam?.teamName || '홈 팀'} 승리`
+              : match.homeScore < match.awayScore
+              ? `${match.awayTeam?.teamName || '어웨이 팀'} 승리`
+              : '무승부'
+            : undefined,
+        }));
+
+        setBackendMatches(mappedMatches);
+        if (mappedMatches.length > 0) {
           setUseBackendData(true);
         }
       } catch (error) {
@@ -513,8 +552,11 @@ const MatchesPage = () => {
     });
   };
 
+  // 실제 사용할 경기 데이터 선택 (백엔드 데이터 우선)
+  const activeMatches = useBackendData ? backendMatches : allMatches;
+
   // 필터링된 경기 목록
-  const filteredMatches = allMatches.filter(match => {
+  const filteredMatches = activeMatches.filter(match => {
     // 상태 필터
     if (matchFilters.status !== 'all' && match.status !== matchFilters.status) {
       return false;
@@ -547,16 +589,14 @@ const MatchesPage = () => {
 
   // 상태별 경기 수 계산
   const matchCounts = {
-    all: allMatches.length,
-    scheduled: allMatches.filter(m => m.status === 'scheduled').length,
-    completed: allMatches.filter(m => m.status === 'completed').length,
-    cancelled: allMatches.filter(m => m.status === 'cancelled').length,
+    all: activeMatches.length,
+    scheduled: activeMatches.filter(m => m.status === 'scheduled').length,
+    completed: activeMatches.filter(m => m.status === 'completed').length,
+    cancelled: activeMatches.filter(m => m.status === 'cancelled').length,
   };
 
   return (
     <AdminLayout activePage="matches">
-      <MockDataBanner />
-
       {/* Backend Data Connection Status */}
       <div style={{
         background: isLoadingBackend ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :
@@ -1045,7 +1085,7 @@ const MatchesPage = () => {
       <section className="admin-section">
         <div className="section-header">
           <h2 className="section-title">전체 경기 관리</h2>
-          <span className="section-meta">총 {allMatches.length}개 경기 · 필터링 결과 {filteredMatches.length}개</span>
+          <span className="section-meta">총 {activeMatches.length}개 경기 · 필터링 결과 {filteredMatches.length}개</span>
         </div>
 
         {/* 필터 영역 */}

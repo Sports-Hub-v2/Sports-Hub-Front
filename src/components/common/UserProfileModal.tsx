@@ -190,6 +190,15 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ userId, onClose }) 
                       </div>
                     </div>
                   )}
+                  {profile.skillLevel && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-2xl">⭐</span>
+                      <div>
+                        <p className="text-xs text-gray-600">실력 수준</p>
+                        <p className="font-semibold text-gray-900">{profile.skillLevel}</p>
+                      </div>
+                    </div>
+                  )}
                   {profile.dominantFoot && (
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                       <span className="text-2xl">👟</span>
@@ -215,7 +224,19 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ userId, onClose }) 
                       <span className="text-2xl">🗺️</span>
                       <div>
                         <p className="text-xs text-gray-600">주 활동 지역</p>
-                        <p className="font-semibold text-gray-900">{profile.region}</p>
+                        <p className="font-semibold text-gray-900">
+                          {profile.region}
+                          {profile.subRegion && ` · ${profile.subRegion}`}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {profile.phoneNumber && (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-2xl">📞</span>
+                      <div>
+                        <p className="text-xs text-gray-600">연락처</p>
+                        <p className="font-semibold text-gray-900">{profile.phoneNumber}</p>
                       </div>
                     </div>
                   )}
@@ -223,7 +244,7 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ userId, onClose }) 
               </div>
 
               {/* 활동 정보 */}
-              {(profile.preferredTimeSlots || profile.activityStartDate) && (
+              {(profile.preferredTimeSlots || profile.activityStartDate || profile.birthDate) && (
                 <div className="border-t pt-6">
                   <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <span>📅</span>
@@ -245,6 +266,36 @@ const UserProfileModal: React.FC<UserProfileModalProps> = ({ userId, onClose }) 
                         <div>
                           <p className="text-xs text-gray-600">Sports Hub 활동 기간</p>
                           <p className="font-semibold text-gray-900">{calculateActivityPeriod(profile.activityStartDate)}</p>
+                        </div>
+                      </div>
+                    )}
+                    {profile.activityStartDate && (
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span className="text-2xl">🎯</span>
+                        <div>
+                          <p className="text-xs text-gray-600">가입일</p>
+                          <p className="font-semibold text-gray-900">
+                            {new Date(profile.activityStartDate).toLocaleDateString('ko-KR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                    {profile.birthDate && !calculateAge(profile.birthDate) && (
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span className="text-2xl">🎂</span>
+                        <div>
+                          <p className="text-xs text-gray-600">생년월일</p>
+                          <p className="font-semibold text-gray-900">
+                            {new Date(profile.birthDate).toLocaleDateString('ko-KR', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                            })}
+                          </p>
                         </div>
                       </div>
                     )}
