@@ -4,9 +4,9 @@ import axiosInstance from "@/lib/axiosInstance";
 import { mockUsers, mockMatches, mockPosts, mockReports, mockApiDelay } from "../mock/mockAdminData";
 
 // Microservices API URLs
-const USER_SERVICE_URL = "http://localhost:8082/api";
-const TEAM_SERVICE_URL = "http://localhost:8083/api";
-const RECRUIT_SERVICE_URL = "http://localhost:8084/api";
+const USER_SERVICE_URL = `${import.meta.env.VITE_USER_API_URL || 'http://localhost:8082'}/api`;
+const TEAM_SERVICE_URL = `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api`;
+const RECRUIT_SERVICE_URL = `${import.meta.env.VITE_RECRUIT_API_URL || 'http://localhost:8084'}/api`;
 
 // Mock mode flag - set to true to use mock data instead of real API
 const USE_MOCK_DATA = false;
@@ -338,7 +338,7 @@ export const fetchUserDetailApi = async (userId: number) => {
   }
 
   try {
-    const response = await axiosInstance.get(`${USER_SERVICE_URL}/profiles/${userId}`);
+    const response = await axiosInstance.get(`${USER_SERVICE_URL}/users/profiles/${userId}`);
     return response.data;
   } catch (error) {
     console.error("Failed to fetch user detail:", error);
@@ -351,8 +351,39 @@ export const fetchUserDetailApi = async (userId: number) => {
  */
 export const fetchTeamDetailApi = async (teamId: number) => {
   try {
-    const response = await axiosInstance.get(`${TEAM_SERVICE_URL}/teams/${teamId}`);
-    return response.data;
+    const [teamResponse, membersResponse] = await Promise.all([
+      axiosInstance.get(`${TEAM_SERVICE_URL}/teams/${teamId}`),
+      axiosInstance.get(`${TEAM_SERVICE_URL}/teams/${teamId}/members`).catch(() => ({ data: [] }))
+    ]);
+
+    const team = teamResponse.data;
+    const memberships = membersResponse.data || [];
+
+    // Fetch member profiles
+    const memberProfiles = await Promise.all(
+      memberships.map(async (membership: any) => {
+        try {
+          const profileId = membership.id?.profileId || membership.profileId;
+          if (!profileId) return null;
+
+          const profileResponse = await axiosInstance.get(`${USER_SERVICE_URL}/users/profiles/${profileId}`);
+          return {
+            ...profileResponse.data,
+            role: membership.roleInTeam || "MEMBER",
+            joinDate: membership.joinedAt,
+            isActive: membership.isActive
+          };
+        } catch (error) {
+          console.error("Failed to fetch member profile:", error);
+          return null;
+        }
+      })
+    );
+
+    // Filter out null profiles and attach to team
+    team.members = memberProfiles.filter(Boolean);
+
+    return team;
   } catch (error) {
     console.error("Failed to fetch team detail:", error);
     throw error;

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Filter, MoreVertical, MapPin, Calendar, Activity, Users, Trophy, TrendingUp, Shield, Edit, Trash2, Eye, Ban, X } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
+import MockDataBanner from "../components/MockDataBanner";
 import { fetchTeamsApi } from "../api/adminApi";
 
 interface Team {
@@ -226,40 +227,37 @@ const TeamsPage = () => {
         const data = await fetchTeamsApi(0, 100);
         console.log('Backend teams data:', data);
 
-        // 백엔드 데이터를 프론트엔드 형식으로 매핑
-        const mappedTeams = (data.content || data || []).map((team: any) => ({
-          id: team.id?.toString() || '',
-          name: team.teamName || team.name || '',
-          logo: team.logoUrl || team.logo,
+        // Transform backend data to match frontend interface
+        const teams = (data.content || data || []).map((team: any) => ({
+          id: String(team.id),
+          name: team.name || team.teamName || '',
+          logo: team.logo || team.logoUrl,
           region: team.region || '',
-          subRegion: team.subRegion || team.subRegion || '',
-          foundedDate: team.createdAt || team.foundedDate || new Date().toISOString(),
+          subRegion: team.subRegion || team.subregion,
+          foundedDate: team.foundedDate || team.createdAt || '',
           homeGround: team.homeGround || '',
-          teamLevel: team.skillLevel === 'BEGINNER' ? '초급' :
-                     team.skillLevel === 'INTERMEDIATE' ? '중급' :
-                     team.skillLevel === 'ADVANCED' ? '고급' :
-                     team.teamLevel || '중급',
-          status: (team.status || 'ACTIVE').toLowerCase() as "active" | "inactive" | "disbanded",
+          teamLevel: team.teamLevel || team.skillLevel || 'INTERMEDIATE',
+          status: team.status || 'active',
           verified: team.verified || false,
           stats: {
-            totalMatches: team.totalMatches || 0,
-            wins: team.totalWins || 0,
-            draws: team.totalDraws || 0,
-            losses: team.totalLosses || 0,
-            winRate: team.totalMatches > 0
-              ? Math.round((team.totalWins / team.totalMatches) * 100)
-              : 0,
-            totalMembers: team.totalMembers || 0,
+            totalMatches: team.stats?.totalMatches || 0,
+            wins: team.stats?.wins || 0,
+            draws: team.stats?.draws || 0,
+            losses: team.stats?.losses || 0,
+            winRate: team.stats?.winRate || 0,
+            totalMembers: team.stats?.totalMembers || team.maxMembers || 0,
           },
           captain: {
-            name: team.captainName || '미정',
-            id: team.captainProfileId?.toString() || team.captainId?.toString() || '',
+            name: team.captain?.name || team.captainName || '미정',
+            id: team.captain?.id || String(team.captainProfileId || ''),
           },
         }));
 
-        setBackendTeams(mappedTeams);
-        if (mappedTeams.length > 0) {
+        console.log('Transformed teams:', teams);
+        setBackendTeams(teams);
+        if (teams.length > 0) {
           setUseBackendData(true);
+          console.log('Using backend data, team count:', teams.length);
         }
       } catch (error) {
         console.error('Failed to fetch backend teams:', error);
@@ -462,6 +460,8 @@ const TeamsPage = () => {
 
   return (
     <AdminLayout activePage="teams">
+      <MockDataBanner />
+
       {/* Backend Data Connection Status */}
       <div style={{
         background: isLoadingBackend ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :
@@ -1126,7 +1126,10 @@ const TeamsPage = () => {
             {filteredTeams.map((team) => (
               <tr
                 key={team.id}
-                onClick={() => navigate(`/admin/teams/${team.id}`)}
+                onClick={() => {
+                  console.log('Clicking team:', team.id, team.name, 'useBackendData:', useBackendData);
+                  navigate(`/admin/teams/${team.id}`);
+                }}
                 style={{ cursor: "pointer" }}
               >
                 <td>

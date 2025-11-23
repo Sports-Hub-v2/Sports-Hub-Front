@@ -1,0 +1,506 @@
+// src/components/common/RecruitPostModal.tsx
+
+import React, { useState, useEffect } from 'react';
+import { useAuthStore } from "@/stores/useAuthStore";
+import {
+  RecruitCategory,
+  RecruitTargetType,
+  ParticipantType,
+  PostType,
+  RecruitPostCreationRequestDto
+} from "@/types/recruitPost";
+import { REGIONS } from '@/constants/regions';
+import Modal from '@/components/common/Modal';
+
+interface PositionCount {
+  FW: number;
+  MF: number;
+  DF: number;
+  GK: number;
+  ALL: number;
+}
+
+interface FormData {
+  title: string;
+  content: string;
+  region: string;
+  subRegion: string;
+  gameDate: string;
+  gameTime: string;
+  requiredPersonnel: number | '';
+  preferredPositions: string;
+  teamName: string; // 팀→개인 모집 시 소속팀 이름
+  // 포지션별 모집 인원
+  positionCounts: PositionCount;
+  selectedPositions: Set<keyof PositionCount>;
+}
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (postData: RecruitPostCreationRequestDto) => Promise<void>;
+  category: RecruitCategory;
+  initialData?: PostType | null;
+}
+
+type RecruitmentFlow = 'TEAM_TO_INDIVIDUAL' | 'INDIVIDUAL_TO_TEAM';
+
+const RecruitPostModal: React.FC<Props> = ({ isOpen, onClose, onSubmit, category, initialData }) => {
+  const { user } = useAuthStore();
+
+  const [formData, setFormData] = useState<FormData>({
+    title: "",
+    content: "",
+    region: "",
+    subRegion: "",
+    gameDate: "",
+    gameTime: "",
+    requiredPersonnel: '',
+    preferredPositions: "",
+    teamName: "",
+    positionCounts: { FW: 0, MF: 0, DF: 0, GK: 0, ALL: 0 },
+    selectedPositions: new Set(),
+  });
+
+  const [recruitmentFlow, setRecruitmentFlow] = useState<RecruitmentFlow>('TEAM_TO_INDIVIDUAL');
+  const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  // 카테고리별 설정
+  const categoryConfig = {
+    [RecruitCategory.MERCENARY]: {
+      title: "용병 모집",
+      emoji: "🔥",
+    },
+    [RecruitCategory.TEAM]: {
+      title: "팀원 모집",
+      emoji: "🛡️",
+    },
+    [RecruitCategory.MATCH]: {
+      title: "경기 모집",
+      emoji: "🏟️",
+    },
+  };
+
+  const config = categoryConfig[category];
+
+  useEffect(() => {
+    if (initialData && isOpen) {
+      setFormData({
+        title: initialData.title || "",
+        content: initialData.content || "",
+        region: initialData.region || "",
+        subRegion: initialData.subRegion || "",
+        gameDate: initialData.gameDate ? initialData.gameDate.substring(0, 10) : "",
+        gameTime: initialData.gameTime || "",
+        requiredPersonnel: initialData.requiredPersonnel ?? '',
+        preferredPositions: initialData.preferredPositions || "",
+        teamName: initialData.teamName || "",
+      });
+      if (category === RecruitCategory.MERCENARY) {
+        setRecruitmentFlow(initialData.fromParticipant === 'INDIVIDUAL' ? 'INDIVIDUAL_TO_TEAM' : 'TEAM_TO_INDIVIDUAL');
+      }
+    } else if (isOpen) {
+      setFormData({
+        title: "", content: "", region: "", subRegion: "",
+        gameDate: "", gameTime: "", requiredPersonnel: '',
+        preferredPositions: "", teamName: "",
+        positionCounts: { FW: 0, MF: 0, DF: 0, GK: 0, ALL: 0 },
+        selectedPositions: new Set(),
+      });
+      setRecruitmentFlow('TEAM_TO_INDIVIDUAL');
+      setFormError(null);
+    }
+  }, [initialData, isOpen, category]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // 포지션 체크박스 토글
+  const handlePositionToggle = (position: keyof PositionCount) => {
+    setFormData(prev => {
+      const newSelectedPositions = new Set(prev.selectedPositions);
+      if (newSelectedPositions.has(position)) {
+        newSelectedPositions.delete(position);
+        // 체크 해제 시 해당 포지션 인원 0으로 초기화
+        return {
+          ...prev,
+          selectedPositions: newSelectedPositions,
+          positionCounts: { ...prev.positionCounts, [position]: 0 }
+        };
+      } else {
+        newSelectedPositions.add(position);
+        return {
+          ...prev,
+          selectedPositions: newSelectedPositions
+        };
+      }
+    });
+  };
+
+  // 포지션별 인원 수 변경
+  const handlePositionCountChange = (position: keyof PositionCount, value: string) => {
+    const count = value === '' ? 0 : parseInt(value, 10);
+    setFormData(prev => ({
+      ...prev,
+      positionCounts: { ...prev.positionCounts, [position]: count }
+    }));
+  };
+
+  // 총 모집 인원 계산
+  const getTotalRequiredPersonnel = () => {
+    const { FW, MF, DF, GK, ALL } = formData.positionCounts;
+    return FW + MF + DF + GK + ALL;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    if (!user) {
+      setFormError("글을 작성하려면 로그인이 필요합니다.");
+      return;
+    }
+
+    if (!formData.title.trim() || !formData.content.trim() || !formData.region) {
+      setFormError("제목, 내용, 지역은 필수 입력 항목입니다.");
+      return;
+    }
+
+    if (!formData.gameDate || !formData.gameTime) {
+      setFormError("경기 날짜와 시간은 필수 입력 항목입니다.");
+      return;
+    }
+
+    // 날짜/시간 유효성 검사
+    const now = new Date();
+    const selectedDateTime = new Date(`${formData.gameDate}T${formData.gameTime}`);
+
+    if (selectedDateTime < now) {
+      setFormError("과거 날짜와 시간은 선택할 수 없습니다. 현재 시간 이후로 선택해주세요.");
+      return;
+    }
+
+    // 포지션 선택 검증 (적어도 하나는 선택해야 함)
+    const totalPersonnel = getTotalRequiredPersonnel();
+    if (totalPersonnel === 0) {
+      setFormError("최소 1개 이상의 포지션과 인원을 선택해주세요.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const isTeamToIndividual = recruitmentFlow === 'TEAM_TO_INDIVIDUAL';
+
+    // 포지션 정보를 문자열로 변환 (예: "FW:2, MF:1, DF:2")
+    const buildPositionString = () => {
+      const positions: string[] = [];
+      (['FW', 'MF', 'DF', 'GK', 'ALL'] as const).forEach(pos => {
+        if (formData.selectedPositions.has(pos) && formData.positionCounts[pos] > 0) {
+          positions.push(`${pos}:${formData.positionCounts[pos]}`);
+        }
+      });
+      return positions.join(', ');
+    };
+
+    const dto: RecruitPostCreationRequestDto = {
+      teamId: user.teamId || 1, // TODO: 실제 사용자의 팀 ID
+      writerProfileId: user.profileId || 1, // 현재 사용자의 프로필 ID
+      title: formData.title.trim(),
+      content: formData.content.trim(),
+      category: category,
+      region: formData.region,
+      subRegion: formData.subRegion.trim() || undefined,
+      matchDate: formData.gameDate, // matchDate로 전송
+      gameTime: formData.gameTime,
+      requiredPersonnel: getTotalRequiredPersonnel() || undefined,
+      preferredPositions: buildPositionString() || undefined,
+      targetType: category === RecruitCategory.MERCENARY
+        ? (isTeamToIndividual ? RecruitTargetType.USER : RecruitTargetType.TEAM)
+        : RecruitTargetType.USER,
+      status: "RECRUITING",
+    };
+
+    try {
+      await onSubmit(dto);
+    } catch (error) {
+      console.error("게시글 저장 실패:", error);
+      setFormError(error instanceof Error ? error.message : "게시글 저장 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title={`${config.emoji} ${config.title}`}>
+      <form onSubmit={handleSubmit} className="space-y-5">
+
+        {/* 섹션 1: 기본 정보 */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-gray-600 mb-3 flex items-center gap-2">
+            <span>📋</span> 기본 정보
+          </h3>
+          <div className="space-y-3">
+            {/* 용병 전용: 모집 유형 */}
+            {category === RecruitCategory.MERCENARY && (
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-2">
+                  모집 유형 <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setRecruitmentFlow('TEAM_TO_INDIVIDUAL')}
+                    className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                      recruitmentFlow === 'TEAM_TO_INDIVIDUAL'
+                        ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-lg">🛡️</span>
+                      <span className="text-sm">팀 → 용병</span>
+                      <span className="text-xs text-gray-500">팀에서 용병 모집</span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRecruitmentFlow('INDIVIDUAL_TO_TEAM')}
+                    className={`px-4 py-3 rounded-lg border-2 transition-all ${
+                      recruitmentFlow === 'INDIVIDUAL_TO_TEAM'
+                        ? 'border-green-500 bg-green-50 text-green-700 font-semibold'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-lg">⚔️</span>
+                      <span className="text-sm">개인 → 팀</span>
+                      <span className="text-xs text-gray-500">개인이 팀 찾기</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* 팀→용병 선택 시 소속팀 입력 */}
+            {category === RecruitCategory.MERCENARY && recruitmentFlow === 'TEAM_TO_INDIVIDUAL' && (
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  소속 팀 <span className="text-red-500">*</span>
+                </label>
+                <input
+                  name="teamName"
+                  type="text"
+                  required
+                  value={formData.teamName}
+                  onChange={handleInputChange}
+                  placeholder="예: FC 서울, 강남 유나이티드"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            )}
+
+            {/* 제목 */}
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                제목 <span className="text-red-500">*</span>
+              </label>
+              <input
+                name="title"
+                type="text"
+                required
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="모집글 제목을 입력하세요"
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* 지역 / 세부지역 */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  지역 <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="region"
+                  required
+                  value={formData.region}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">지역 선택</option>
+                  {REGIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">
+                  세부 지역
+                </label>
+                <input
+                  name="subRegion"
+                  type="text"
+                  value={formData.subRegion}
+                  onChange={handleInputChange}
+                  placeholder="예: 강남구"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 섹션 2: 일정 */}
+        <div className="bg-blue-50 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-blue-600 mb-3 flex items-center gap-2">
+            <span>📅</span> 일정
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                날짜 <span className="text-red-500">*</span>
+              </label>
+              <input
+                name="gameDate"
+                type="date"
+                required
+                value={formData.gameDate}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">
+                시간 <span className="text-red-500">*</span>
+              </label>
+              <input
+                name="gameTime"
+                type="time"
+                required
+                value={formData.gameTime}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 섹션 3: 모집 조건 */}
+        <div className="bg-green-50 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-green-600 mb-3 flex items-center gap-2">
+            <span>👥</span> 모집 조건
+          </h3>
+
+          {/* 모집 인원 (읽기 전용, 자동 계산) */}
+          <div className="mb-4">
+            <label className="block text-xs font-medium text-gray-500 mb-1">
+              모집 인원 <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              value={getTotalRequiredPersonnel()}
+              readOnly
+              className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm text-gray-600 cursor-not-allowed"
+            />
+          </div>
+
+          {/* 모집 포지션 */}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-2">
+              모집 포지션
+            </label>
+            <div className="space-y-2">
+              {(['FW', 'MF', 'DF', 'GK', 'ALL'] as const).map((position) => {
+                const isChecked = formData.selectedPositions.has(position);
+                const positionLabels = {
+                  FW: '공격수 (FW)',
+                  MF: '미드필더 (MF)',
+                  DF: '수비수 (DF)',
+                  GK: '골키퍼 (GK)',
+                  ALL: '전체 (무관)'
+                };
+
+                return (
+                  <div key={position} className="flex items-center gap-3 bg-white p-2 rounded-md border border-gray-200">
+                    <input
+                      type="checkbox"
+                      id={`position-${position}`}
+                      checked={isChecked}
+                      onChange={() => handlePositionToggle(position)}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label
+                      htmlFor={`position-${position}`}
+                      className="flex-1 text-sm font-medium text-gray-700 cursor-pointer"
+                    >
+                      {positionLabels[position]}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.positionCounts[position] || ''}
+                      onChange={(e) => handlePositionCountChange(position, e.target.value)}
+                      disabled={!isChecked}
+                      placeholder="0"
+                      className={`w-16 px-2 py-1 text-sm text-center border rounded-md ${
+                        isChecked
+                          ? 'bg-white border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'
+                          : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                      }`}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* 섹션 4: 상세 내용 */}
+        <div className="bg-yellow-50 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-yellow-600 mb-3 flex items-center gap-2">
+            <span>📝</span> 상세 내용
+          </h3>
+          <textarea
+            name="content"
+            required
+            value={formData.content}
+            onChange={handleInputChange}
+            placeholder="모집 내용을 자세히 작성해주세요 (연령대, 실력 수준, 기타 요구사항 등)"
+            rows={4}
+            className="w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* 에러 메시지 */}
+        {formError && (
+          <div className="p-3 bg-red-50 border border-red-300 text-red-600 text-sm rounded-md">
+            {formError}
+          </div>
+        )}
+
+        {/* 버튼 */}
+        <div className="flex justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isLoading}
+            className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors font-medium"
+          >
+            취소
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
+          >
+            {isLoading ? "등록 중..." : (initialData ? "수정하기" : "등록하기")}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+export default RecruitPostModal;

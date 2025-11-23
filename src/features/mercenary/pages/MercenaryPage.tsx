@@ -124,14 +124,16 @@ const MercenaryPage = () => {
       }
     };
     fetchPosts();
-  }, [loadPosts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 초기 마운트 시에만 실행
 
   // 로그인한 경우 내 신청 내역 로드
   useEffect(() => {
     if (user?.id) {
       loadMyApplications(user.id);
     }
-  }, [user?.id, loadMyApplications]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]); // user.id가 변경될 때만 실행
 
   useEffect(() => {
     if (searchParams.get("action") === "create" && user) {

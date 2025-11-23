@@ -1,0 +1,12 @@
+  const formattedTime = post.gameTime || "시간 미정";
+
+  // 신청하기 핸들러 (모달 방식 유지)
+  const handleApply = () => {
+    if (onApply) {
+      onApply(post.id);
+    }
+  };
+
+  // 포지션 데이터 파싱 (Downloads 버전에서 가져온 로직)
+  // post.positions가 문자열이면 객체로 변환
+    let positionsObject: { [key: string]: number } | null = null;

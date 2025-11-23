@@ -86,7 +86,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     // Fetch profile by accountId to attach profileId and name
     const accountId = userToStore.id;
-    fetch(`http://localhost:8082/api/users/profiles/by-account/${accountId}`)
+    fetch(`${(import.meta as any).env?.VITE_USER_API_URL || 'http://localhost:8082'}/api/users/profiles/by-account/${accountId}`)
       .then(async (res) => (res.ok ? ((await res.json()) as any) : null))
       .then((prof) => {
         if (prof && typeof prof.id === "number") {
@@ -157,7 +157,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       // Attach profileId and name in background
       try {
-        const res2 = await fetch(`http://localhost:8082/api/users/profiles/by-account/${userToStore.id}`);
+        const res2 = await fetch(`${(import.meta as any).env?.VITE_USER_API_URL || 'http://localhost:8082'}/api/users/profiles/by-account/${userToStore.id}`);
         if (res2.ok) {
           const prof: any = await res2.json();
           if (prof && typeof prof.id === "number") {
@@ -187,7 +187,7 @@ if (typeof window !== 'undefined') {
       const raw = localStorage.getItem('user');
       const u = raw ? (JSON.parse(raw) as any) : null;
       if (u && !u.profileId && typeof u.id === 'number') {
-        const res = await fetch(`http://localhost:8082/api/users/profiles/by-account/${u.id}`);
+        const res = await fetch(`${(import.meta as any).env?.VITE_USER_API_URL || 'http://localhost:8082'}/api/users/profiles/by-account/${u.id}`);
         if (res.ok) {
           const prof: any = await res.json();
           if (prof && typeof prof.id === 'number') {

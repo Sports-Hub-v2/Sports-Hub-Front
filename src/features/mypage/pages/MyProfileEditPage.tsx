@@ -17,7 +17,7 @@ const updateUserProfileApi = async (data: UserProfileUpdateDto): Promise<UserRes
   if (typeof body.isExPlayer === 'boolean') body.isExPlayer = String(body.isExPlayer);
   delete body.password;
 
-  const res = await axiosInstance.patch(`http://localhost:8082/api/users/profiles/${profileId}`, body, {
+  const res = await axiosInstance.patch(`${import.meta.env.VITE_USER_API_URL || 'http://localhost:8082'}/api/users/profiles/${profileId}`, body, {
     headers: { 'Content-Type': 'application/json' },
   });
 

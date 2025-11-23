@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Search, Filter, MoreVertical, Mail, Phone, Calendar, MapPin, Activity, Shield, TrendingUp, TrendingDown, Edit, Trash2, Eye, Ban, MessageSquare, X } from "lucide-react";
 import AdminLayout from "../components/AdminLayout";
 import RecentInquiries from "../components/RecentInquiries";
+import MockDataBanner from "../components/MockDataBanner";
 import { fetchUsersApi } from "../api/adminApi";
 
 interface User {
@@ -208,36 +209,33 @@ const UsersPage = () => {
         const data = await fetchUsersApi(0, 100);
         console.log('Backend users data:', data);
 
-        // 백엔드 Profile 데이터를 프론트엔드 User 형식으로 매핑
-        const mappedUsers = (data.content || data || []).map((profile: any) => ({
-          id: profile.id?.toString() || '',
-          name: profile.name || '',
-          email: profile.email || profile.account?.email || '',
-          phone: profile.phoneNumber || profile.phone || '',
-          phoneNumber: profile.phoneNumber || profile.phone || '',
-          profileImage: profile.profileImageUrl || profile.profileImage,
-          joinDate: profile.createdAt || profile.joinDate || new Date().toISOString(),
-          lastActive: profile.lastActiveAt ? calculateTimeAgo(profile.lastActiveAt) : '알 수 없음',
-          location: profile.region && profile.subRegion
-            ? `${profile.region} ${profile.subRegion}`
-            : profile.region || profile.location || '',
-          region: profile.region || '',
-          status: (profile.status || profile.accountStatus || 'ACTIVE').toLowerCase() as "active" | "inactive" | "suspended",
-          role: profile.role || 'player', // 기본값: player
+        // Transform backend data to match frontend interface
+        const users = (data.content || data || []).map((user: any) => ({
+          id: String(user.id),
+          name: user.name || '',
+          email: user.email || `user${user.id}@example.com`,
+          phone: user.phone || user.phoneNumber || '',
+          profileImage: user.profileImage || user.profileUrl,
+          joinDate: user.joinDate || user.createdAt || '',
+          lastActive: user.lastActive || user.updatedAt || user.createdAt || '',
+          location: user.location || user.region || '',
+          status: user.status || 'active',
+          role: user.role || 'player',
           stats: {
-            matchesPlayed: profile.totalMatchesPlayed || profile.stats?.matchesPlayed || 0,
-            winRate: profile.winRate || profile.stats?.winRate || 0,
-            attendance: profile.attendanceRate || profile.stats?.attendance || 0,
-            rating: profile.mannerTemperature ? Number((profile.mannerTemperature / 20).toFixed(1)) :
-                    profile.stats?.rating || 0,
+            matchesPlayed: user.stats?.matchesPlayed || 0,
+            winRate: user.stats?.winRate || 0,
+            attendance: user.stats?.attendance || 0,
+            rating: user.stats?.rating || 0,
           },
-          teams: profile.teams || [],
+          teams: user.teams || [],
         }));
 
-        setBackendUsers(mappedUsers);
+        console.log('Transformed users:', users);
+        setBackendUsers(users);
         // 백엔드 데이터를 성공적으로 가져오면 자동으로 백엔드 데이터 모드로 전환
-        if (mappedUsers.length > 0) {
+        if (users.length > 0) {
           setUseBackendData(true);
+          console.log('Using backend data, user count:', users.length);
         }
       } catch (error) {
         console.error('Failed to fetch backend users:', error);
@@ -246,22 +244,6 @@ const UsersPage = () => {
         setIsLoadingBackend(false);
       }
     };
-
-    // 시간 차이 계산 헬퍼 함수
-    const calculateTimeAgo = (lastActiveAt: string) => {
-      const now = new Date();
-      const lastActive = new Date(lastActiveAt);
-      const diffMs = now.getTime() - lastActive.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      const diffHours = Math.floor(diffMs / 3600000);
-      const diffDays = Math.floor(diffMs / 86400000);
-
-      if (diffMins < 1) return '방금 전';
-      if (diffMins < 60) return `${diffMins}분 전`;
-      if (diffHours < 24) return `${diffHours}시간 전`;
-      return `${diffDays}일 전`;
-    };
-
     loadBackendUsers();
   }, []);
 
@@ -466,6 +448,8 @@ const UsersPage = () => {
 
   return (
     <AdminLayout activePage="users">
+      <MockDataBanner />
+
       {/* Backend Data Connection Status */}
       <div style={{
         background: isLoadingBackend ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' :
@@ -1136,9 +1120,12 @@ const UsersPage = () => {
           </thead>
           <tbody>
             {displayUsers.map((user) => (
-              <tr 
-                key={user.id} 
-                onClick={() => navigate(`/admin/users/${user.id}`)} 
+              <tr
+                key={user.id}
+                onClick={() => {
+                  console.log('Clicking user:', user.id, user.name, 'useBackendData:', useBackendData);
+                  navigate(`/admin/users/${user.id}`);
+                }}
                 style={{ cursor: "pointer" }}
               >
                 <td>

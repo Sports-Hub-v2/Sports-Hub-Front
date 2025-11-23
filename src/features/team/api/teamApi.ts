@@ -21,7 +21,7 @@ export interface TeamCreateRequestDto {
  */
 export const getTeamsByProfileApi = async (profileId: number): Promise<Team[]> => {
   try {
-    const response = await axiosInstance.get<Team[]>(`http://localhost:8083/api/teams/memberships/by-profile/${profileId}`);
+    const response = await axiosInstance.get<Team[]>(`${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/memberships/by-profile/${profileId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching teams for profile ID ${profileId}:`, error);
@@ -55,7 +55,7 @@ export const createTeamApi = async (
       requestData.captainProfileId = (user?.profileId as number | undefined) ?? 1;
     }
 
-    const response = await axiosInstance.post<Team>("http://localhost:8083/api/teams", requestData);
+    const response = await axiosInstance.post<Team>("${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams", requestData);
     return response.data;
   } catch (error: unknown) {
     // ▼▼▼ 버전에 상관없이 동작하는 안전한 에러 처리 로직 ▼▼▼
@@ -75,7 +75,7 @@ export const createTeamApi = async (
  */
 export const getTeamDetailApi = async (teamId: string): Promise<Team> => {
   try {
-    const response = await axiosInstance.get<Team>(`http://localhost:8083/api/teams/${teamId}`);
+    const response = await axiosInstance.get<Team>(`${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching team detail for ID ${teamId}:`, error);
@@ -94,7 +94,7 @@ export const updateTeamApi = async (
 ): Promise<Team> => {
   try {
     const response = await axiosInstance.put<Team>(
-      `http://localhost:8083/api/teams/${teamId}`,
+      `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}`,
       updateData
     );
     return response.data;
@@ -112,7 +112,7 @@ export const updateTeamApi = async (
  */
 export const getTeamMembersApi = async (teamId: string | number): Promise<TeamMember[]> => {
   try {
-    const response = await axiosInstance.get<TeamMember[]>(`http://localhost:8083/api/teams/${teamId}/members`);
+    const response = await axiosInstance.get<TeamMember[]>(`${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching team members for ID ${teamId}:`, error);
@@ -133,7 +133,7 @@ export const addTeamMemberApi = async (
 ): Promise<TeamMember> => {
   try {
     const response = await axiosInstance.post<TeamMember>(
-      `http://localhost:8083/api/teams/${teamId}/members`,
+      `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members`,
       { profileId, role }
     );
     return response.data;
@@ -156,7 +156,7 @@ export const updateMemberRoleApi = async (
 ): Promise<TeamMember> => {
   try {
     const response = await axiosInstance.put<TeamMember>(
-      `http://localhost:8083/api/teams/${teamId}/members/${profileId}/role`,
+      `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members/${profileId}/role`,
       { role }
     );
     return response.data;
@@ -176,7 +176,7 @@ export const removeMemberApi = async (
   profileId: number
 ): Promise<void> => {
   try {
-    await axiosInstance.delete(`http://localhost:8083/api/teams/${teamId}/members/${profileId}`);
+    await axiosInstance.delete(`${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members/${profileId}`);
   } catch (error) {
     console.error(`Error removing team member:`, error);
     throw new Error("팀 멤버 삭제에 실패했습니다.");
@@ -190,7 +190,7 @@ export const removeMemberApi = async (
 export const getUserTeamsApi = async (profileId: number): Promise<Team[]> => {
   try {
     const response = await axiosInstance.get<Team[]>(
-      `http://localhost:8083/api/teams/memberships/by-profile/${profileId}`
+      `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/memberships/by-profile/${profileId}`
     );
     return response.data;
   } catch (error) {

@@ -56,7 +56,7 @@ const TeamDetailPage: React.FC = () => {
 
         // 팀 멤버 조회
         const membersResponse = await axiosInstance.get(
-          `http://localhost:8083/api/teams/${teamId}/members`
+          `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members`
         );
         setMembers(membersResponse.data || []);
 
@@ -88,7 +88,7 @@ const TeamDetailPage: React.FC = () => {
     setIsJoining(true);
     try {
       const response = await axiosInstance.post(
-        `http://localhost:8083/api/teams/${teamId}/members`,
+        `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members`,
         {
           profileId: user.profileId,
           roleInTeam: "MEMBER",
@@ -98,7 +98,7 @@ const TeamDetailPage: React.FC = () => {
       setUserMembership(response.data);
       // 멤버 목록 새로고침
       const membersResponse = await axiosInstance.get(
-        `http://localhost:8083/api/teams/${teamId}/members`
+        `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members`
       );
       setMembers(membersResponse.data || []);
     } catch (err) {
@@ -119,11 +119,11 @@ const TeamDetailPage: React.FC = () => {
     if (!confirm("정말로 팀을 탈퇴하시겠습니까?")) return;
 
     try {
-      await axiosInstance.delete(`http://localhost:8083/api/teams/${teamId}/members/${user.profileId}`);
+      await axiosInstance.delete(`${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members/${user.profileId}`);
       setUserMembership(null);
       // 멤버 목록 새로고침
       const membersResponse = await axiosInstance.get(
-        `http://localhost:8083/api/teams/${teamId}/members`
+        `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}/members`
       );
       setMembers(membersResponse.data || []);
     } catch (err) {

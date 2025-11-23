@@ -665,7 +665,16 @@ const ContentPage = () => {
       try {
         const data = await fetchPostsApi(0, 100, contentFilters.category);
         console.log('Backend posts data:', data);
-        setBackendPosts(data.content || data || []);
+
+        // Transform backend data to match frontend format
+        const posts = (data.content || data || []).map((post: any) => ({
+          ...post,
+          author: post.author || post.authorName,
+          type: post.type || post.category || '게시물',
+          created_at: post.created_at || post.createdAt,
+        }));
+
+        setBackendPosts(posts);
         if (data && (data.content || data.length > 0)) {
           setUseBackendData(true);
         }
@@ -719,8 +728,26 @@ const ContentPage = () => {
     return msg.status === messageFilter;
   });
 
+  // 실제 사용할 콘텐츠 데이터 선택 (백엔드 데이터 우선)
+  const activeContents = useBackendData ? backendPosts : allContents;
+
+  // 오늘 날짜 계산
+  const today = new Date();
+  const todayString = today.toISOString().split('T')[0];
+
+  // 오늘 게시된 콘텐츠 (백엔드 데이터에서 필터링)
+  const todayContents = activeContents.filter(c => {
+    const createdAt = c.createdAt || c.created_at;
+    return createdAt && createdAt.startsWith(todayString);
+  });
+
+  // 검수 대기 중인 콘텐츠
+  const pendingContents = activeContents.filter(c =>
+    c.status === '검수 중' || c.status === '초안' || c.status === 'PENDING'
+  );
+
   // 필터링된 콘텐츠 목록
-  const filteredContents = allContents.filter(content => {
+  const filteredContents = activeContents.filter(content => {
     // 타입 필터
     if (contentFilters.type !== 'all' && content.type !== contentFilters.type) {
       return false;
@@ -734,7 +761,8 @@ const ContentPage = () => {
     // 검색어 필터
     if (contentFilters.searchQuery) {
       const query = contentFilters.searchQuery.toLowerCase();
-      const searchText = `${content.title} ${content.author} ${content.id}`.toLowerCase();
+      const author = content.author || content.authorName || '';
+      const searchText = `${content.title || ''} ${author} ${content.id}`.toLowerCase();
       if (!searchText.includes(query)) {
         return false;
       }
@@ -745,17 +773,22 @@ const ContentPage = () => {
     if (contentFilters.sortBy === 'views') {
       return (b.views || 0) - (a.views || 0);
     }
-    // newest, oldest는 날짜 기반이지만 mock 데이터라 간단히 ID 기반으로
+    // newest, oldest는 날짜 기반이지만 ID 기반으로 정렬
+    const aId = typeof a.id === 'number' ? a.id : parseInt(a.id) || 0;
+    const bId = typeof b.id === 'number' ? b.id : parseInt(b.id) || 0;
     return contentFilters.sortBy === 'newest'
-      ? b.id.localeCompare(a.id)
-      : a.id.localeCompare(b.id);
+      ? bId - aId
+      : aId - bId;
   });
 
   // 타입별 개수 계산
   const contentCounts = {
     all: allContents.length,
     공지: allContents.filter(c => c.type === '공지').length,
-    게시물: allContents.filter(c => c.type.includes('게시물') || c.type.includes('모집') || c.type.includes('후기')).length,
+    게시물: allContents.filter(c => {
+      const type = c.type || '';
+      return type.includes('게시물') || type.includes('모집') || type.includes('후기');
+    }).length,
     배너: allContents.filter(c => c.type === '배너').length,
   };
 
@@ -921,7 +954,7 @@ const ContentPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {todayPosts.map((post) => (
+                {todayContents.map((post) => (
                   <tr
                     key={post.id}
                     onClick={() => handleContentClick(post)}
@@ -1019,7 +1052,7 @@ const ContentPage = () => {
               </tr>
             </thead>
             <tbody>
-              {pendingReviews.map((item) => (
+              {pendingContents.map((item) => (
                 <tr
                   key={item.id}
                   onClick={() => handleContentClick(item)}

@@ -555,6 +555,25 @@ const MatchesPage = () => {
   // 실제 사용할 경기 데이터 선택 (백엔드 데이터 우선)
   const activeMatches = useBackendData ? backendMatches : allMatches;
 
+  // 오늘 날짜 계산
+  const today = new Date('2025-11-24'); // 임시로 고정 날짜 사용
+  const todayString = today.toISOString().split('T')[0];
+
+  // 오늘 예정된 경기 (백엔드 데이터에서 필터링)
+  const todayScheduledMatches = activeMatches.filter(m =>
+    m.date === todayString && m.status === 'scheduled'
+  );
+
+  // 다가오는 경기 (오늘 이후 예정)
+  const upcomingScheduledMatches = activeMatches.filter(m =>
+    m.date > todayString && m.status === 'scheduled'
+  );
+
+  // 오늘 완료된 경기
+  const todayCompletedMatches = activeMatches.filter(m =>
+    m.date === todayString && m.status === 'completed'
+  );
+
   // 필터링된 경기 목록
   const filteredMatches = activeMatches.filter(match => {
     // 상태 필터
@@ -871,7 +890,7 @@ const MatchesPage = () => {
           </div>
         </div>
         <div className="grid-2">
-          {todaySchedule.map((match) => (
+          {todayScheduledMatches.map((match) => (
             <div
               key={match.id}
               className="card"
@@ -957,7 +976,7 @@ const MatchesPage = () => {
           <span className="section-meta">체크리스트 기반 준비 현황</span>
         </div>
         <div className="grid-3">
-          {upcomingMatches.map((match) => (
+          {upcomingScheduledMatches.map((match) => (
             <div
               key={match.id}
               className="card simple-card"
@@ -982,10 +1001,10 @@ const MatchesPage = () => {
       <section className="admin-section">
         <div className="section-header">
           <h2 className="section-title">오늘 완료된 경기</h2>
-          <span className="section-meta">{completedMatches.length}건의 경기 결과</span>
+          <span className="section-meta">{todayCompletedMatches.length}건의 경기 결과</span>
         </div>
         <div className="grid-2">
-          {completedMatches.map((match) => (
+          {todayCompletedMatches.map((match) => (
             <div
               key={match.id}
               className="card"

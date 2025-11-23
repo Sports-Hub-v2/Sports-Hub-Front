@@ -16,7 +16,6 @@ import MessageTeamModal from '../components/MessageTeamModal';
 import EditTeamModal from '../components/EditTeamModal';
 import type { AdminLog } from '../types/adminLog';
 import { mockTeamAdminLogs } from '../types/adminLog';
-import { verifyTeamApi, unverifyTeamApi, disbandTeamApi } from '../api/adminApi';
 
 // 팀 상세 타입 정의
 interface TeamMember {
@@ -236,69 +235,26 @@ const TeamDetailPage = () => {
     alert('팀 정보가 수정되었습니다. (목업)');
   };
 
-  const handleVerify = async () => {
-    if (!team) return;
-
-    const confirmed = window.confirm('이 팀을 인증하시겠습니까?');
-    if (!confirmed) return;
-
-    try {
-      await verifyTeamApi(team.id);
-      setTeam({
-        ...team,
-        verified: true
-      });
-      alert('팀이 인증되었습니다.');
-    } catch (error) {
-      console.error('팀 인증 실패:', error);
-      alert('팀 인증에 실패했습니다. 다시 시도해주세요.');
-    }
-  };
-
-  const handleUnverify = async () => {
-    if (!team) return;
-
-    const confirmed = window.confirm('이 팀의 인증을 해제하시겠습니까?');
-    if (!confirmed) return;
-
-    try {
-      await unverifyTeamApi(team.id);
-      setTeam({
-        ...team,
-        verified: false
-      });
-      alert('팀 인증이 해제되었습니다.');
-    } catch (error) {
-      console.error('인증 해제 실패:', error);
-      alert('인증 해제에 실패했습니다. 다시 시도해주세요.');
-    }
-  };
-
   const handleDissolve = () => {
     setShowDissolveModal(true);
   };
 
-  const handleDissolveSubmit = async (dissolveData: any) => {
-    if (!team) return;
-
-    try {
-      await disbandTeamApi(team.id, dissolveData.reason);
+  const handleDissolveSubmit = (dissolveData: any) => {
+    console.log('팀 해체:', dissolveData);
+    if (team) {
       setTeam({
         ...team,
         status: 'DISBANDED'
       });
-      setShowDissolveModal(false);
-      alert('팀이 해산되었습니다.');
-    } catch (error) {
-      console.error('팀 해산 실패:', error);
-      alert('팀 해산에 실패했습니다. 다시 시도해주세요.');
     }
+    setShowDissolveModal(false);
+    alert('팀이 해체되었습니다. (목업)');
   };
 
   const handleDelete = () => {
     if (window.confirm('이 팀을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
       console.log('삭제:', teamId);
-      navigate('/admin/teams');
+      navigate('/admin/data-management');
     }
   };
 
@@ -460,23 +416,6 @@ const TeamDetailPage = () => {
                 <Edit className="w-4 h-4" />
                 편집
               </button>
-              {team?.verified ? (
-                <button
-                  onClick={handleUnverify}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
-                >
-                  <Shield className="w-4 h-4" />
-                  인증 해제
-                </button>
-              ) : (
-                <button
-                  onClick={handleVerify}
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                >
-                  <Shield className="w-4 h-4" />
-                  팀 인증
-                </button>
-              )}
               <button
                 onClick={handleDissolve}
                 className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700"
@@ -616,11 +555,55 @@ const TeamDetailPage = () => {
       <div className="max-w-7xl mx-auto px-4 py-6">
         {activeTab === 'overview' && (
           <div className="space-y-6">
-            {/* 팀 운영 정보 */}
+            {/* 조기축구 팀 통계 그리드 */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatCard
+                icon={Trophy}
+                label="총 경기"
+                value={team.stats.totalMatches}
+                color="blue"
+              />
+              <StatCard
+                icon={Target}
+                label="승률"
+                value={`${team.stats.winRate}%`}
+                color="green"
+              />
+              <StatCard
+                icon={Users}
+                label="팀원 수"
+                value={team.stats.totalMembers}
+                color="purple"
+              />
+              <StatCard
+                icon={Flag}
+                label="평균 연령"
+                value={`${team.stats.avgAge}세`}
+                color="orange"
+              />
+            </div>
+
+            {/* 팀 정보 카드 */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-                <h3 className="text-lg font-semibold mb-4 text-white">👥 팀 운영 정보</h3>
+                <h3 className="text-lg font-semibold mb-4 text-white">⚽ 팀 정보</h3>
                 <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">홈구장</span>
+                    <span className="font-semibold">{team.homeGround || '-'}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">팀 레벨</span>
+                    <span className="font-semibold text-blue-600">{team.teamLevel}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">활동 지역</span>
+                    <span className="font-semibold">{team.region} {team.subRegion}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-300">총 경기 수</span>
+                    <span className="font-semibold text-green-600">{team.stats.totalMatches}경기</span>
+                  </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-300">팀장</span>
                     <button
@@ -630,24 +613,6 @@ const TeamDetailPage = () => {
                       {team.admin.captainName}
                     </button>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">평균 연령</span>
-                    <span className="font-semibold text-white">{team.stats.avgAge}세</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">창단일</span>
-                    <span className="font-semibold text-white">{new Date(team.foundedDate).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">활동 기간</span>
-                    <span className="font-semibold text-white">
-                      {Math.floor((new Date().getTime() - new Date(team.foundedDate).getTime()) / (1000 * 60 * 60 * 24 * 30))}개월
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-300">생성자</span>
-                    <span className="font-semibold text-white">{team.admin.createdBy}</span>
-                  </div>
                 </div>
               </div>
 
@@ -656,31 +621,31 @@ const TeamDetailPage = () => {
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-300">득점</span>
+                      <span className="text-sm font-medium text-gray-700">득점</span>
                       <span className="text-sm font-bold text-green-600">{team.stats.goalsScored}골</span>
                     </div>
-                    <div className="w-full bg-gray-700 rounded-full h-3">
+                    <div className="w-full bg-gray-200 rounded-full h-3">
                       <div
-                        className="h-3 rounded-full bg-green-500"
+                        className="h-3 rounded-full bg-green-9000"
                         style={{ width: `${(team.stats.goalsScored / (team.stats.goalsScored + team.stats.goalsConceded)) * 100}%` }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-300">실점</span>
+                      <span className="text-sm font-medium text-gray-700">실점</span>
                       <span className="text-sm font-bold text-red-600">{team.stats.goalsConceded}골</span>
                     </div>
-                    <div className="w-full bg-gray-700 rounded-full h-3">
+                    <div className="w-full bg-gray-200 rounded-full h-3">
                       <div
                         className="h-3 rounded-full bg-red-500"
                         style={{ width: `${(team.stats.goalsConceded / (team.stats.goalsScored + team.stats.goalsConceded)) * 100}%` }}
                       />
                     </div>
                   </div>
-                  <div className="pt-4 border-t border-gray-600">
+                  <div className="pt-4 border-t">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-blue-400">
+                      <div className="text-2xl font-bold text-blue-600">
                         +{team.stats.goalsScored - team.stats.goalsConceded}
                       </div>
                       <div className="text-sm text-gray-300">골 득실</div>
@@ -690,65 +655,31 @@ const TeamDetailPage = () => {
               </div>
             </div>
 
-            {/* 경기당 평균 */}
+            {/* 전적 분석 */}
             <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-              <h3 className="text-lg font-semibold mb-4 text-white">⚽ 경기당 평균</h3>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-green-600">
-                    {(team.stats.goalsScored / team.stats.totalMatches).toFixed(2)}
+              <h3 className="text-lg font-semibold mb-4 text-white">📈 전적 분석</h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-green-900 rounded-lg">
+                  <div className="text-3xl font-bold text-green-600">{team.stats.wins}</div>
+                  <div className="text-sm text-gray-300 mt-1">승리</div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    {((team.stats.wins / team.stats.totalMatches) * 100).toFixed(1)}%
                   </div>
-                  <div className="text-sm text-gray-300 mt-1">득점</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-red-600">
-                    {(team.stats.goalsConceded / team.stats.totalMatches).toFixed(2)}
+                <div className="text-center p-4 bg-gray-700 rounded-lg">
+                  <div className="text-3xl font-bold text-gray-300">{team.stats.draws}</div>
+                  <div className="text-sm text-gray-300 mt-1">무승부</div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    {((team.stats.draws / team.stats.totalMatches) * 100).toFixed(1)}%
                   </div>
-                  <div className="text-sm text-gray-300 mt-1">실점</div>
                 </div>
-              </div>
-            </div>
-
-            {/* 최근 활동 요약 */}
-            <div className="bg-gray-800 rounded-lg border border-gray-700 p-6">
-              <h3 className="text-lg font-semibold mb-4 text-white">🕒 최근 활동</h3>
-              <div className="space-y-3">
-                {team.activityTimeline.slice(0, 3).map((act) => {
-                  const getActivityIcon = (type: string) => {
-                    const icons: any = {
-                      MEMBER_JOIN: Users,
-                      MEMBER_LEAVE: Users,
-                      MATCH_WIN: Trophy,
-                      MATCH_DRAW: Activity,
-                      MATCH_LOSS: Activity,
-                      PRACTICE: Target
-                    };
-                    const Icon = icons[type] || Activity;
-                    return <Icon className="w-5 h-5" />;
-                  };
-
-                  const getActivityColor = (type: string) => {
-                    if (['MEMBER_JOIN', 'MATCH_WIN'].includes(type)) return 'bg-green-100 text-green-600';
-                    if (['PRACTICE', 'MATCH_DRAW'].includes(type)) return 'bg-blue-100 text-blue-600';
-                    if (['MEMBER_LEAVE', 'MATCH_LOSS'].includes(type)) return 'bg-red-100 text-red-600';
-                    return 'bg-gray-100 text-gray-600';
-                  };
-
-                  return (
-                    <div key={act.id} className="flex gap-4 items-start">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${getActivityColor(act.type)}`}>
-                        {getActivityIcon(act.type)}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between mb-1">
-                          <h4 className="font-medium text-white">{act.title}</h4>
-                          <span className="text-sm text-gray-400">{act.date}</span>
-                        </div>
-                        <p className="text-sm text-gray-300">{act.description}</p>
-                      </div>
-                    </div>
-                  );
-                })}
+                <div className="text-center p-4 bg-red-50 rounded-lg">
+                  <div className="text-3xl font-bold text-red-600">{team.stats.losses}</div>
+                  <div className="text-sm text-gray-300 mt-1">패배</div>
+                  <div className="text-xs text-gray-400 mt-1">
+                    {((team.stats.losses / team.stats.totalMatches) * 100).toFixed(1)}%
+                  </div>
+                </div>
               </div>
             </div>
           </div>

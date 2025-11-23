@@ -57,7 +57,8 @@ const MatchPage = () => {
       }
     };
     fetchPosts();
-  }, [loadPosts, loadMyApplications, user?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]); // user.id가 변경될 때만 실행
 
   const filteredPosts = useMemo(() => {
     // MATCH 카테고리만 선별

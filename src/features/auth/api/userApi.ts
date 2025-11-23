@@ -16,7 +16,7 @@ export const getProfileByAccountIdApi = async (
   accountId: number
 ): Promise<User> => {
   const res = await axiosInstance.get<User>(
-    `http://localhost:8082${API_USERS_BASE_URL}/profiles/by-account/${accountId}`
+    `${import.meta.env.VITE_USER_API_URL || 'http://localhost:8082'}${API_USERS_BASE_URL}/profiles/by-account/${accountId}`
   );
   return res.data as User;
 };
@@ -26,7 +26,7 @@ export const createProfileApi = async (
   payload: Partial<User> & { accountId: number; name: string }
 ): Promise<User> => {
   const res = await axiosInstance.post<User>(
-    `http://localhost:8082${API_USERS_BASE_URL}/profiles`,
+    `${import.meta.env.VITE_USER_API_URL || 'http://localhost:8082'}${API_USERS_BASE_URL}/profiles`,
     payload
   );
   return res.data as User;
@@ -38,7 +38,7 @@ export const updateMyProfileApi = async (
   updatedData: Partial<UserProfileUpdateDto>
 ): Promise<User> => {
   const res = await axiosInstance.patch<User>(
-    `http://localhost:8082${API_USERS_BASE_URL}/profiles/${profileId}`,
+    `${import.meta.env.VITE_USER_API_URL || 'http://localhost:8082'}${API_USERS_BASE_URL}/profiles/${profileId}`,
     updatedData
   );
   return res.data as User;
@@ -50,7 +50,7 @@ export const fetchPublicUserProfileApi = async (
   try {
     // userId는 실제로 profileId일 수 있음
     const res = await axiosInstance.get(
-      `http://localhost:8082${API_USERS_BASE_URL}/profiles/${userId}`
+      `${import.meta.env.VITE_USER_API_URL || 'http://localhost:8082'}${API_USERS_BASE_URL}/profiles/${userId}`
     );
     const data = res.data;
 
@@ -93,7 +93,7 @@ export const getUserTeamsApi = async (
 
     // 멤버십 조회
     const memRes = await axiosInstance.get(
-      `http://localhost:8083/api/teams/memberships/by-profile/${profileId}`
+      `${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/memberships/by-profile/${profileId}`
     );
     const memberships: any[] = Array.isArray(memRes.data) ? memRes.data : [];
 
@@ -112,7 +112,7 @@ export const getUserTeamsApi = async (
           continue;
         }
 
-        const teamRes = await axiosInstance.get(`http://localhost:8083/api/teams/${teamId}`);
+        const teamRes = await axiosInstance.get(`${import.meta.env.VITE_TEAM_API_URL || 'http://localhost:8083'}/api/teams/${teamId}`);
         const team = teamRes.data || {};
 
         teams.push({
@@ -145,7 +145,7 @@ export const getUserPostsApi = async (
   // 입력은 accountId로 받고, 내부에서 profileId로 변환 후 조회
   const prof = await getProfileByAccountIdApi(Number(_userId));
   const profileId = (prof as any).id as number;
-  const res = await axiosInstance.get(`http://localhost:8084/api/recruit/posts`, {
+  const res = await axiosInstance.get(`${import.meta.env.VITE_RECRUIT_API_URL || 'http://localhost:8084'}/api/recruit/posts`, {
     params: { writerProfileId: profileId },
   });
   const items: any[] = Array.isArray(res.data)

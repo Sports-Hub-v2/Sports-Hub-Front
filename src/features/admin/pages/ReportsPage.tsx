@@ -363,7 +363,7 @@ const autoRules = [
 ];
 
 const ReportsPage = () => {
-  const [reportQueue, setReportQueue] = useState<ReportItem[]>(reportQueueData);
+  const [reportQueue, setReportQueue] = useState<ReportItem[]>([]);
   const [filterType, setFilterType] = useState<string>("all");
   const [filterSeverity, setFilterSeverity] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");

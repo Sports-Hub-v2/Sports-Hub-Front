@@ -12,7 +12,7 @@ import type {
 } from "@/types/recruitPost";
 import type { ApplicationRequestDto } from "@/types/application";
 
-const API_BASE_URL = "http://localhost:8084/api/recruit/posts";
+const API_BASE_URL = `${import.meta.env.VITE_RECRUIT_API_URL || 'http://localhost:8084'}/api/recruit/posts`;
 
 export const fetchRecruitPosts = async (
   category: string,

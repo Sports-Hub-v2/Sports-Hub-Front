@@ -4,6 +4,7 @@ import React from "react";
 import type { PostType } from "@/types/recruitPost";
 import { RecruitStatus } from "@/types/recruitPost";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useNavigate } from "react-router-dom";
 
 interface MercenaryDetailCardProps {
   post: PostType;
@@ -18,7 +19,7 @@ interface MercenaryDetailCardProps {
   onCancelApplication?: () => void; // 신청 취소
 }
 
-// 포지션 한글 매핑 (Downloads 버전에서 가져온 디자인 요소)
+// *추가* 'FW' 같은 키를 '공격수' 같은 문자열로 바꿔주기 위해 필요함.
 const POSITION_LABEL_MAP: { [key: string]: string } = {
     'FW': '공격수',
     'MF': '미드필더',
@@ -67,6 +68,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
   onCancelApplication,
 }) => {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const isTeamToIndividual = post.targetType === "USER";
   const flowLabel = isTeamToIndividual
     ? "🏃‍♂️ 팀 → 용병(개인)"
@@ -80,15 +82,26 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
     : "날짜 미정";
   const formattedTime = post.gameTime || "시간 미정";
 
-  // 신청하기 핸들러 (모달 방식 유지)
+  // *✅ 수정된 부분*
+
+  /*
   const handleApply = () => {
     if (onApply) {
       onApply(post.id);
     }
-  };
+  };*/
 
-  // 포지션 데이터 파싱 (Downloads 버전에서 가져온 로직)
-  // post.positions가 문자열이면 객체로 변환
+   // *✅ 수정된 부분*
+  const handleApply = () => {
+    if (isTeamToIndividual) {
+      // 팀 → 개인 흐름
+      navigate(`/mercenary/${post.id}/teamApply`);
+    } else {
+      // 개인 → 팀 흐름
+      navigate(`/mercenary/${post.id}/personApply`);
+    }
+  }
+   // 1. (⭐️ 추가) post.positions가 문자열이면 객체로 변환
     let positionsObject: { [key: string]: number } | null = null;
     if (post.preferredPositions) {
         if (typeof post.preferredPositions === 'string') {
@@ -104,18 +117,19 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
         }
     }
 
-  // post.positions 데이터를 표시용 문자열로 가공
+  //<✅ 추가한 부분>
+  // 1. post.positions 데이터를 표시용 문자열로 가공
   let positionsDisplay: string | null = null;
 
   if(positionsObject){
       if(positionsObject?.ALL && positionsObject.ALL > 0){
-          // '전체(무관)'이 선택된 경우
+          // 1-1 '전체(무관)'이 선택된 경우
           positionsDisplay = isTeamToIndividual ?
-              `${POSITION_LABEL_MAP['ALL'] || '전체 [무관]'} (${positionsObject.ALL}명)` :
-              (POSITION_LABEL_MAP['ALL'] ?? null);
+              `${POSITION_LABEL_MAP['ALL'] || '전체 [무관]'} (${positionsObject.ALL}명)` : //  예: "전체 (무관) (1명)", 템플릿 문자열 내부에서도 undefined가 될 수 있으니, || 연산자로 기본값을 설정
+              (POSITION_LABEL_MAP['ALL'] ?? null); //undefined일 경우 null을 대신 할당하도록 ?? 연산자를 사용함
       }
       else {
-          // 개별 포지션이 선택된 경우 (0명 초과인 포지션만 필터링)
+          // 1-2. 개별 포지션이 선택된 경우 (0명 초과인 포지션만 필터링)
           const activePositions = Object.entries(positionsObject)
               .filter(([key, count]) => key !== 'ALL' && count > 0)
               .map(([key, count]) => {
@@ -169,6 +183,23 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
   };
 
   const progress = getProgress();
+  
+  /*
+  const handleApply = async () => {
+    const message = prompt("작성자에게 전달할 간단한 메시지를 입력하세요 (선택사항):");
+    if (message === null) return;
+
+    try {
+      const responseMessage = await applyToPostApi(post.id, { message });
+      alert(responseMessage);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("알 수 없는 오류가 발생했습니다.");
+      }
+    }
+  }; */
 
   // 요약 카드 (펼치기 전)
   if (!isExpanded) {
@@ -380,10 +411,11 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
                 <p className="font-semibold text-gray-900">{post.requiredPersonnel}명</p>
               </div>
             )}
-            {positionsDisplay && (
+            {post.preferredPositions && (
               <div>
                 <span className="text-sm text-gray-600">⚽ {positionLabel}</span>
-                <p className="font-semibold text-gray-900">{positionsDisplay}</p>
+                {positionsDisplay &&(<p><strong>{positionLabel}:</strong> {positionsDisplay}</p>)} {/* 이 부분 수정 */}
+                {/*<p className="font-semibold text-gray-900">{post.preferredPositions}</p>*/}
               </div>
             )}
             {post.ageGroup && (
