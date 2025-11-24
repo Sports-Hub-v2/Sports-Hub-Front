@@ -67,13 +67,13 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
   onCancelApplication,
 }) => {
   const { user } = useAuthStore();
-  const isTeamToIndividual = post.targetType === "USER";
-  const flowLabel = isTeamToIndividual
-    ? "🏃‍♂️ 팀 → 용병(개인)"
-    : "🤝 용병(개인) → 팀";
-  const dateLabel = isTeamToIndividual ? "경기 날짜" : "활동 가능 날짜";
-  const timeLabel = isTeamToIndividual ? "경기 시간" : "활동 가능 시간";
-  const positionLabel = isTeamToIndividual ? "모집 포지션" : "선호 포지션";
+  const isTeamToMercenary = post.targetType === "TEAM_TO_MERCENARY";
+  const flowLabel = isTeamToMercenary
+    ? "🏃‍♂️ 팀 → 용병"
+    : "🤝 용병 → 팀";
+  const dateLabel = isTeamToMercenary ? "경기 날짜" : "활동 가능 날짜";
+  const timeLabel = isTeamToMercenary ? "경기 시간" : "활동 가능 시간";
+  const positionLabel = isTeamToMercenary ? "모집 포지션" : "선호 포지션";
 
   const formattedDate = post.gameDate
     ? post.gameDate.toString().split("T")[0]
@@ -110,7 +110,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
   if(positionsObject){
       if(positionsObject?.ALL && positionsObject.ALL > 0){
           // '전체(무관)'이 선택된 경우
-          positionsDisplay = isTeamToIndividual ?
+          positionsDisplay = isTeamToMercenary ?
               `${POSITION_LABEL_MAP['ALL'] || '전체 [무관]'} (${positionsObject.ALL}명)` :
               (POSITION_LABEL_MAP['ALL'] ?? null);
       }
@@ -122,7 +122,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
                   const label = POSITION_LABEL_MAP[key] || key; // 맵에서 한글 이름 찾기
 
                   // '팀->개인'일 때는 인원수 표시, '개인->팀'일 때는 포지션 이름만 표시
-                  return isTeamToIndividual ? `${label} (${count}명)` : label;
+                  return isTeamToMercenary ? `${label} (${count}명)` : label;
               });
 
           if (activePositions.length > 0) {
@@ -298,7 +298,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
 
       <div className="p-6">
         {/* 모집 진행 현황 */}
-        {isTeamToIndividual && progress && (
+        {isTeamToMercenary && progress && (
           <div className="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -374,7 +374,7 @@ const MercenaryDetailCard: React.FC<MercenaryDetailCardProps> = ({
         <div className="mb-6">
           <h3 className="font-bold text-gray-900 mb-3 text-lg">⚽ 모집 조건</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-gray-50 p-4 rounded-lg">
-            {isTeamToIndividual && post.requiredPersonnel != null && (
+            {isTeamToMercenary && post.requiredPersonnel != null && (
               <div>
                 <span className="text-sm text-gray-600">👥 필요 인원</span>
                 <p className="font-semibold text-gray-900">{post.requiredPersonnel}명</p>

@@ -14,36 +14,40 @@ const API_BASE_URL = "/api/auth";
 export const signupApi = async (
   userData: UserSignUpRequestDto
 ): Promise<any> => {
-  // 1) Create account (userid optional)
-  const accountRes = await axiosInstance.post(
-    `${API_BASE_URL}/accounts`,
+  // 1) Create account using /api/auth/register
+  const registerRes = await axiosInstance.post(
+    `${API_BASE_URL}/register`,
     {
       email: userData.email,
       password: userData.password,
-      role: "USER",
       userid: (userData as any).userid ?? undefined,
     },
     { headers: { "Content-Type": "application/json" } }
   );
-  const account = accountRes.data as { id: number };
+
+  // registerRes.data contains { account: {...}, tokens: {...} }
+  const account = registerRes.data.account as { id: number };
 
   // 2) Create profile
   const profileBody: any = {
     accountId: account.id,
       name: userData.name,
       region: userData.region ?? undefined,
-      subRegion: userData.subRegion ?? undefined,  // 추가
+      subRegion: userData.subRegion ?? undefined,
       preferredPosition: userData.preferredPosition ?? undefined,
-      skillLevel: userData.skillLevel ?? undefined,  // 추가
-      isExPlayer: userData.isExPlayer ?? false,  // Boolean으로 직접 전송
+      skillLevel: userData.skillLevel ?? undefined,
+      isExPlayer: userData.isExPlayer ?? false,
       phoneNumber: userData.phoneNumber ?? undefined,
-      birthDate: userData.birthDate ?? undefined,  // 추가
+      birthDate: userData.birthDate ?? undefined,
+      height: userData.height ? parseInt(String(userData.height)) : undefined,
+      weight: userData.weight ? parseInt(String(userData.weight)) : undefined,
   };
   Object.keys(profileBody).forEach(
     (k) => profileBody[k] === undefined && delete profileBody[k]
   );
 
-  await axiosInstance.post(`/api/users/profiles`, profileBody, {
+  const USER_API_URL = import.meta.env.VITE_USER_API_URL || 'http://localhost:8082';
+  await axiosInstance.post(`${USER_API_URL}/api/users/profiles`, profileBody, {
     headers: { "Content-Type": "application/json" },
   });
 

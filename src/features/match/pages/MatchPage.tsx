@@ -10,7 +10,7 @@ import {
   RecruitPostCreationRequestDto,
 } from "@/types/recruitPost";
 import MatchDetailCard from "@/features/match/components/MatchDetailCard";
-import MatchRecruitModal from "@/features/match/components/MatchRecruitModal";
+import { ImprovedMatchRecruitModal } from "@/features/match/components/ImprovedMatchRecruitModal";
 import MatchApplicationModal from "@/features/match/components/MatchApplicationModal";
 import MatchRecruitCard from "@/components/common/MatchRecruitCard";
 import MatchDayStyleFilter from "@/components/common/MatchDayStyleFilter";
@@ -206,19 +206,9 @@ const MatchPage = () => {
       {/* 페이지 헤더 */}
       <div className="bg-white shadow-sm border-b border-gray-200 pt-16">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">모집 중인 경기</h1>
-              <p className="text-gray-500 mt-1">함께할 경기를 찾아보세요</p>
-            </div>
-            {user && (
-              <button
-                onClick={() => setModalOpen(true)}
-                className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition-colors"
-              >
-                + 경기 만들기
-              </button>
-            )}
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">모집 중인 경기</h1>
+            <p className="text-gray-500 mt-1">함께할 경기를 찾아보세요</p>
           </div>
         </div>
       </div>
@@ -231,8 +221,22 @@ const MatchPage = () => {
         onRegionChange={(region) => setSelectedRegion(region)}
       />
 
+      {/* 글쓰기 버튼 */}
+      {user && (
+        <div className="max-w-7xl mx-auto px-4 mt-4">
+          <div className="flex justify-end">
+            <button
+              onClick={() => setModalOpen(true)}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+            >
+              ✍️ 경기 모집글 작성
+            </button>
+          </div>
+        </div>
+      )}
+
       {isModalOpen && (
-        <MatchRecruitModal
+        <ImprovedMatchRecruitModal
           isOpen={isModalOpen}
           onClose={() => setModalOpen(false)}
           onSubmit={handleCreate}

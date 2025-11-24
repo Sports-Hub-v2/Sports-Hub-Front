@@ -93,19 +93,19 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
       <div className="relative min-h-screen flex items-center justify-center p-4">
         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
           {/* 헤더 */}
-          <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-500 to-green-500 text-white p-6">
+          <div className="sticky top-0 z-10 bg-slate-900 text-white p-6 border-b border-slate-700">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-2xl font-bold">
                   {isEditMode ? "모집글 수정" : "새 모집글 작성"}
                 </h2>
-                <p className="text-blue-100 mt-1">
+                <p className="text-gray-300 mt-1">
                   조기축구 팀원을 모집해보세요
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-800 rounded-lg transition-colors"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -119,8 +119,8 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                   onClick={() => setActiveTab(index)}
                   className={`pb-2 px-1 border-b-2 transition-all ${
                     activeTab === index
-                      ? "border-white text-white font-semibold"
-                      : "border-transparent text-blue-100 hover:text-white"
+                      ? "border-indigo-500 text-white font-semibold"
+                      : "border-transparent text-gray-400 hover:text-white"
                   }`}
                 >
                   {tab}
@@ -149,7 +149,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                       }
                       className={`p-4 rounded-xl border-2 transition-all ${
                         formData.targetType === "USER"
-                          ? "border-blue-500 bg-blue-50"
+                          ? "border-indigo-500 bg-indigo-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -167,7 +167,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                       }
                       className={`p-4 rounded-xl border-2 transition-all ${
                         formData.targetType === "TEAM"
-                          ? "border-blue-500 bg-blue-50"
+                          ? "border-indigo-500 bg-indigo-50"
                           : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
@@ -191,7 +191,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                     onChange={(e) =>
                       setFormData({ ...formData, title: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 transition-all"
                     placeholder={
                       formData.targetType === "USER"
                         ? "예: [강남구] 조기축구 용병 모집 - 미드필더"
@@ -213,7 +213,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                       onChange={(e) =>
                         setFormData({ ...formData, region: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                       required
                     >
                       <option value="">지역 선택</option>
@@ -237,7 +237,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                       onChange={(e) =>
                         setFormData({ ...formData, subRegion: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                       placeholder="예: 강남구, 분당구"
                     />
                   </div>
@@ -264,7 +264,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                       onChange={(e) =>
                         setFormData({ ...formData, gameDate: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                       required
                     />
                   </div>
@@ -281,7 +281,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                       onChange={(e) =>
                         setFormData({ ...formData, gameTime: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                     />
                   </div>
                 </div>
@@ -302,7 +302,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                           requiredPersonnel: parseInt(e.target.value),
                         })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                       min="1"
                       max="30"
                       required
@@ -322,7 +322,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                             preferredPositions: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                       >
                         <option value="">포지션 선택</option>
                         <option value="골키퍼">골키퍼 (GK)</option>
@@ -344,7 +344,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                             skillLevel: e.target.value,
                           })
                         }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                       >
                         <option value="">실력 선택</option>
                         <option value="초급">초급 (취미 수준)</option>
@@ -511,7 +511,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                       onChange={(e) =>
                         setFormData({ ...formData, ageGroup: e.target.value })
                       }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                     >
                       <option value="">연령대 선택</option>
                       <option value="20대">20대</option>
@@ -527,7 +527,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
           </form>
 
           {/* 하단 버튼 */}
-          <div className="sticky bottom-0 bg-gray-50 border-t p-4 flex justify-between">
+          <div className="sticky bottom-0 bg-gray-50 border-t border-gray-200 p-4 flex justify-between">
             <button
               type="button"
               onClick={onClose}
@@ -549,14 +549,14 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setActiveTab(activeTab + 1)}
-                  className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                 >
                   다음
                 </button>
               ) : (
                 <button
                   onClick={handleSubmit}
-                  className="px-8 py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg hover:from-blue-600 hover:to-green-600 transition-all transform hover:scale-105"
+                  className="px-8 py-3 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-50"
                 >
                   {isEditMode ? "수정 완료" : "작성 완료"}
                 </button>

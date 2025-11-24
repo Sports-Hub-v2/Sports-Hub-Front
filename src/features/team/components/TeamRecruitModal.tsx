@@ -133,13 +133,16 @@ const TeamRecruitModal: React.FC<Props> = ({
       imageUrl: formData.thumbnailUrl.trim() || undefined,
       matchDate: undefined,
       category: "TEAM",
-      targetType: "USER",
+      targetType: "TEAM_TO_MERCENARY",
       status: "RECRUITING",
       requiredPersonnel: formData.requiredPersonnel ? Number(formData.requiredPersonnel) : undefined,
       preferredPositions: formData.preferredPositions.trim() || undefined,
       ageGroup: formData.ageGroup.trim() || undefined,
       skillLevel: formData.teamLevel || undefined,
       fieldLocation: formData.fieldLocation.trim() || undefined,
+      // 새로 추가된 팀 모집 관련 필드
+      activityDays: formData.activityDay.trim() || undefined,
+      activityTime: formData.activityTime.trim() || undefined,
     };
 
     try {

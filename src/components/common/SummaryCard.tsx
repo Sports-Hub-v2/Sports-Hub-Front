@@ -21,12 +21,14 @@ const getRecruitmentTypeInfo = (
   let textColorClass = "text-gray-700";
 
   if (category === RecruitCategory.MERCENARY || category === RecruitCategory.TEAM) {
-    if (targetType === RecruitTargetType.USER) {
-      label = category === RecruitCategory.MERCENARY ? "팀 → 용병(개인)" : "팀 → 팀원";
+    // targetType을 문자열로 비교
+    const targetTypeStr = targetType as string;
+    if (targetTypeStr === "TEAM_TO_MERCENARY") {
+      label = category === RecruitCategory.MERCENARY ? "팀 → 용병" : "팀 → 팀원";
       bgColorClass = "bg-blue-100";
       textColorClass = "text-blue-700";
-    } else if (targetType === RecruitTargetType.TEAM) {
-      label = category === RecruitCategory.MERCENARY ? "용병(개인) → 팀" : "개인 → 팀 합류";
+    } else if (targetTypeStr === "MERCENARY_TO_TEAM") {
+      label = category === RecruitCategory.MERCENARY ? "용병 → 팀" : "개인 → 팀 합류";
       bgColorClass = "bg-green-100";
       textColorClass = "text-green-700";
     }

@@ -140,12 +140,16 @@ const MatchRecruitModal: React.FC<Props> = ({
       matchDate: formData.gameDate || undefined,
       gameTime: formData.gameTime || undefined,
       category: "MATCH",
-      targetType: "TEAM",
+      targetType: "TEAM_TO_TEAM",
       status: "RECRUITING",
       ageGroup: formData.ageGroup.trim() || undefined,
       skillLevel: formData.skillLevel || undefined,
       fieldLocation: formData.location.trim() || undefined,
       requiredPersonnel: formData.requiredPersonnel ? Number(formData.requiredPersonnel) : undefined,
+      // 새로 추가된 경기 매치 관련 필드
+      matchType: formData.matchType || undefined,
+      teamSize: formData.teamSize || undefined,
+      fieldType: formData.field || undefined,
     };
 
     try {

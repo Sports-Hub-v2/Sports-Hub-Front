@@ -33,6 +33,18 @@ export interface PostType {
   // 조기축구 특화 필드들
   fieldLocation?: string; // 경기 장소 (네이버 지도 연결용)
 
+  // 경기 매치 관련 필드
+  matchType?: string; // 친선경기, 연습경기, 리그전, 토너먼트
+  teamSize?: string; // 5vs5, 6vs6, 7vs7, 8vs8, 11vs11
+  fieldType?: string; // 잔디구장, 인조잔디, 풋살장
+  cost?: number; // 참가비
+  parkingAvailable?: boolean; // 주차 가능 여부
+  showerFacilities?: boolean; // 샤워 시설 여부
+
+  // 팀 모집 관련 필드
+  activityDays?: string; // 주 활동 요일
+  activityTime?: string; // 주 활동 시간대
+
   // 알림 관련 필드들 (추후 구현)
   notificationSettings?: {
     enabled: boolean; // 알림 활성화 여부
@@ -64,8 +76,12 @@ export enum RecruitCategory {
 }
 
 export enum RecruitTargetType {
-  USER = "USER",
-  TEAM = "TEAM",
+  TEAM_TO_MERCENARY = "TEAM_TO_MERCENARY",
+  MERCENARY_TO_TEAM = "MERCENARY_TO_TEAM",
+  TEAM_TO_TEAM = "TEAM_TO_TEAM",
+  // 하위 호환성을 위한 레거시 값들
+  USER = "TEAM_TO_MERCENARY",
+  TEAM = "MERCENARY_TO_TEAM",
 }
 
 export enum ParticipantType {
@@ -104,7 +120,7 @@ export interface RecruitPostCreationRequestDto {
   gameDate?: string; // LocalDate -> ISO string (YYYY-MM-DD)
   gameTime?: string; // 경기 시간
   category?: string; // "MERCENARY", "TEAM", "MATCH"
-  targetType?: string; // "USER", "TEAM"
+  targetType?: string; // "TEAM_TO_MERCENARY", "MERCENARY_TO_TEAM", "TEAM_TO_TEAM"
   status?: string; // "RECRUITING", "COMPLETED"
   requiredPersonnel?: number; // 모집 인원
   preferredPositions?: string; // 선호 포지션
@@ -115,6 +131,17 @@ export interface RecruitPostCreationRequestDto {
   fieldLocation?: string; // 구장 위치
   parkingAvailable?: boolean;
   showerFacilities?: boolean;
+  // 경기 매치 관련 필드
+  matchType?: string; // 친선경기, 연습경기, 리그전, 토너먼트
+  teamSize?: string; // 5vs5, 6vs6, 7vs7, 8vs8, 11vs11
+  fieldType?: string; // 잔디구장, 인조잔디, 풋살장
+  // 팀 모집 관련 필드
+  activityDays?: string; // 주 활동 요일
+  activityTime?: string; // 주 활동 시간대
+  // 추가 공통 필드
+  minPlayers?: number;
+  maxPlayers?: number;
+  matchRules?: string;
 }
 
 /**

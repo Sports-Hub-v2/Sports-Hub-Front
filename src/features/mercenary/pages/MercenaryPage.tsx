@@ -243,19 +243,21 @@ const MercenaryPage = () => {
 
           {/* 필터 */}
           <MatchDayStyleFilter onSearch={(q) => setSearch(q)} searchValue={search} />
+        </div>
 
-          {/* 글쓰기 버튼 */}
-          {user && (
-            <div className="flex justify-end mt-4">
+        {/* 글쓰기 버튼 */}
+        {user && (
+          <div className="max-w-7xl mx-auto mb-4">
+            <div className="flex justify-end">
               <button
                 onClick={handleOpenCreateModal}
-                className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2"
+                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
               >
                 ✍️ 용병 모집글 작성
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* 모집글 작성/수정 모달 */}
         <RecruitPostModal

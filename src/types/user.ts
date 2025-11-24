@@ -47,8 +47,13 @@ export interface UserSignUpRequestDto {
   password: string;
   isExPlayer?: boolean;
   region?: string;
+  subRegion?: string;
   preferredPosition?: string;
+  skillLevel?: string;
   phoneNumber?: string;
+  birthDate?: string;
+  height?: number | string;
+  weight?: number | string;
 }
 
 /**

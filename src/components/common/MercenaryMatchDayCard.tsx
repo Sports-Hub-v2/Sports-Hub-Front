@@ -49,7 +49,7 @@ const MercenaryMatchDayCard: React.FC<MercenaryMatchDayCardProps> = ({
 
   // 모집 타입에 따른 스타일링
   const getTypeInfo = () => {
-    if (post.targetType === "USER") {
+    if (post.targetType === "TEAM_TO_MERCENARY") {
       return {
         emoji: "🏃‍♂️",
         label: "팀 → 용병",

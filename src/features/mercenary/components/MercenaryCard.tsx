@@ -11,9 +11,11 @@ const MercenaryCard = ({ post, onClick }: Props) => {
   // 조기축구 특화 정보 표시
   const getPostTypeLabel = () => {
     if (post.category === "MERCENARY") {
-      return post.targetType === "USER"
-        ? "🏃‍♂️ 팀 → 용병(개인)"
-        : "🤝 용병(개인) → 팀";
+      if (post.targetType === "TEAM_TO_MERCENARY") {
+        return "🏃‍♂️ 팀 → 용병";
+      } else if (post.targetType === "MERCENARY_TO_TEAM") {
+        return "🤝 용병 → 팀";
+      }
     }
     return "⚽ 용병 모집";
   };
@@ -188,6 +190,14 @@ const MercenaryCard = ({ post, onClick }: Props) => {
 
         {/* 조기축구 핵심 정보 */}
         <div className="space-y-1 text-sm text-gray-600">
+          {/* 팀→용병인 경우 팀 이름 표시 */}
+          {post.targetType === "TEAM_TO_MERCENARY" && post.teamName && (
+            <div className="flex items-center gap-1 text-blue-700 bg-blue-50 px-2 py-1 rounded">
+              <span>👥</span>
+              <span className="font-semibold">{post.teamName}</span>
+            </div>
+          )}
+
           <div className="flex items-center gap-1">
             <span>📍</span>
             <span>{post.region || "지역 미설정"}</span>
