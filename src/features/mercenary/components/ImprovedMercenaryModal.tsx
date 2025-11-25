@@ -367,7 +367,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                     onChange={(e) =>
                       setFormData({ ...formData, content: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                     rows={6}
                     placeholder={
                       formData.targetType === "USER"
@@ -398,7 +398,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                           cost: parseInt(e.target.value) || 0,
                         })
                       }
-                      className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                       placeholder="0"
                       min="0"
                     />
@@ -423,7 +423,7 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
                     onChange={(e) =>
                       setFormData({ ...formData, imageUrl: e.target.value })
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
                     placeholder="이미지 URL을 입력하세요 (선택사항)"
                   />
                   {formData.imageUrl && (
