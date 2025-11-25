@@ -5,9 +5,7 @@ import {
   MapPin,
   Users,
   Clock,
-  DollarSign,
   Info,
-  Image,
 } from "lucide-react";
 import {
   PostType,
@@ -38,22 +36,14 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
     gameDate: initialData?.gameDate || "",
     gameTime: initialData?.gameTime || "",
     requiredPersonnel: initialData?.requiredPersonnel || 10,
-    cost: initialData?.cost || 0,
-    imageUrl: initialData?.imageUrl || "",
     preferredPositions: initialData?.preferredPositions || "",
     ageGroup: initialData?.ageGroup || "",
     skillLevel: initialData?.skillLevel || "",
-    // 편의시설 정보
-    facilities: {
-      parking: false,
-      shower: false,
-      store: false,
-    },
   });
 
   if (!isOpen) return null;
 
-  const tabs = ["기본 정보", "상세 정보", "추가 설정"];
+  const tabs = ["기본 정보", "상세 정보"];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +62,6 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
       preferredPositions: formData.preferredPositions,
       ageGroup: formData.ageGroup,
       skillLevel: formData.skillLevel,
-      imageUrl: formData.imageUrl,
-      cost: formData.cost,
       teamId: 1, // TODO: 실제 사용자 팀 ID로 변경
       writerProfileId: 1, // TODO: 실제 사용자 프로필 ID로 변경
     };
@@ -379,151 +367,6 @@ export const ImprovedMercenaryModal: React.FC<ImprovedMercenaryModalProps> = ({
               </div>
             )}
 
-            {/* 추가 설정 탭 */}
-            {activeTab === 2 && (
-              <div className="space-y-6">
-                {/* 참가비 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <DollarSign className="inline w-4 h-4 mr-1" />
-                    {formData.targetType === "USER" ? "참가비" : "희망 참가비"}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      value={formData.cost}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          cost: parseInt(e.target.value) || 0,
-                        })
-                      }
-                      className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
-                      placeholder="0"
-                      min="0"
-                    />
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-                      ₩
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    0원 입력 시 '무료'로 표시됩니다
-                  </p>
-                </div>
-
-                {/* 이미지 URL */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <Image className="inline w-4 h-4 mr-1" />
-                    대표 이미지
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.imageUrl}
-                    onChange={(e) =>
-                      setFormData({ ...formData, imageUrl: e.target.value })
-                    }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
-                    placeholder="이미지 URL을 입력하세요 (선택사항)"
-                  />
-                  {formData.imageUrl && (
-                    <div className="mt-4 rounded-lg overflow-hidden border border-gray-200">
-                      <img
-                        src={formData.imageUrl}
-                        alt="미리보기"
-                        className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* 편의시설 정보 */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    편의시설 정보
-                  </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="mr-2 rounded"
-                        checked={formData.facilities.parking}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            facilities: {
-                              ...formData.facilities,
-                              parking: e.target.checked,
-                            },
-                          })
-                        }
-                      />
-                      <span>🅿️ 주차 가능</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="mr-2 rounded"
-                        checked={formData.facilities.shower}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            facilities: {
-                              ...formData.facilities,
-                              shower: e.target.checked,
-                            },
-                          })
-                        }
-                      />
-                      <span>🚿 샤워실 구비</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="mr-2 rounded"
-                        checked={formData.facilities.store}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            facilities: {
-                              ...formData.facilities,
-                              store: e.target.checked,
-                            },
-                          })
-                        }
-                      />
-                      <span>🏪 편의점 인근</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* 연령대 설정 (팀 모집 시) */}
-                {formData.targetType === "USER" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      선호 연령대
-                    </label>
-                    <select
-                      value={formData.ageGroup}
-                      onChange={(e) =>
-                        setFormData({ ...formData, ageGroup: e.target.value })
-                      }
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
-                    >
-                      <option value="">연령대 선택</option>
-                      <option value="20대">20대</option>
-                      <option value="30대">30대</option>
-                      <option value="40대">40대</option>
-                      <option value="50대 이상">50대 이상</option>
-                      <option value="무관">연령 무관</option>
-                    </select>
-                  </div>
-                )}
-              </div>
-            )}
           </form>
 
           {/* 하단 버튼 */}
