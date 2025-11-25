@@ -9,7 +9,7 @@ import type { PostType, RecruitPostCreationRequestDto } from "@/types/recruitPos
 import { RecruitCategory } from "@/types/recruitPost";
 import { getProfileByAccountIdApi } from "@/features/auth/api/userApi";
 
-import RecruitPostModal from "@/components/common/RecruitPostModal";
+import ImprovedRecruitPostModal from "@/components/common/ImprovedRecruitPostModal";
 import MercenaryDetailCard from "@/features/mercenary/components/MercenaryDetailCard";
 import MercenaryMatchDayCard from "@/components/common/MercenaryMatchDayCard";
 import ApplicationModal from "@/features/mercenary/components/ApplicationModal";
@@ -260,7 +260,7 @@ const MercenaryPage = () => {
         )}
 
         {/* 모집글 작성/수정 모달 */}
-        <RecruitPostModal
+        <ImprovedRecruitPostModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           onSubmit={handleSavePost}
